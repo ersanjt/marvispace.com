@@ -4,8 +4,11 @@
  */
 
 import { DEVELOPER } from '../config/site.js';
+import { mountSiteFooter } from './site-footer.js';
 
 export function mountDeveloperCredit(root = document) {
+  mountSiteFooter(root);
+
   if (root.querySelector('[data-developer-credit]')) return;
 
   const anchor = root.querySelector('.site-footer, .site-page, main.checkout-page, #adminApp');

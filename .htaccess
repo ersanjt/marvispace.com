@@ -19,17 +19,35 @@
   RewriteRule ^products\.js$ /assets/js/data/products.js [R=301,L,NC]
   RewriteRule ^images/(.*)$ /assets/images/$1 [R=301,L,NC]
 
-  # Redirect legacy .html URLs to clean paths
+  # Redirect legacy .html URLs to clean paths (only when the browser requested .html)
+  RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
   RewriteRule ^index\.html$ / [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+checkout\.html[\s?] [NC]
   RewriteRule ^checkout\.html$ /checkout [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+admin\.html[\s?] [NC]
   RewriteRule ^admin\.html$ /admin [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+contact\.html[\s?] [NC]
   RewriteRule ^contact\.html$ /contact [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+terms\.html[\s?] [NC]
   RewriteRule ^terms\.html$ /terms [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+privacy\.html[\s?] [NC]
   RewriteRule ^privacy\.html$ /privacy [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+accessibility\.html[\s?] [NC]
   RewriteRule ^accessibility\.html$ /accessibility [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+order-status\.html[\s?] [NC]
   RewriteRule ^order-status\.html$ /order-status [R=301,L,NC]
 
-  # Clean URL routes
+  RewriteCond %{THE_REQUEST} \s/+privacy-right-center\.html[\s?] [NC]
+  RewriteRule ^privacy-right-center\.html$ /privacy-right-center [R=301,L,NC]
+
+  # Clean URL routes (internal rewrite — no redirect)
   RewriteRule ^checkout/?$ checkout.html [L,NC]
   RewriteRule ^admin/?$ admin.html [L,NC]
   RewriteRule ^contact/?$ contact.html [L,NC]
@@ -37,14 +55,17 @@
   RewriteRule ^privacy/?$ privacy.html [L,NC]
   RewriteRule ^accessibility/?$ accessibility.html [L,NC]
   RewriteRule ^order-status/?$ order-status.html [L,NC]
+  RewriteRule ^privacy-right-center/?$ privacy-right-center.html [L,NC]
 </IfModule>
 
 DirectoryIndex index.html
 
-# ES modules
+# ES modules + UTF-8 (keeps comments readable in browser)
 <IfModule mod_mime.c>
+  AddDefaultCharset UTF-8
   AddType application/javascript .js
   AddType text/css .css
+  AddCharset UTF-8 .js .css .html .svg
 </IfModule>
 
 # Static assets caching

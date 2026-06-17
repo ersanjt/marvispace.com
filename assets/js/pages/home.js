@@ -707,6 +707,8 @@ szAdd.addEventListener('click', () => {
   setTimeout(() => {
     szNameStack.dataset.alt = 'false';
     closeSizes();
+    closePreview(false);
+    window.location.href = '/checkout';
   }, 800);
 });
 

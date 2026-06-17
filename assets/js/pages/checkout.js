@@ -1,4 +1,5 @@
 import { products as seedProducts } from '../data/products.js';
+import { COUNTRIES } from '../data/countries.js';
 import {
   addOrder,
   clearCart,
@@ -20,19 +21,37 @@ const summaryMobile = document.getElementById('summaryMobile');
 const checkoutForm = document.getElementById('checkoutForm');
 const paymentPlaceholder = document.getElementById('paymentPlaceholder');
 const paymentOptions = document.getElementById('paymentOptions');
+const paymentMethodInput = document.getElementById('paymentMethod');
+const checkoutActions = document.getElementById('checkoutActions');
 const placeOrderBtn = document.getElementById('placeOrderBtn');
 const countryEl = document.getElementById('country');
 const taxNote = document.getElementById('taxNote');
+const checkoutCartCount = document.getElementById('checkoutCartCount');
+const phoneCodeEl = document.getElementById('phoneCode');
+const phoneCodeLabel = document.getElementById('phoneCodeLabel');
+const phoneCodeBtn = document.getElementById('phoneCodeBtn');
 
 let cartItems = getCart();
 let products = getProducts(seedProducts);
+let selectedPayment = '';
 
 if (!cartItems.length) {
   window.location.replace('/');
 }
 
+function cartQtyTotal() {
+  return cartItems.reduce((sum, item) => sum + item.qty, 0);
+}
+
 function subtotal() {
   return cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
+}
+
+function populateCountries() {
+  countryEl.innerHTML = COUNTRIES.map(([code, name]) =>
+    `<option value="${code}">${name.toUpperCase()}</option>`,
+  ).join('');
+  countryEl.value = 'TR';
 }
 
 function changeQty(index, delta) {
@@ -59,12 +78,12 @@ function renderSummary() {
   const empty = !cartItems.length;
   const totals = { subtotal: subtotal(), taxes: 0 };
 
+  checkoutCartCount.textContent = String(cartQtyTotal());
   summaryEmpty.hidden = !empty;
   summaryEmptyMobile.hidden = !empty;
   summaryTotals.hidden = empty;
   summaryTotalsMobile.hidden = empty;
   summaryMobile.hidden = empty;
-  placeOrderBtn.disabled = empty;
 
   if (empty) {
     summaryItems.innerHTML = '';
@@ -78,15 +97,54 @@ function renderSummary() {
   renderTotalsBlock(summaryTotalsMobile, totals);
 }
 
+function clearPaymentSelection() {
+  selectedPayment = '';
+  paymentMethodInput.value = '';
+  paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
+    btn.classList.remove('is-selected');
+  });
+  checkoutActions.hidden = true;
+}
+
+function selectPayment(method) {
+  selectedPayment = method;
+  paymentMethodInput.value = method;
+  paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
+    btn.classList.toggle('is-selected', btn.dataset.payment === method);
+  });
+  checkoutActions.hidden = false;
+}
+
 function updatePaymentState() {
   const ready = checkoutForm.checkValidity();
   paymentPlaceholder.hidden = ready;
-  paymentOptions.hidden = !ready;
+  paymentOptions.classList.toggle('payment-methods--locked', !ready);
+
+  paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
+    const isCard = btn.dataset.payment === 'card';
+    btn.disabled = !ready || !isCard;
+  });
+
+  if (!ready) clearPaymentSelection();
 }
 
 function updateTaxNote() {
   taxNote.hidden = countryEl.value !== 'TR';
 }
+
+function syncPhoneCodeLabel() {
+  phoneCodeLabel.textContent = phoneCodeEl.value;
+}
+
+phoneCodeEl.addEventListener('change', syncPhoneCodeLabel);
+phoneCodeBtn.addEventListener('click', () => phoneCodeEl.focus());
+
+paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.disabled || paymentOptions.classList.contains('payment-methods--locked')) return;
+    selectPayment(btn.dataset.payment);
+  });
+});
 
 document.querySelectorAll('[data-discount-toggle]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -99,11 +157,12 @@ document.querySelectorAll('[data-discount-toggle]').forEach(btn => {
 });
 
 checkoutForm.addEventListener('input', updatePaymentState);
+checkoutForm.addEventListener('change', updatePaymentState);
 countryEl.addEventListener('change', updateTaxNote);
 
 checkoutForm.addEventListener('submit', e => {
   e.preventDefault();
-  if (!cartItems.length) return;
+  if (!cartItems.length || !selectedPayment) return;
 
   const formData = new FormData(checkoutForm);
   const order = {
@@ -144,7 +203,9 @@ checkoutForm.addEventListener('submit', e => {
   window.location.href = '/?ordered=1';
 });
 
+populateCountries();
 renderSummary();
 updatePaymentState();
 updateTaxNote();
+syncPhoneCodeLabel();
 mountDeveloperCredit();

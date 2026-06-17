@@ -335,6 +335,12 @@ a { color: inherit; text-decoration: none; }
 /* ═══════════════════════════════════════
    PRODUCT GRID
    ═══════════════════════════════════════ */
+#page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--nav-h));
+}
+
 .product-grid {
   --cols: 6;
   --tx: 0px;
@@ -437,52 +443,6 @@ a { color: inherit; text-decoration: none; }
 
 
 /* ═══════════════════════════════════════
-   SITE FOOTER
-   ═══════════════════════════════════════ */
-.site-footer {
-  width: 100%;
-  padding: 20px 16px 40px;
-  display: flex;
-  justify-content: center;
-}
-.footer-list {
-  list-style: none;
-  margin: 0; padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px 12px;
-}
-.foot-link {
-  font-size: 10px;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  opacity: 0.5;
-  transition: opacity 0.2s ease;
-}
-.foot-link:hover { opacity: 1; }
-
-.site-credit {
-  width: 100%;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(0,0,0,0.08);
-  text-align: center;
-  font-size: 8px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.32;
-}
-
-.site-credit a {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.site-credit a:hover { opacity: 0.85; }
-
-
-/* ═══════════════════════════════════════
    PREVIEW OVERLAY
    ═══════════════════════════════════════ */
 .preview {
@@ -541,25 +501,48 @@ a { color: inherit; text-decoration: none; }
   aspect-ratio: 1 / 1;
 }
 
-/* Prev / Next */
+/* Prev / Next — Yeezy-style edge chevrons */
 .p-nav {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  font-size: 22px;
-  font-weight: 300;
-  line-height: 1;
-  opacity: 0.35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  padding: 12px;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: #000;
+  opacity: 0.22;
   z-index: 110;
+  cursor: pointer;
   transition: opacity 0.2s ease;
 }
-.p-nav:hover { opacity: 0.85; }
-.p-prev { left: max(12px, 2vw); }
-.p-next { right: max(12px, 2vw); }
+
+.p-nav-icon {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+}
+
+.p-nav:hover,
+.p-nav:focus-visible {
+  opacity: 0.5;
+}
+
+.p-prev {
+  left: 0;
+  padding-left: max(6px, 1.25vw);
+}
+
+.p-next {
+  right: 0;
+  padding-right: max(6px, 1.25vw);
+}
 
 /* Image mover */
 .img-mover {

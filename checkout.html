@@ -8,6 +8,7 @@
   <meta name="description" content="Secure checkout at MARVISPACE. Complete your order for premium leather apparel with fast shipping." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="canonical" href="https://marvispace.com/checkout" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -17,176 +18,208 @@
 </head>
 <body>
 
-  <header class="checkout-nav">
-    <a class="back-link" href="/" aria-label="Back to store">‹</a>
-    <a class="brand" href="/">MARVISPACE</a>
-    <span class="nav-spacer"></span>
-  </header>
+  <div class="checkout-shell" id="checkout">
+    <header class="checkout-nav">
+      <a class="back-link" href="/" aria-label="Back to store">‹</a>
+      <div class="checkout-wallet" aria-label="MARVISPACE wallet">
+        <span class="wallet-brand">MARVISPACE</span>
+        <span class="wallet-bag">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 9h10l-1.2 9H8.2L7 9Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M9 9V7a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <span id="checkoutCartCount">0</span>
+        </span>
+      </div>
+    </header>
 
-  <main class="checkout-page">
-    <div class="checkout-layout">
+    <main class="checkout-page">
+      <div class="checkout-layout">
 
-      <section class="checkout-form-col">
-        <div class="summary-mobile" id="summaryMobile">
-          <h2 class="cart-summary-heading">Order Summary</h2>
-          <div class="cart-lines" id="summaryItemsMobile"></div>
-          <p class="cart-empty-msg" id="summaryEmptyMobile" hidden>Your cart is empty</p>
-          <div id="summaryTotalsMobile" hidden></div>
-          <button type="button" class="cart-discount-link" data-discount-toggle>MARVISPACE code</button>
-          <div class="cart-discount-form" data-discount-form hidden>
-            <input type="text" placeholder="Enter code" aria-label="Discount code" />
-            <button type="button">Apply</button>
+        <section class="checkout-form-col">
+          <div class="summary-mobile" id="summaryMobile">
+            <h2 class="cart-summary-heading">Order Summary</h2>
+            <div class="cart-lines" id="summaryItemsMobile"></div>
+            <p class="cart-empty-msg" id="summaryEmptyMobile" hidden>Your cart is empty</p>
+            <div id="summaryTotalsMobile" hidden></div>
+            <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false">MARVISPACE code</button>
+            <div class="cart-discount-form" data-discount-form hidden>
+              <input type="text" placeholder="Enter code" aria-label="Discount code" />
+              <button type="button">Apply</button>
+            </div>
           </div>
-        </div>
 
-        <section class="express-checkout" aria-label="Express checkout">
-          <h3 class="express-heading">Express Checkout</h3>
-          <div class="express-row">
-            <button type="button" class="express-btn" disabled>Apple Pay</button>
-            <button type="button" class="express-btn" disabled>G Pay</button>
-            <button type="button" class="express-btn" disabled>PayPal</button>
-          </div>
-          <div class="express-divider">
-            <span></span>
-            <span>Or continue below</span>
-            <span></span>
-          </div>
+          <section class="express-checkout" aria-label="Express checkout">
+            <h3 class="express-heading">Express Checkout</h3>
+            <div class="express-row">
+              <div class="express-slot">
+                <button type="button" class="express-btn express-btn--apple" disabled aria-label="Apple Pay">
+                  <svg viewBox="0 0 512 211" aria-hidden="true"><path fill="currentColor" d="M93.552 27.103c-6 7.1-15.602 12.702-25.203 11.901c-1.2-9.6 3.5-19.802 9.001-26.103C83.35 5.601 93.852.4 102.353 0c1 10.001-2.9 19.802-8.8 27.103m8.701 13.802c-13.902-.8-25.803 7.9-32.404 7.9c-6.7 0-16.802-7.5-27.803-7.3c-14.301.2-27.603 8.3-34.904 21.202c-15.002 25.803-3.9 64.008 10.601 85.01c7.101 10.401 15.602 21.802 26.803 21.402c10.602-.4 14.802-6.9 27.604-6.9c12.901 0 16.602 6.9 27.803 6.7c11.601-.2 18.902-10.4 26.003-20.802c8.1-11.801 11.401-23.303 11.601-23.903c-.2-.2-22.402-8.7-22.602-34.304c-.2-21.402 17.502-31.603 18.302-32.203-10.002-14.802-25.603-16.402-31.004-16.802m80.31-29.004V167.82h24.202v-53.306h33.504c30.603 0 52.106-21.002 52.106-51.406c0-30.403-21.103-51.206-51.306-51.206zm24.202 20.403h27.903c21.003 0 33.004 11.201 33.004 30.903s-12.001 31.004-33.104 31.004h-27.803z"/></svg>
+                </button>
+              </div>
+              <div class="express-slot">
+                <button type="button" class="express-btn express-btn--gpay" disabled aria-label="Google Pay">G Pay</button>
+              </div>
+              <div class="express-slot">
+                <button type="button" class="express-btn express-btn--paypal" disabled aria-label="PayPal">PayPal</button>
+              </div>
+            </div>
+            <div class="express-divider">
+              <span></span>
+              <span>Or continue below</span>
+              <span></span>
+            </div>
+          </section>
+
+          <form class="checkout-form" id="checkoutForm">
+            <fieldset class="form-block">
+              <legend>Contact Information</legend>
+              <label>
+                <span>Email Address</span>
+                <input type="email" id="email" name="email" required autocomplete="email" />
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="subscribe" name="subscribe" />
+                <span>Subscribe to updates and notifications</span>
+              </label>
+            </fieldset>
+
+            <fieldset class="form-block">
+              <legend>Shipping Address</legend>
+              <div class="field-row">
+                <label>
+                  <span>First Name</span>
+                  <input type="text" id="firstName" name="firstName" required autocomplete="given-name" />
+                </label>
+                <label>
+                  <span>Last Name</span>
+                  <input type="text" id="lastName" name="lastName" required autocomplete="family-name" />
+                </label>
+              </div>
+              <label>
+                <span>Address</span>
+                <input type="text" id="address" name="address" placeholder="START TYPING YOUR ADDRESS..." required autocomplete="street-address" />
+              </label>
+              <label>
+                <span>Apartment, Suite, Unit, etc. (Optional)</span>
+                <input type="text" id="address2" name="address2" placeholder="APARTMENT, SUITE, UNIT, FLOOR, ETC." autocomplete="address-line2" />
+              </label>
+              <div class="field-row">
+                <label>
+                  <span>City</span>
+                  <input type="text" id="city" name="city" required autocomplete="address-level2" />
+                </label>
+                <label>
+                  <span>Country</span>
+                  <select id="country" name="country" required autocomplete="country"></select>
+                </label>
+              </div>
+              <div class="field-row">
+                <label>
+                  <span>State / Province</span>
+                  <input type="text" id="state" name="state" autocomplete="address-level1" />
+                </label>
+                <label>
+                  <span>Zip / Postal Code</span>
+                  <input type="text" id="zip" name="zip" required autocomplete="postal-code" />
+                </label>
+              </div>
+              <label>
+                <span>Phone Number</span>
+                <div class="phone-row">
+                  <button type="button" class="phone-code-btn" id="phoneCodeBtn" aria-haspopup="listbox" aria-expanded="false">
+                    <span id="phoneCodeLabel">+90</span>
+                    <span class="phone-code-caret" aria-hidden="true">▼</span>
+                  </button>
+                  <select id="phoneCode" name="phoneCode" class="phone-code-select" aria-label="Country code" tabindex="-1">
+                    <option value="+90">+90</option>
+                    <option value="+1">+1</option>
+                    <option value="+44">+44</option>
+                    <option value="+49">+49</option>
+                    <option value="+33">+33</option>
+                  </select>
+                  <input type="tel" id="phone" name="phone" required autocomplete="tel-national" placeholder="123 456 7890" />
+                </div>
+              </label>
+              <label>
+                <span>Tax ID (Optional)</span>
+                <input type="text" id="taxId" name="taxId" placeholder="ENTER YOUR TAX ID" />
+              </label>
+              <p class="form-note">Turkish ID number (TCKN) or VAT number required</p>
+              <div class="tax-warn" id="taxNote">
+                <p>You must include tax ID for your order to ship. If you do not include it now, we will send an email requesting it before your order is released.</p>
+              </div>
+            </fieldset>
+
+            <p class="form-note shipping-note">Enter your shipping address to see available shipping options.</p>
+
+            <fieldset class="form-block payment-block" id="paymentBlock">
+              <legend>Payment Details</legend>
+              <p class="payment-notice" id="paymentPlaceholder">Please enter your information above to select a payment method</p>
+              <div class="payment-methods payment-methods--locked" id="paymentOptions">
+                <button type="button" class="payment-method-btn" data-payment="card" disabled>
+                  <span class="payment-method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                  </span>
+                  <span class="payment-method-copy">
+                    <strong>Credit / Debit Card</strong>
+                    <small>Visa, Mastercard, Amex, Discover</small>
+                  </span>
+                </button>
+                <button type="button" class="payment-method-btn" data-payment="usdc" disabled>
+                  <span class="payment-method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  </span>
+                  <span class="payment-method-copy">
+                    <strong>USDC (Crypto)</strong>
+                    <small>Pay with USDC on Solana</small>
+                  </span>
+                </button>
+                <button type="button" class="payment-method-btn" data-payment="yzy" disabled>
+                  <span class="payment-method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  </span>
+                  <span class="payment-method-copy">
+                    <strong>MARVISPACE (Crypto)</strong>
+                    <small>Pay with MARVISPACE token</small>
+                  </span>
+                </button>
+              </div>
+              <input type="hidden" name="payment" id="paymentMethod" value="" />
+            </fieldset>
+
+            <fieldset class="form-block">
+              <legend>Billing Address</legend>
+              <p class="billing-warn">⚠️ must match that on file with your card issuer to successfully proceed</p>
+              <label class="checkbox-row billing-same-row">
+                <input type="checkbox" id="billingSame" name="billingSame" checked />
+                <span>Use shipping address as billing address</span>
+              </label>
+            </fieldset>
+
+            <div class="checkout-actions" id="checkoutActions" hidden>
+              <button type="submit" class="place-order-btn" id="placeOrderBtn">Place Order</button>
+            </div>
+          </form>
         </section>
 
-        <form class="checkout-form" id="checkoutForm">
-          <fieldset class="form-block">
-            <legend>CONTACT INFORMATION</legend>
-            <label>
-              <span>EMAIL ADDRESS</span>
-              <input type="email" id="email" name="email" required autocomplete="email" />
-            </label>
-            <label class="checkbox-row">
-              <input type="checkbox" id="subscribe" name="subscribe" />
-              <span>SUBSCRIBE TO UPDATES AND NOTIFICATIONS</span>
-            </label>
-          </fieldset>
-
-          <fieldset class="form-block">
-            <legend>SHIPPING ADDRESS</legend>
-            <div class="field-row">
-              <label>
-                <span>FIRST NAME</span>
-                <input type="text" id="firstName" name="firstName" required autocomplete="given-name" />
-              </label>
-              <label>
-                <span>LAST NAME</span>
-                <input type="text" id="lastName" name="lastName" required autocomplete="family-name" />
-              </label>
+        <aside class="checkout-summary-col">
+          <div class="summary-panel">
+            <h2 class="cart-summary-heading">Order Summary</h2>
+            <div class="cart-lines" id="summaryItems"></div>
+            <p class="cart-empty-msg" id="summaryEmpty" hidden>Your cart is empty</p>
+            <div id="summaryTotals" hidden></div>
+            <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false">MARVISPACE code</button>
+            <div class="cart-discount-form" data-discount-form hidden>
+              <input type="text" placeholder="Enter code" aria-label="Discount code" />
+              <button type="button">Apply</button>
             </div>
-            <label>
-              <span>ADDRESS</span>
-              <input type="text" id="address" name="address" placeholder="START TYPING YOUR ADDRESS..." required autocomplete="street-address" />
-            </label>
-            <label>
-              <span>APARTMENT, SUITE, UNIT, ETC. (OPTIONAL)</span>
-              <input type="text" id="address2" name="address2" autocomplete="address-line2" />
-            </label>
-            <div class="field-row">
-              <label>
-                <span>CITY</span>
-                <input type="text" id="city" name="city" required autocomplete="address-level2" />
-              </label>
-              <label>
-                <span>COUNTRY</span>
-                <select id="country" name="country" required>
-                  <option value="TR">TURKEY</option>
-                  <option value="US">UNITED STATES</option>
-                  <option value="GB">UNITED KINGDOM</option>
-                  <option value="DE">GERMANY</option>
-                  <option value="FR">FRANCE</option>
-                </select>
-              </label>
-            </div>
-            <div class="field-row">
-              <label>
-                <span>STATE / PROVINCE</span>
-                <input type="text" id="state" name="state" autocomplete="address-level1" />
-              </label>
-              <label>
-                <span>ZIP / POSTAL CODE</span>
-                <input type="text" id="zip" name="zip" required autocomplete="postal-code" />
-              </label>
-            </div>
-            <label>
-              <span>PHONE NUMBER</span>
-              <div class="phone-row">
-                <select id="phoneCode" name="phoneCode" aria-label="Country code">
-                  <option value="+90">+90</option>
-                  <option value="+1">+1</option>
-                  <option value="+44">+44</option>
-                </select>
-                <input type="tel" id="phone" name="phone" required autocomplete="tel" />
-              </div>
-            </label>
-            <label>
-              <span>TAX ID (OPTIONAL)</span>
-              <input type="text" id="taxId" name="taxId" placeholder="ENTER YOUR TAX ID" />
-            </label>
-            <p class="form-note">Turkish ID number (TCKN) or VAT number required</p>
-            <p class="form-note warn" id="taxNote">
-              YOU MUST INCLUDE TAX ID FOR YOUR ORDER TO SHIP. IF YOU DO NOT INCLUDE IT NOW, WE WILL SEND AN EMAIL REQUESTING IT BEFORE YOUR ORDER IS RELEASED.
-            </p>
-          </fieldset>
-
-          <p class="form-note shipping-note">Enter your shipping address to see available shipping options.</p>
-
-          <fieldset class="form-block payment-block" id="paymentBlock">
-            <legend>PAYMENT DETAILS</legend>
-            <p class="payment-placeholder" id="paymentPlaceholder">
-              PLEASE ENTER YOUR INFORMATION ABOVE TO SELECT A PAYMENT METHOD
-            </p>
-            <div class="payment-options" id="paymentOptions" hidden>
-              <label class="payment-option">
-                <input type="radio" name="payment" value="card" checked />
-                <span>CREDIT / DEBIT CARD</span>
-              </label>
-              <label class="payment-option disabled">
-                <input type="radio" name="payment" value="afterpay" disabled />
-                <span>AFTERPAY</span>
-              </label>
-              <label class="payment-option disabled">
-                <input type="radio" name="payment" value="klarna" disabled />
-                <span>KLARNA</span>
-              </label>
-            </div>
-          </fieldset>
-
-          <fieldset class="form-block">
-            <legend>BILLING ADDRESS</legend>
-            <p class="form-note">
-              MUST MATCH THAT ON FILE WITH YOUR CARD ISSUER TO SUCCESSFULLY PROCESS
-            </p>
-            <label class="checkbox-row">
-              <input type="checkbox" id="billingSame" name="billingSame" checked />
-              <span>USE SHIPPING ADDRESS AS BILLING ADDRESS</span>
-            </label>
-          </fieldset>
-
-          <button type="submit" class="place-order-btn" id="placeOrderBtn">PLACE ORDER</button>
-        </form>
-      </section>
-
-      <aside class="checkout-summary-col">
-        <div class="summary-panel">
-          <h2 class="cart-summary-heading">Order Summary</h2>
-          <div class="cart-lines" id="summaryItems"></div>
-          <p class="cart-empty-msg" id="summaryEmpty" hidden>Your cart is empty</p>
-          <div id="summaryTotals" hidden></div>
-          <button type="button" class="cart-discount-link" data-discount-toggle>MARVISPACE code</button>
-          <div class="cart-discount-form" data-discount-form hidden>
-            <input type="text" placeholder="Enter code" aria-label="Discount code" />
-            <button type="button">Apply</button>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-    </div>
-  </main>
+      </div>
+    </main>
+  </div>
 
   <script type="module" src="/assets/js/pages/checkout.js"></script>
 </body>

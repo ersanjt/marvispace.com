@@ -1,0 +1,117 @@
+/* Site footer — Yeezy-style responsive nav */
+
+.site-footer {
+  width: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-top: auto;
+}
+
+.footer-inner {
+  position: relative;
+  display: flex;
+  min-height: 3rem;
+  width: 100%;
+  flex: 1 1 auto;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 1.25rem 1.5rem;
+}
+
+.footer-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  max-width: 100%;
+}
+
+.footer-nav li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-nav .nav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.125rem 0.25rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: capitalize;
+  color: inherit;
+  white-space: nowrap;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.footer-nav a.nav-item {
+  text-decoration: none;
+}
+
+.footer-nav .nav-item:hover,
+.footer-nav .nav-item:focus-visible {
+  opacity: 1;
+}
+
+.site-footer .site-credit {
+  width: 100%;
+  margin: 0;
+  padding: 0 1.25rem 1rem;
+  border-top: 0;
+  text-align: center;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.28;
+}
+
+.site-footer .site-credit a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.site-footer .site-credit a:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .footer-inner {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    padding-bottom: 2rem;
+  }
+
+  .footer-nav {
+    column-gap: 0.25rem;
+    row-gap: 0.125rem;
+  }
+
+  .footer-nav .nav-item {
+    font-size: 9px;
+    letter-spacing: 0.03em;
+  }
+}
+
+@media (max-width: 380px) {
+  .footer-nav .nav-item {
+    font-size: 8px;
+    padding: 0.125rem 0.125rem;
+  }
+}
