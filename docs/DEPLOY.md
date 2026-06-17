@@ -74,7 +74,16 @@ find /home/marvispace/public_html -type f -exec chmod 644 {} \;
 `marvispace` shell is disabled on this server, so run deploy as **root**:
 
 ```bash
-bash /home/marvispace/deploy.sh
+bash /home/marvispace/repositories/marvispace.com/deploy.sh
+```
+
+If `git pull` fails with `Permission denied` on `.git/FETCH_HEAD`:
+
+```bash
+chown -R marvispace:marvispace /home/marvispace/repositories/marvispace.com
+chmod -R u+rwX /home/marvispace/repositories/marvispace.com/.git
+su marvispace -s /bin/bash -c 'cd /home/marvispace/repositories/marvispace.com && git pull origin main'
+bash /home/marvispace/repositories/marvispace.com/deploy.sh
 ```
 
 If you see `dubious ownership` once:
