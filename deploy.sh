@@ -32,6 +32,12 @@ fi
 
 chown -R "$USER:$USER" "$REPO"
 
+HTPASSWD="/home/$USER/.htpasswd"
+if [[ ! -f "$HTPASSWD" ]]; then
+  echo "==> Creating admin .htpasswd (first-time setup)..."
+  bash "$REPO/tools/setup-admin-auth.sh"
+fi
+
 echo "==> Syncing to public_html..."
 rsync -av --delete \
   --exclude .git \

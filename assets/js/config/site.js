@@ -10,6 +10,7 @@ export const SITE = {
   domain: 'marvispace.com',
   url: 'https://marvispace.com',
   supportEmail: 'support@marvispace.com',
+  ogImage: 'https://marvispace.com/assets/images/products/22_KML_144_A_004_01.jpg',
 };
 
 export const DEVELOPER = {

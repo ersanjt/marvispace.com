@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Order Confirmed — MARVISPACE</title>
+  <meta name="description" content="Your MARVISPACE order confirmation." />
+  <link rel="canonical" href="https://marvispace.com/order-confirmation" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+  <link rel="stylesheet" href="/assets/css/cart-ui.css" />
+  <link rel="stylesheet" href="/assets/css/page.css" />
+  <link rel="stylesheet" href="/assets/css/footer.css" />
+</head>
+<body>
+  <header class="site-page-nav">
+    <a href="/">‹ MARVISPACE</a>
+    <a href="/checkout">Cart</a>
+  </header>
+  <main class="site-page site-page--wide">
+    <div id="confirmEmpty" hidden>
+      <h1>Order not found</h1>
+      <p>We could not find a recent order on this device. Check your email or contact support.</p>
+      <a class="back-shop" href="/order-status">Look up order</a>
+    </div>
+
+    <div id="confirmContent" hidden>
+      <h1>Order confirmed</h1>
+      <p class="page-lead">Thank you. Your order has been received and is pending processing.</p>
+      <dl class="order-meta">
+        <div><dt>Order ID</dt><dd id="confirmOrderId" dir="ltr"></dd></div>
+        <div><dt>Email</dt><dd id="confirmEmail"></dd></div>
+      </dl>
+      <h2 class="section-label">Order summary</h2>
+      <div class="cart-lines" id="confirmItems"></div>
+      <div id="confirmTotals"></div>
+      <p class="page-note">Save your order ID. For updates, use <a href="/order-status">Order Status</a> or email <a id="supportLink" href="mailto:support@marvispace.com">support@marvispace.com</a>.</p>
+      <a class="back-shop" href="/">← Continue shopping</a>
+    </div>
+  </main>
+  <footer data-site-footer></footer>
+  <script type="module" src="/assets/js/pages/order-confirmation.js"></script>
+</body>
+</html>

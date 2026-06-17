@@ -61,6 +61,117 @@ body:has(.site-page) {
 
 .site-page .back-shop:hover { opacity: 1; }
 
+.site-page--wide {
+  max-width: 720px;
+}
+
+.page-lead {
+  font-size: 12px;
+  line-height: 1.8;
+  opacity: 0.8;
+}
+
+.section-label {
+  margin: 28px 0 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.page-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.page-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-form input {
+  height: 42px;
+  border: 1px solid #000;
+  padding: 0 12px;
+  font-size: 11px;
+  background: #fff;
+}
+
+.page-btn {
+  align-self: flex-start;
+  height: 42px;
+  padding: 0 20px;
+  border: 0;
+  background: #000;
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.page-error {
+  color: #b91c1c;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.page-note {
+  margin-top: 24px;
+  font-size: 10px;
+  line-height: 1.8;
+  opacity: 0.65;
+}
+
+.order-meta {
+  margin: 20px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.order-meta div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.order-meta dt {
+  opacity: 0.55;
+}
+
+.order-meta dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: #000;
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.skip-link:focus {
+  left: 12px;
+  top: 12px;
+}
+
 .site-credit {
   margin-top: 32px;
   padding-top: 16px;

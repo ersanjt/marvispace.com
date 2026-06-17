@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Order Status — MARVISPACE</title>
-  <meta name="description" content="Track your MARVISPACE order status and shipping updates." />
+  <meta name="description" content="Track your MARVISPACE order status on marvispace.com." />
   <link rel="canonical" href="https://marvispace.com/order-status" />
   <meta name="robots" content="index, follow" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/fonts.css" />
   <link rel="stylesheet" href="/assets/css/styles.css" />
+  <link rel="stylesheet" href="/assets/css/cart-ui.css" />
   <link rel="stylesheet" href="/assets/css/page.css" />
   <link rel="stylesheet" href="/assets/css/footer.css" />
 </head>
@@ -21,12 +22,34 @@
     <a href="/">‹ MARVISPACE</a>
     <a href="/checkout">Cart</a>
   </header>
-  <main class="site-page">
+  <main class="site-page site-page--wide">
     <h1>Order Status</h1>
-    <p>After checkout you will receive an order confirmation by email. For status updates, contact <strong>support@marvispace.com</strong> with your order ID.</p>
+    <p>Enter your order ID and email to view status on this device.</p>
+
+    <form class="page-form" id="orderLookupForm">
+      <label>
+        <span>Order ID</span>
+        <input type="text" id="orderIdInput" name="orderId" required placeholder="ord_..." autocomplete="off" dir="ltr" />
+      </label>
+      <label>
+        <span>Email address</span>
+        <input type="email" id="orderEmailInput" name="email" required autocomplete="email" />
+      </label>
+      <button type="submit" class="page-btn">Look up order</button>
+    </form>
+
+    <p class="page-error" id="orderLookupError" hidden role="alert"></p>
+
+    <section id="orderLookupResult" hidden>
+      <h2 class="section-label">Status: <span id="orderStatusLabel"></span></h2>
+      <div class="cart-lines" id="orderStatusItems"></div>
+      <div id="orderStatusTotals"></div>
+    </section>
+
+    <p class="page-note">Need help? Email <strong>support@marvispace.com</strong> with your order ID.</p>
     <a class="back-shop" href="/">← Back to shop</a>
   </main>
   <footer data-site-footer></footer>
-  <script type="module" src="/assets/js/core/credits.js"></script>
+  <script type="module" src="/assets/js/pages/order-status.js"></script>
 </body>
 </html>

@@ -93,6 +93,18 @@ git config --global --add safe.directory /home/marvispace/repositories/marvispac
 chown -R marvispace:marvispace /home/marvispace/repositories/marvispace.com
 ```
 
+### Admin password (HTTP Basic Auth)
+
+`/admin` is protected by Apache. On first deploy, `deploy.sh` creates `/home/marvispace/.htpasswd` if missing.
+
+Set a custom password:
+
+```bash
+bash /home/marvispace/repositories/marvispace.com/tools/setup-admin-auth.sh 'YourSecurePassword'
+```
+
+Username is always `admin`. See `docs/HANDOFF.md` for client delivery notes.
+
 ---
 
 ## Private GitHub repo (optional)

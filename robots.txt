@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /checkout
+Disallow: /order-confirmation
 
 Sitemap: https://marvispace.com/sitemap.xml

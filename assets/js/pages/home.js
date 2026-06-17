@@ -806,7 +806,7 @@ pinchWrap.addEventListener('pointercancel', e => {
 window.addEventListener('resize', updateCols);
 
 window.addEventListener('storage', e => {
-  if (e.key !== 'marvispace_products_v3' && e.key !== 'marvispace_products_v2' && e.key !== 'yzy_products') return;
+  if (!e.key || !['marvispace_products_v3', 'marvispace_products_v2', 'marvispace_orders', 'yzy_products', 'yzy_orders'].includes(e.key)) return;
   products = getProducts(seedProducts);
   if (isOpen) closePreview(false);
   applyFilter(activeFilter);

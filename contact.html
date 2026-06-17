@@ -23,8 +23,25 @@
   </header>
   <main class="site-page">
     <h1>Contact</h1>
-    <p>For order support and product inquiries, email us at <strong>support@marvispace.com</strong>.</p>
-    <p>We respond within 1–2 business days.</p>
+    <p>For order support and product inquiries, email <strong>support@marvispace.com</strong> or use the form below.</p>
+
+    <form class="page-form" id="contactForm" action="mailto:support@marvispace.com" method="post" enctype="text/plain">
+      <label>
+        <span>Name</span>
+        <input type="text" name="name" required autocomplete="name" />
+      </label>
+      <label>
+        <span>Email</span>
+        <input type="email" name="email" required autocomplete="email" />
+      </label>
+      <label>
+        <span>Message</span>
+        <input type="text" name="message" required />
+      </label>
+      <button type="submit" class="page-btn">Send message</button>
+    </form>
+
+    <p class="page-note">We respond within 1–2 business days.</p>
     <a class="back-shop" href="/">← Back to shop</a>
   </main>
   <footer data-site-footer></footer>

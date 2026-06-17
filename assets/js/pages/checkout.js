@@ -200,7 +200,7 @@ checkoutForm.addEventListener('submit', e => {
   addOrder(order);
   clearCart();
   cartItems = [];
-  window.location.href = '/?ordered=1';
+  window.location.href = `/order-confirmation?id=${encodeURIComponent(order.id)}`;
 });
 
 populateCountries();

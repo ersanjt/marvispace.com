@@ -4,16 +4,12 @@ import {
   DEFAULT_SIZES,
   getOrders,
   getProducts,
-  isAdminAuthed,
   normalizeProduct,
   saveProducts,
-  setAdminAuthed,
   updateOrderStatus,
 } from '../core/storage.js';
 
-const loginScreen = document.getElementById('loginScreen');
 const adminApp = document.getElementById('adminApp');
-const logoutBtn = document.getElementById('logoutBtn');
 const navItems = [...document.querySelectorAll('.nav-item')];
 const viewPanels = [...document.querySelectorAll('.view-panel')];
 const pageTitle = document.getElementById('pageTitle');
@@ -114,26 +110,6 @@ function showToast(msg) {
   toast.hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { toast.hidden = true; }, 2800);
-}
-
-function setLoggedInUI(on) {
-  document.body.classList.toggle('is-logged-in', on);
-  if (loginScreen) loginScreen.hidden = on;
-  if (adminApp) adminApp.hidden = !on;
-}
-
-function showApp() {
-  setLoggedInUI(true);
-  products = getProducts(seedProducts);
-  renderAll();
-}
-
-function hideApp() {
-  setAdminAuthed(false);
-  setLoggedInUI(false);
-  closeModal();
-  if (productSearch) productSearch.value = '';
-  if (productFilter) productFilter.value = 'all';
 }
 
 function switchTab(name) {
@@ -263,7 +239,7 @@ function renderProducts() {
     const row = document.createElement('tr');
     const st = stockStatus(product);
     const thumb = product.image
-      ? `<img class="thumb" src="${esc(product.image)}" alt="" loading="lazy" />`
+      ? `<img class="thumb" src="${esc(product.image)}" alt="${esc(product.label)}" loading="lazy" />`
       : `<div class="thumb-empty">—</div>`;
 
     row.innerHTML = `
@@ -379,13 +355,6 @@ function renderAll() {
 }
 
 /* ── Events ── */
-window.addEventListener('marvispace-admin-login', () => {
-  setAdminAuthed(true);
-  showApp();
-});
-
-logoutBtn?.addEventListener('click', hideApp);
-
 navItems.forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
@@ -471,8 +440,5 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && productModal && !productModal.hidden) closeModal();
 });
 
-if (isAdminAuthed()) {
-  showApp();
-} else {
-  setLoggedInUI(false);
-}
+products = getProducts(seedProducts);
+renderAll();

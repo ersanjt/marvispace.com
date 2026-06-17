@@ -44,6 +44,9 @@
   RewriteCond %{THE_REQUEST} \s/+order-status\.html[\s?] [NC]
   RewriteRule ^order-status\.html$ /order-status [R=301,L,NC]
 
+  RewriteCond %{THE_REQUEST} \s/+order-confirmation\.html[\s?] [NC]
+  RewriteRule ^order-confirmation\.html$ /order-confirmation [R=301,L,NC]
+
   RewriteCond %{THE_REQUEST} \s/+privacy-right-center\.html[\s?] [NC]
   RewriteRule ^privacy-right-center\.html$ /privacy-right-center [R=301,L,NC]
 
@@ -55,7 +58,24 @@
   RewriteRule ^privacy/?$ privacy.html [L,NC]
   RewriteRule ^accessibility/?$ accessibility.html [L,NC]
   RewriteRule ^order-status/?$ order-status.html [L,NC]
+  RewriteRule ^order-confirmation/?$ order-confirmation.html [L,NC]
   RewriteRule ^privacy-right-center/?$ privacy-right-center.html [L,NC]
+</IfModule>
+
+# Admin area — server-side password (create /home/marvispace/.htpasswd on server)
+<If "%{REQUEST_URI} =~ m#^/admin(?:\.html)?$#">
+  AuthType Basic
+  AuthName "MARVISPACE Admin"
+  AuthUserFile /home/marvispace/.htpasswd
+  Require valid-user
+</If>
+
+# Security headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 </IfModule>
 
 DirectoryIndex index.html

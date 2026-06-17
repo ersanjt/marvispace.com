@@ -10,7 +10,9 @@ marvispace.com/
 ├── privacy.html
 ├── accessibility.html
 ├── order-status.html
-├── favicon.svg
+├── order-confirmation.html
+├── privacy-right-center.html
+├── README.md
 ├── robots.txt
 ├── sitemap.xml
 ├── .htaccess                  # Clean URLs + legacy redirects
@@ -29,12 +31,15 @@ marvispace.com/
 │   │   ├── config/site.js     # Site & developer metadata
 │   │   ├── core/
 │   │   │   ├── storage.js     # localStorage layer
+│   │   │   ├── site-footer.js # Shared footer
 │   │   │   └── credits.js     # Developer attribution
 │   │   ├── modules/cart-ui.js # Shared cart UI
 │   │   ├── data/products.js   # Product catalog seed
 │   │   └── pages/
 │   │       ├── home.js        # Storefront logic
 │   │       ├── checkout.js
+│   │       ├── order-confirmation.js
+│   │       ├── order-status.js
 │   │       └── admin.js
 │   └── images/products/       # Product photography
 │

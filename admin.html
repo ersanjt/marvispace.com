@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="developer" content="Ersan JT" />
   <title>Admin — MARVISPACE</title>
+  <meta name="description" content="MARVISPACE store administration — products, inventory, and orders." />
   <meta name="robots" content="noindex, nofollow, noarchive" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,41 +14,9 @@
   <link rel="stylesheet" href="/assets/css/fonts.css" />
   <link rel="stylesheet" href="/assets/css/admin.css" />
 </head>
-<body>
+<body class="is-logged-in">
 
-  <div class="auth-screen" id="loginScreen">
-    <div class="auth-layout">
-      <div class="auth-brand">
-        <span class="auth-logo">MARVISPACE</span>
-        <p>Online store administration</p>
-        <ul class="auth-features">
-          <li>Manage products and inventory</li>
-          <li>Track customer orders</li>
-          <li>Sync with the storefront</li>
-        </ul>
-      </div>
-      <form class="auth-card" id="loginForm">
-        <h1>Sign in to dashboard</h1>
-        <p class="auth-sub">Enter your password to access the admin panel.</p>
-        <p class="auth-error" id="loginError" hidden role="alert">Incorrect password</p>
-        <label class="field">
-          <span>Password</span>
-          <input
-            type="password"
-            id="loginPassword"
-            name="password"
-            required
-            autocomplete="current-password"
-            placeholder="••••••••"
-          />
-        </label>
-        <button type="submit" class="btn btn-primary btn-block" id="loginSubmit">Sign in</button>
-        <a class="auth-back" href="/">← Back to store</a>
-      </form>
-    </div>
-  </div>
-
-  <div class="admin-shell" id="adminApp" hidden>
+  <div class="admin-shell" id="adminApp">
     <aside class="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo">MARVISPACE</span>
@@ -71,7 +40,7 @@
       </nav>
       <div class="sidebar-foot">
         <a href="/" class="sidebar-link">View store</a>
-        <button type="button" class="sidebar-link danger" id="logoutBtn">Sign out</button>
+        <a class="sidebar-link" href="/">Back to store</a>
         <p class="sidebar-credit">Dev · <a href="https://github.com/ersanjt" target="_blank" rel="author noopener noreferrer">Ersan JT</a></p>
       </div>
     </aside>
@@ -274,41 +243,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script>
-    (function () {
-      var AUTH_KEY = 'yzy_admin_auth';
-      var PASS = 'admin123';
-
-      function setLoggedIn(on) {
-        document.body.classList.toggle('is-logged-in', on);
-        var login = document.getElementById('loginScreen');
-        var app = document.getElementById('adminApp');
-        if (login) login.hidden = !on ? false : true;
-        if (app) app.hidden = !on;
-      }
-
-      var form = document.getElementById('loginForm');
-      var input = document.getElementById('loginPassword');
-      var error = document.getElementById('loginError');
-      if (!form || !input) return;
-
-      if (sessionStorage.getItem(AUTH_KEY) === '1') setLoggedIn(true);
-
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var pwd = input.value.trim();
-        if (pwd !== PASS) {
-          if (error) error.hidden = false;
-          input.focus();
-          return;
-        }
-        if (error) error.hidden = true;
-        try { sessionStorage.setItem(AUTH_KEY, '1'); } catch (_) {}
-        setLoggedIn(true);
-        window.dispatchEvent(new CustomEvent('marvispace-admin-login'));
-      });
-    })();
-  </script>
   <script type="module" src="/assets/js/pages/admin.js"></script>
 </body>
 </html>

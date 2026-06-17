@@ -9,6 +9,7 @@ const pages = [
   { loc: '/terms', changefreq: 'monthly', priority: '0.4' },
   { loc: '/privacy', changefreq: 'monthly', priority: '0.4' },
   { loc: '/accessibility', changefreq: 'monthly', priority: '0.4' },
+  { loc: '/privacy-right-center', changefreq: 'monthly', priority: '0.3' },
   { loc: '/order-status', changefreq: 'monthly', priority: '0.5' },
 ];
 
@@ -23,5 +24,6 @@ ${pages.map(p => `  <url>
 </urlset>
 `;
 
-writeFileSync(new URL('./sitemap.xml', import.meta.url), xml, 'utf8');
+const out = new URL('../sitemap.xml', import.meta.url);
+writeFileSync(out, xml, 'utf8');
 console.log(`sitemap.xml updated — ${pages.length} URLs`);

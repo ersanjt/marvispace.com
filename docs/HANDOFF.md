@@ -1,0 +1,66 @@
+# Client Handoff — MARVISPACE
+
+## What you receive
+
+| Item | Details |
+|------|---------|
+| Website | https://marvispace.com |
+| Admin | https://marvispace.com/admin |
+| Hosting | cPanel account `marvispace` |
+| Source | GitHub `ersanjt/marvispace.com` |
+
+## Current capabilities
+
+**Included (ready):**
+- Product catalog with image gallery and size selection
+- Shopping cart and Yeezy-style checkout UI
+- Order confirmation page (`/order-confirmation`)
+- Order lookup on same device (`/order-status`)
+- Admin dashboard for products and orders (browser storage)
+- SEO: sitemap, robots, meta tags, clean URLs
+- Footer legal pages (Contact, Terms, Privacy, Accessibility, DNSMPI)
+
+**Not included yet (next phase for real sales):**
+- Payment gateway (Stripe, PayPal, etc.)
+- Server database for orders
+- Transactional email (order confirmations)
+- Multi-device order tracking
+- Shipping carrier integration
+
+> Orders today are stored in the **customer's browser**. Admin sees orders placed from browsers that share the same device storage context. For a live store, connect a payment provider and backend API.
+
+## Admin login
+
+1. Open https://marvispace.com/admin
+2. Browser prompts for username/password (HTTP Basic Auth)
+3. Default username: `admin`
+4. Password: created on first deploy — check deploy output or run:
+
+```bash
+bash /home/marvispace/repositories/marvispace.com/tools/setup-admin-auth.sh 'NewPassword'
+```
+
+There is **no password in the website source code**.
+
+## Deploy updates
+
+```bash
+bash /home/marvispace/repositories/marvispace.com/deploy.sh
+```
+
+## Support email
+
+Create in cPanel: `support@marvispace.com`  
+Update if needed in `assets/js/config/site.js`
+
+## Recommended next steps
+
+1. Connect **Stripe** (or Shopify/Swell) for payments
+2. Move orders to a **server database**
+3. Enable **order confirmation emails** via cPanel SMTP or SendGrid
+4. Replace demo checkout submit with payment API
+5. Enable **Cloudflare Force HTTPS** in cPanel
+
+## Developer contact
+
+**Ersan JT** — https://github.com/ersanjt

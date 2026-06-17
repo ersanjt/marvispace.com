@@ -1,14 +1,50 @@
 /**
- * @file storage.js
+ * @file storage.js — client-side persistence (demo storefront)
  * @project MARVISPACE
  * @author Ersan JT <https://github.com/ersanjt>
  */
 const PRODUCTS_KEY = 'marvispace_products_v3';
-const ORDERS_KEY = 'yzy_orders';
+const ORDERS_KEY = 'marvispace_orders';
 const CART_KEY = 'marvispace_cart';
-const AUTH_KEY = 'yzy_admin_auth';
+const LAST_ORDER_KEY = 'marvispace_last_order';
+
+const LEGACY_KEYS = {
+  orders: ['yzy_orders', 'marvispace_orders_v1'],
+  products: ['yzy_products', 'marvispace_products_v2'],
+};
 
 export const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+let migrated = false;
+
+function migrateLegacyStorage() {
+  if (migrated) return;
+  migrated = true;
+
+  try {
+    if (!localStorage.getItem(ORDERS_KEY)) {
+      for (const key of LEGACY_KEYS.orders) {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          localStorage.setItem(ORDERS_KEY, raw);
+          break;
+        }
+      }
+    }
+
+    if (!localStorage.getItem(PRODUCTS_KEY)) {
+      for (const key of LEGACY_KEYS.products) {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          localStorage.setItem(PRODUCTS_KEY, raw);
+          break;
+        }
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+}
 
 export function normalizeProduct(product) {
   return {
@@ -29,6 +65,7 @@ export function normalizeProduct(product) {
 }
 
 export function getProducts(seed = []) {
+  migrateLegacyStorage();
   try {
     const raw = localStorage.getItem(PRODUCTS_KEY);
     if (raw) {
@@ -54,6 +91,7 @@ export function resetProducts(seed = []) {
 }
 
 export function getOrders() {
+  migrateLegacyStorage();
   try {
     const raw = localStorage.getItem(ORDERS_KEY);
     if (raw) {
@@ -70,11 +108,35 @@ export function saveOrders(orders) {
   localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
 }
 
+export function getOrderById(orderId) {
+  if (!orderId) return null;
+  return getOrders().find(o => o.id === orderId) || null;
+}
+
 export function addOrder(order) {
   const orders = getOrders();
   orders.unshift(order);
   saveOrders(orders);
+  setLastOrder(order);
   return order;
+}
+
+export function setLastOrder(order) {
+  try {
+    sessionStorage.setItem(LAST_ORDER_KEY, JSON.stringify(order));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getLastOrder() {
+  try {
+    const raw = sessionStorage.getItem(LAST_ORDER_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    /* ignore */
+  }
+  return null;
 }
 
 export function updateOrderStatus(orderId, status) {
@@ -89,17 +151,6 @@ export function updateOrderStatus(orderId, status) {
 export function createId() {
   return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
-
-export function isAdminAuthed() {
-  return sessionStorage.getItem(AUTH_KEY) === '1';
-}
-
-export function setAdminAuthed(value) {
-  if (value) sessionStorage.setItem(AUTH_KEY, '1');
-  else sessionStorage.removeItem(AUTH_KEY);
-}
-
-export const ADMIN_PASSWORD = 'admin123';
 
 export function getCart() {
   try {
