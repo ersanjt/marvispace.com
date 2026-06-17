@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout — MARVISPACE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="checkout.css" />
+</head>
+<body>
+
+  <header class="checkout-nav">
+    <a class="back-link" href="index.html" aria-label="Back to store">‹</a>
+    <a class="brand" href="index.html">MARVISPACE</a>
+    <span class="nav-spacer"></span>
+  </header>
+
+  <main class="checkout-page">
+    <div class="checkout-layout">
+
+      <section class="checkout-form-col">
+        <div class="express-row">
+          <button type="button" class="express-btn" disabled>Apple Pay</button>
+          <button type="button" class="express-btn" disabled>G Pay</button>
+          <button type="button" class="express-btn" disabled>PayPal</button>
+        </div>
+
+        <form class="checkout-form" id="checkoutForm">
+          <fieldset class="form-block">
+            <legend>CONTACT INFORMATION</legend>
+            <label>
+              <span>EMAIL ADDRESS</span>
+              <input type="email" id="email" name="email" required autocomplete="email" />
+            </label>
+            <label class="checkbox-row">
+              <input type="checkbox" id="subscribe" name="subscribe" />
+              <span>SUBSCRIBE TO UPDATES AND NOTIFICATIONS</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="form-block">
+            <legend>SHIPPING ADDRESS</legend>
+            <div class="field-row">
+              <label>
+                <span>FIRST NAME</span>
+                <input type="text" id="firstName" name="firstName" required autocomplete="given-name" />
+              </label>
+              <label>
+                <span>LAST NAME</span>
+                <input type="text" id="lastName" name="lastName" required autocomplete="family-name" />
+              </label>
+            </div>
+            <label>
+              <span>ADDRESS</span>
+              <input type="text" id="address" name="address" placeholder="START TYPING YOUR ADDRESS..." required autocomplete="street-address" />
+            </label>
+            <label>
+              <span>APARTMENT, SUITE, UNIT, ETC. (OPTIONAL)</span>
+              <input type="text" id="address2" name="address2" autocomplete="address-line2" />
+            </label>
+            <div class="field-row">
+              <label>
+                <span>CITY</span>
+                <input type="text" id="city" name="city" required autocomplete="address-level2" />
+              </label>
+              <label>
+                <span>COUNTRY</span>
+                <select id="country" name="country" required>
+                  <option value="TR">TURKEY</option>
+                  <option value="US">UNITED STATES</option>
+                  <option value="GB">UNITED KINGDOM</option>
+                  <option value="DE">GERMANY</option>
+                  <option value="FR">FRANCE</option>
+                </select>
+              </label>
+            </div>
+            <div class="field-row">
+              <label>
+                <span>STATE / PROVINCE</span>
+                <input type="text" id="state" name="state" autocomplete="address-level1" />
+              </label>
+              <label>
+                <span>ZIP / POSTAL CODE</span>
+                <input type="text" id="zip" name="zip" required autocomplete="postal-code" />
+              </label>
+            </div>
+            <label>
+              <span>PHONE NUMBER</span>
+              <div class="phone-row">
+                <select id="phoneCode" name="phoneCode" aria-label="Country code">
+                  <option value="+90">+90</option>
+                  <option value="+1">+1</option>
+                  <option value="+44">+44</option>
+                </select>
+                <input type="tel" id="phone" name="phone" required autocomplete="tel" />
+              </div>
+            </label>
+            <label>
+              <span>TAX ID (OPTIONAL)</span>
+              <input type="text" id="taxId" name="taxId" />
+            </label>
+            <p class="form-note warn" id="taxNote">
+              YOU MUST PROVIDE THE INFORMATION ABOVE TO SELECT A SHIPPING OPTION. IF YOU DO NOT SEE YOUR COUNTRY IN THE LIST ABOVE WE ARE ONLY DELIVERING TO THOSE COUNTRIES AT THIS MOMENT.
+            </p>
+          </fieldset>
+
+          <fieldset class="form-block payment-block" id="paymentBlock">
+            <legend>PAYMENT DETAILS</legend>
+            <p class="payment-placeholder" id="paymentPlaceholder">
+              PLEASE ENTER YOUR INFORMATION ABOVE TO SELECT A PAYMENT METHOD
+            </p>
+            <div class="payment-options" id="paymentOptions" hidden>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="card" checked />
+                <span>CREDIT / DEBIT CARD</span>
+              </label>
+              <label class="payment-option disabled">
+                <input type="radio" name="payment" value="afterpay" disabled />
+                <span>AFTERPAY</span>
+              </label>
+              <label class="payment-option disabled">
+                <input type="radio" name="payment" value="klarna" disabled />
+                <span>KLARNA</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-block">
+            <legend>BILLING ADDRESS</legend>
+            <p class="form-note">
+              MUST MATCH THAT ON FILE WITH YOUR CARD ISSUER TO SUCCESSFULLY PROCESS
+            </p>
+            <label class="checkbox-row">
+              <input type="checkbox" id="billingSame" name="billingSame" checked />
+              <span>USE SHIPPING ADDRESS AS BILLING ADDRESS</span>
+            </label>
+          </fieldset>
+
+          <button type="submit" class="place-order-btn" id="placeOrderBtn">PLACE ORDER</button>
+        </form>
+      </section>
+
+      <aside class="checkout-summary-col">
+        <div class="summary-panel">
+          <h2>ORDER SUMMARY</h2>
+          <div class="summary-items" id="summaryItems"></div>
+          <p class="summary-empty" id="summaryEmpty" hidden>YOUR CART IS EMPTY</p>
+
+          <div class="summary-totals" id="summaryTotals" hidden>
+            <div class="summary-row">
+              <span>SUBTOTAL</span>
+              <span id="summarySubtotal">$0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>SHIPPING</span>
+              <span class="muted">CALCULATED AT NEXT STEP</span>
+            </div>
+            <div class="summary-row">
+              <span>TAXES</span>
+              <span id="summaryTaxes">$0.00</span>
+            </div>
+            <div class="summary-row total">
+              <span>TOTAL</span>
+              <span id="summaryTotal">$0.00</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <script type="module" src="checkout.js"></script>
+</body>
+</html>

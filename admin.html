@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MARVISPACE — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <div class="login-screen" id="loginScreen">
+    <form class="login-card" id="loginForm">
+      <h1>پنل مدیریت</h1>
+      <p>رمز عبور: <code>admin123</code></p>
+      <label>
+        <span>رمز عبور</span>
+        <input type="password" id="loginPassword" required autocomplete="current-password" />
+      </label>
+      <button type="submit">ورود</button>
+      <a class="back-link" href="index.html">بازگشت به فروشگاه</a>
+    </form>
+  </div>
+
+  <div class="admin-app" id="adminApp" hidden>
+    <header class="admin-header">
+      <div>
+        <h1>پنل مدیریت MARVISPACE</h1>
+        <p>marvispace.com — مدیریت محصولات و سفارش‌ها</p>
+      </div>
+      <div class="admin-header-actions">
+        <a href="index.html" class="ghost-btn">مشاهده فروشگاه</a>
+        <button type="button" class="ghost-btn" id="logoutBtn">خروج</button>
+      </div>
+    </header>
+
+    <nav class="admin-tabs">
+      <button type="button" class="tab-btn active" data-tab="products">محصولات</button>
+      <button type="button" class="tab-btn" data-tab="orders">سفارش‌ها</button>
+    </nav>
+
+    <section class="tab-panel active" id="productsPanel">
+      <div class="admin-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>لیست محصولات</h2>
+            <button type="button" class="solid-btn" id="newProductBtn">+ محصول جدید</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="productsTable">
+              <thead>
+                <tr>
+                  <th>مدل</th>
+                  <th>دسته</th>
+                  <th>قیمت</th>
+                  <th>موجودی</th>
+                  <th>وضعیت</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2 id="formTitle">افزودن محصول</h2>
+          </div>
+          <form class="product-form" id="productForm">
+            <input type="hidden" id="productId" />
+
+            <label>
+              <span>مدل محصول</span>
+              <input type="text" id="productLabel" placeholder="SL-03" required />
+            </label>
+
+            <div class="form-row">
+              <label>
+                <span>قیمت ($)</span>
+                <input type="number" id="productPrice" min="0" step="1" required />
+              </label>
+              <label>
+                <span>موجودی (تعداد)</span>
+                <input type="number" id="productStock" min="0" step="1" value="0" />
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label>
+                <span>دسته‌بندی</span>
+                <select id="productCategory" required>
+                  <option value="footwear">FOOTWEAR</option>
+                  <option value="accessories">ACCESSORIES</option>
+                  <option value="slides">SLIDES</option>
+                </select>
+              </label>
+              <label>
+                <span>جنسیت</span>
+                <select id="productGender" required>
+                  <option value="mens">MENS</option>
+                  <option value="womens">WOMENS</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="checkbox-row">
+              <input type="checkbox" id="productInStock" checked />
+              <span>محصول موجود است</span>
+            </label>
+
+            <label>
+              <span>تصویر اصلی (URL)</span>
+              <input type="url" id="productImage" placeholder="https://..." required />
+            </label>
+
+            <label>
+              <span>گالری تصاویر (هر خط یک URL)</span>
+              <textarea id="productGallery" rows="4" placeholder="https://.../image-1.png&#10;https://.../image-2.png"></textarea>
+            </label>
+
+            <label>
+              <span>سایزهای موجود (با کاما جدا کنید)</span>
+              <input type="text" id="productSizes" placeholder="4,5,6,7,8,9,10,11,12" />
+            </label>
+
+            <div class="form-actions">
+              <button type="submit" class="solid-btn" id="saveProductBtn">ذخیره محصول</button>
+              <button type="button" class="ghost-btn" id="resetFormBtn">پاک کردن فرم</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="ordersPanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>سفارش‌های ثبت‌شده</h2>
+          <span class="muted" id="ordersCount">0 سفارش</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="ordersTable">
+            <thead>
+              <tr>
+                <th>کد</th>
+                <th>تاریخ</th>
+                <th>اقلام</th>
+                <th>جمع</th>
+                <th>وضعیت</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-note" id="ordersEmpty" hidden>هنوز سفارشی ثبت نشده است.</p>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
