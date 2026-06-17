@@ -4,6 +4,7 @@
 #   bash install/fix-mysql-user.sh
 #
 # Reads /home/marvispace/api_config.php and ensures cPanel MySQL matches.
+# Some cPanel builds require full names (marvispace_store); others use short (store).
 
 set -euo pipefail
 
@@ -25,41 +26,92 @@ DB_FULL=$(php -r '$c=require "'"$CONFIG"'"; echo $c["db"]["name"];')
 DB_USER_FULL=$(php -r '$c=require "'"$CONFIG"'"; echo $c["db"]["user"];')
 DB_PASS=$(php -r '$c=require "'"$CONFIG"'"; echo $c["db"]["pass"];')
 
-# cPanel UAPI uses short names (without account prefix)
 DB_SHORT="${DB_FULL#${CPANEL_USER}_}"
 DB_USER_SHORT="${DB_USER_FULL#${CPANEL_USER}_}"
 
-echo "==> MARVISPACE MySQL fix"
-echo "    Database: ${DB_FULL} (short: ${DB_SHORT})"
-echo "    User:     ${DB_USER_FULL} (short: ${DB_USER_SHORT})"
+uapi_ok() {
+  local out
+  out=$("$@" 2>&1) || true
+  echo "$out" | grep -q '"status":1'
+}
 
-echo "==> Ensuring database exists..."
-uapi --user="$CPANEL_USER" Mysql create_database name="$DB_SHORT" || true
+uapi_create_database() {
+  if uapi_ok uapi --user="$CPANEL_USER" Mysql create_database name="$DB_FULL"; then
+    echo "    Database created: ${DB_FULL}"
+    return 0
+  fi
+  if uapi_ok uapi --user="$CPANEL_USER" Mysql create_database name="$DB_SHORT"; then
+    echo "    Database created: ${DB_SHORT} → ${DB_FULL}"
+    return 0
+  fi
+  echo "    Database may already exist: ${DB_FULL}"
+}
 
-echo "==> Setting user password to match api_config.php..."
-if uapi --user="$CPANEL_USER" Mysql set_password user="$DB_USER_SHORT" password="$DB_PASS" 2>/dev/null | grep -q '"status":1'; then
-  echo "    Password updated."
-else
-  echo "    User missing — creating..."
+uapi_ensure_user() {
+  if uapi_ok uapi --user="$CPANEL_USER" Mysql set_password user="$DB_USER_FULL" password="$DB_PASS"; then
+    echo "    Password set for ${DB_USER_FULL}"
+    return 0
+  fi
+  if uapi_ok uapi --user="$CPANEL_USER" Mysql set_password user="$DB_USER_SHORT" password="$DB_PASS"; then
+    echo "    Password set for ${DB_USER_SHORT}"
+    return 0
+  fi
+  if uapi_ok uapi --user="$CPANEL_USER" Mysql create_user name="$DB_USER_FULL" password="$DB_PASS"; then
+    echo "    User created: ${DB_USER_FULL}"
+    return 0
+  fi
   uapi --user="$CPANEL_USER" Mysql create_user name="$DB_USER_SHORT" password="$DB_PASS"
-fi
+  echo "    User created: ${DB_USER_SHORT} → ${DB_USER_FULL}"
+}
 
-echo "==> Granting ALL on database..."
-uapi --user="$CPANEL_USER" Mysql set_privileges_on_database \
-  user="$DB_USER_SHORT" database="$DB_SHORT" privileges=ALL
+uapi_grant_all() {
+  if uapi_ok uapi --user="$CPANEL_USER" Mysql set_privileges_on_database \
+    user="$DB_USER_FULL" database="$DB_FULL" privileges=ALL; then
+    echo "    Privileges OK (${DB_USER_FULL} → ${DB_FULL})"
+    return 0
+  fi
+  if uapi_ok uapi --user="$CPANEL_USER" Mysql set_privileges_on_database \
+    user="$DB_USER_SHORT" database="$DB_SHORT" privileges=ALL; then
+    echo "    Privileges OK (${DB_USER_SHORT} → ${DB_SHORT})"
+    return 0
+  fi
+  echo "ERROR: Could not grant privileges."
+  uapi --user="$CPANEL_USER" Mysql set_privileges_on_database \
+    user="$DB_USER_FULL" database="$DB_FULL" privileges=ALL
+  exit 1
+}
+
+echo "==> MARVISPACE MySQL fix"
+echo "    Database: ${DB_FULL}"
+echo "    User:     ${DB_USER_FULL}"
+echo ""
+echo "    (Your server currently has marvispace_harder — the app needs marvispace_store)"
+echo ""
+
+echo "==> Creating database if missing..."
+uapi_create_database
+
+echo "==> Creating/updating user..."
+uapi_ensure_user
+
+echo "==> Granting ALL privileges..."
+uapi_grant_all
 
 echo "==> Testing connection..."
 if mysql -u "$DB_USER_FULL" -p"$DB_PASS" -e "USE \`${DB_FULL}\`; SELECT 1;" 2>/dev/null; then
   echo "    Connection: OK"
 else
-  echo "ERROR: Still cannot connect. Check manually:"
-  echo "  mysql -u ${DB_USER_FULL} -p -e \"SELECT 1\""
+  echo "ERROR: Still cannot connect."
+  echo "  uapi --user=marvispace Mysql list_databases"
+  echo "  uapi --user=marvispace Mysql list_users"
   exit 1
 fi
 
 if [[ -d "$REPO" ]]; then
+  echo "==> Running migrations..."
+  php "$REPO/install/migrate.php"
   echo "==> Running doctor..."
   php "$REPO/install/doctor.php" || true
 fi
 
-echo "==> Done. Next: php install/migrate.php"
+echo "==> Done."

@@ -40,9 +40,12 @@ else
   DB_PASS="$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9' | head -c 24)"
 
   echo "==> Creating MySQL database and user (cPanel UAPI)..."
-  uapi --user="$USER" Mysql create_database name="$DB_SHORT" || true
-  uapi --user="$USER" Mysql create_user name="$DB_USER_SHORT" password="$DB_PASS" || true
-  uapi --user="$USER" Mysql set_privileges_on_database user="$DB_USER_SHORT" database="$DB_SHORT" privileges=ALL
+  uapi --user="$USER" Mysql create_database name="$DB_FULL" \
+    || uapi --user="$USER" Mysql create_database name="$DB_SHORT" || true
+  uapi --user="$USER" Mysql create_user name="$DB_USER_FULL" password="$DB_PASS" \
+    || uapi --user="$USER" Mysql create_user name="$DB_USER_SHORT" password="$DB_PASS" || true
+  uapi --user="$USER" Mysql set_privileges_on_database user="$DB_USER_FULL" database="$DB_FULL" privileges=ALL \
+    || uapi --user="$USER" Mysql set_privileges_on_database user="$DB_USER_SHORT" database="$DB_SHORT" privileges=ALL
 
   RECOVERY_CODE="${MARVISPACE_RECOVERY_CODE:-}"
   if [[ -z "$RECOVERY_CODE" ]]; then

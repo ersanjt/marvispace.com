@@ -43,15 +43,17 @@ php install/migrate.php
 php install/doctor.php
 ```
 
-Or run UAPI manually:
+Or run UAPI manually (this server needs **full** names with `marvispace_` prefix):
 
 ```bash
 DB_PASS=$(php -r '$c=require "/home/marvispace/api_config.php"; echo $c["db"]["pass"];')
-uapi --user=marvispace Mysql create_database name=store || true
-uapi --user=marvispace Mysql set_password user=storeuser password="$DB_PASS" \
-  || uapi --user=marvispace Mysql create_user name=storeuser password="$DB_PASS"
-uapi --user=marvispace Mysql set_privileges_on_database user=storeuser database=store privileges=ALL
+uapi --user=marvispace Mysql create_database name=marvispace_store
+uapi --user=marvispace Mysql create_user name=marvispace_storeuser password="$DB_PASS"
+uapi --user=marvispace Mysql set_privileges_on_database \
+  user=marvispace_storeuser database=marvispace_store privileges=ALL
 ```
+
+If you only have `marvispace_harder` in cPanel, that is the **wrong** database — create `marvispace_store` as above.
 
 ---
 
