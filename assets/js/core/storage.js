@@ -7,6 +7,7 @@ const PRODUCTS_KEY = 'marvispace_products_v3';
 const ORDERS_KEY = 'marvispace_orders';
 const CART_KEY = 'marvispace_cart';
 const AUTH_KEY = 'marvispace_admin_auth';
+const ADMIN_PWD_OVERRIDE_KEY = 'marvispace_admin_pwd_hash';
 const LAST_ORDER_KEY = 'marvispace_last_order';
 
 const LEGACY_KEYS = {
@@ -171,6 +172,30 @@ export function setAdminAuthed(value) {
   try {
     if (value) sessionStorage.setItem(AUTH_KEY, '1');
     else sessionStorage.removeItem(AUTH_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getAdminPasswordHashOverride() {
+  try {
+    return localStorage.getItem(ADMIN_PWD_OVERRIDE_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+export function setAdminPasswordHashOverride(hash) {
+  try {
+    localStorage.setItem(ADMIN_PWD_OVERRIDE_KEY, hash);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function clearAdminPasswordHashOverride() {
+  try {
+    localStorage.removeItem(ADMIN_PWD_OVERRIDE_KEY);
   } catch {
     /* ignore */
   }

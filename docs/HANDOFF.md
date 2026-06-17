@@ -31,15 +31,23 @@
 
 ## Admin login
 
-Open https://marvispace.com/admin — a custom sign-in page (not the browser popup).
+Open https://marvispace.com/admin — custom sign-in page.
 
-Default password (change after first login): set via:
+| Field | Value |
+|-------|-------|
+| Email | `ersanjahedtabrizi@gmail.com` |
+| Password | Set on server (see below) |
+| Recovery code (default) | `MarviRecover2026!` — change after first use |
+
+**Change password on server:**
 
 ```bash
-node tools/set-admin-password.mjs 'YourSecurePassword'
-git add assets/js/config/admin-auth.js && git commit && git push
+cd /home/marvispace/repositories/marvispace.com
+node tools/set-admin-password.mjs 'YourSecurePassword' 'YourRecoveryCode'
 bash deploy.sh
 ```
+
+**Forgot password in browser:** use **Forgot password?** on `/admin` with admin email + recovery code.
 
 For stronger protection, also enable **cPanel → Directory Privacy** on `/admin`.
 

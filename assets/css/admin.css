@@ -175,6 +175,41 @@ body.is-logged-in .auth-screen {
   opacity: 1;
 }
 
+.auth-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.auth-text-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.55;
+}
+
+.auth-text-btn:hover {
+  opacity: 1;
+}
+
+.auth-success {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .auth-error {
   margin: 0;
   padding: 10px 12px;

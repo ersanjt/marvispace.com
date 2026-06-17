@@ -26,8 +26,21 @@
     <main class="auth-main">
       <form class="auth-form" id="loginForm">
         <h1 class="auth-title">Admin sign in</h1>
-        <p class="auth-lead">Enter your password to access the dashboard.</p>
+        <p class="auth-lead">Sign in with your admin email and password.</p>
         <p class="auth-error" id="loginError" hidden role="alert">Incorrect password. Try again.</p>
+
+        <label class="auth-field">
+          <span>Email</span>
+          <input
+            type="email"
+            id="loginEmail"
+            name="email"
+            required
+            autocomplete="username"
+            placeholder="admin@example.com"
+            inputmode="email"
+          />
+        </label>
 
         <label class="auth-field">
           <span>Password</span>
@@ -45,7 +58,79 @@
         </label>
 
         <button type="submit" class="auth-submit" id="loginSubmit">Sign in</button>
-        <a class="auth-store-link" href="/">← Back to store</a>
+        <div class="auth-foot">
+          <button type="button" class="auth-text-btn" id="forgotPasswordBtn">Forgot password?</button>
+          <a class="auth-store-link" href="/">← Back to store</a>
+        </div>
+      </form>
+
+      <form class="auth-form" id="recoveryForm" hidden>
+        <h1 class="auth-title">Reset password</h1>
+        <p class="auth-lead">Enter your admin email, recovery code, and a new password.</p>
+        <p class="auth-error" id="recoveryError" hidden role="alert"></p>
+        <p class="auth-success" id="recoverySuccess" hidden role="status">Password updated. Opening dashboard…</p>
+
+        <label class="auth-field">
+          <span>Admin email</span>
+          <input
+            type="email"
+            id="recoveryEmail"
+            name="email"
+            required
+            autocomplete="username"
+            value="ersanjahedtabrizi@gmail.com"
+            inputmode="email"
+          />
+        </label>
+
+        <label class="auth-field">
+          <span>Recovery code</span>
+          <div class="auth-pass-row">
+            <input
+              type="password"
+              id="recoveryCode"
+              name="recovery"
+              required
+              autocomplete="off"
+              placeholder="Recovery code"
+            />
+            <button type="button" class="auth-show-pass" id="recoveryShowPass" aria-pressed="false">Show</button>
+          </div>
+        </label>
+
+        <label class="auth-field">
+          <span>New password</span>
+          <div class="auth-pass-row">
+            <input
+              type="password"
+              id="recoveryNewPassword"
+              name="new-password"
+              required
+              minlength="8"
+              autocomplete="new-password"
+              placeholder="At least 8 characters"
+            />
+            <button type="button" class="auth-show-pass" id="recoveryShowNew" aria-pressed="false">Show</button>
+          </div>
+        </label>
+
+        <label class="auth-field">
+          <span>Confirm password</span>
+          <input
+            type="password"
+            id="recoveryConfirmPassword"
+            name="confirm-password"
+            required
+            minlength="8"
+            autocomplete="new-password"
+            placeholder="Repeat new password"
+          />
+        </label>
+
+        <button type="submit" class="auth-submit">Update password</button>
+        <div class="auth-foot">
+          <button type="button" class="auth-text-btn" id="backToLoginBtn">← Back to sign in</button>
+        </div>
       </form>
     </main>
   </div>

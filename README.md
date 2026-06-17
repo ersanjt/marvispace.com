@@ -48,13 +48,18 @@ Full tree: [docs/STRUCTURE.md](docs/STRUCTURE.md)
 
 Open `/admin` for the custom sign-in page (Yeezy-style UI).
 
+| Field | Default |
+|-------|---------|
+| Email | `ersanjahedtabrizi@gmail.com` |
+| Recovery code | `MarviRecover2026!` |
+
 Set password hash:
 
 ```bash
-node tools/set-admin-password.mjs 'YourSecurePassword'
+node tools/set-admin-password.mjs 'YourSecurePassword' 'YourRecoveryCode'
 ```
 
-Default password after setup: `MarviAdmin2026!` (change immediately).
+Use **Forgot password?** on `/admin` to reset with email + recovery code.
 
 Optional: cPanel **Directory Privacy** on `/admin` for server-level protection.
 
