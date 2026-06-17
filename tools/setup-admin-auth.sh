@@ -23,22 +23,23 @@ if ! command -v htpasswd >/dev/null 2>&1; then
   exit 1
 fi
 
-htpasswd -cb "$HTPASSWD" "$ADMIN_USER" "$PASS"
-chown "$USER:$USER" "$HTPASSWD"
-chmod 644 "$HTPASSWD"
-
-# cPanel/Apache often runs as nobody — allow read if group exists
-if getent group nobody >/dev/null 2>&1; then
-  chgrp nobody "$HTPASSWD" 2>/dev/null || true
-  chmod 640 "$HTPASSWD" 2>/dev/null || chmod 644 "$HTPASSWD"
+# -B = bcrypt (works on cPanel/EasyApache); fallback to default apr1
+if htpasswd -cbB "$HTPASSWD" "$ADMIN_USER" "$PASS" 2>/dev/null; then
+  :
+else
+  htpasswd -cb "$HTPASSWD" "$ADMIN_USER" "$PASS"
 fi
 
-if [[ ! -r "$HTPASSWD" ]]; then
-  echo "ERROR: $HTPASSWD is not readable"
+chown "$USER:$USER" "$HTPASSWD"
+# Apache (nobody) must read this file — outside public_html, 644 is safe on cPanel
+chmod 644 "$HTPASSWD"
+
+if [[ ! -s "$HTPASSWD" ]]; then
+  echo "ERROR: $HTPASSWD is empty"
   exit 1
 fi
 
-echo "OK: Admin auth file ready at $HTPASSWD"
+echo "OK: Admin auth file ready at $HTPASSWD ($(wc -c < "$HTPASSWD") bytes, mode $(stat -c '%a' "$HTPASSWD"))"
 echo "Username: $ADMIN_USER"
 if [[ "$GENERATED" -eq 1 ]]; then
   echo "Generated password: $PASS"
