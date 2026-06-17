@@ -69,7 +69,33 @@ MARVISPACE_ADMIN_PASSWORD='NewPassword' \
 php install/seed.php
 ```
 
-## Architecture
+## Order emails (SMTP)
+
+Create mailbox **orders@marvispace.com** in cPanel → Email Accounts.
+
+```bash
+MARVISPACE_SMTP_PASS='orders-mailbox-password' \
+php install/patch-api-config-mail.php
+
+php install/test-mail.php --probe
+php install/test-mail.php
+```
+
+If port **465/SSL** fails on your host, try **587/TLS**:
+
+```bash
+MARVISPACE_SMTP_PORT=587 \
+MARVISPACE_SMTP_SECURE=tls \
+MARVISPACE_SMTP_PASS='orders-mailbox-password' \
+php install/patch-api-config-mail.php
+
+php install/test-mail.php --probe --tls
+php install/test-mail.php
+```
+
+Enable **SPF** and **DKIM** in cPanel → Email Deliverability.
+
+---
 
 ```
 Browser → /api/v1/*.php → MySQL (marvispace_store)

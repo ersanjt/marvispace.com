@@ -23,6 +23,10 @@ if (!is_file($configPath)) {
 $config = require $configPath;
 $adminEmail = getenv('MARVISPACE_ADMIN_EMAIL') ?: '';
 $smtpPass = getenv('MARVISPACE_SMTP_PASS') ?: (string) ($config['mail']['smtp']['pass'] ?? '');
+$smtpPort = (int) (getenv('MARVISPACE_SMTP_PORT') ?: ($config['mail']['smtp']['port'] ?? 465));
+$smtpSecure = getenv('MARVISPACE_SMTP_SECURE') ?: (string) ($config['mail']['smtp']['secure'] ?? 'ssl');
+$smtpHost = getenv('MARVISPACE_SMTP_HOST') ?: (string) ($config['mail']['smtp']['host'] ?? 'mail.marvispace.com');
+$smtpUser = getenv('MARVISPACE_SMTP_USER') ?: (string) ($config['mail']['smtp']['user'] ?? '');
 
 $config['mail'] = array_merge([
     'from' => 'orders@marvispace.com',
@@ -42,16 +46,20 @@ $config['mail']['from'] = $config['mail']['from'] ?: 'orders@marvispace.com';
 $config['mail']['support'] = $config['mail']['support'] ?: 'support@marvispace.com';
 $config['mail']['admin_notify'] = $config['mail']['admin_notify'] ?: $adminEmail;
 $config['mail']['smtp'] = array_merge([
-    'host' => 'mail.marvispace.com',
-    'port' => 465,
-    'secure' => 'ssl',
+    'host' => $smtpHost,
+    'port' => $smtpPort > 0 ? $smtpPort : 465,
+    'secure' => $smtpSecure !== '' ? $smtpSecure : 'ssl',
     'user' => $config['mail']['from'],
     'pass' => '',
 ], $config['mail']['smtp'] ?? []);
 
 if ($smtpPass !== '') {
     $config['mail']['smtp']['pass'] = $smtpPass;
-    $config['mail']['smtp']['user'] = $config['mail']['smtp']['user'] ?: $config['mail']['from'];
+}
+if ($smtpUser !== '') {
+    $config['mail']['smtp']['user'] = $smtpUser;
+} elseif ($config['mail']['smtp']['user'] === '') {
+    $config['mail']['smtp']['user'] = $config['mail']['from'];
 }
 
 $export = var_export($config, true);
