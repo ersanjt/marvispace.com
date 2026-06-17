@@ -3,20 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="developer" content="Ersan JT" />
   <title>Checkout — MARVISPACE | marvispace.com</title>
-  <meta name="description" content="Secure checkout at MARVISPACE. Complete your order for premium footwear and apparel with fast shipping." />
+  <meta name="description" content="Secure checkout at MARVISPACE. Complete your order for premium leather apparel with fast shipping." />
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="canonical" href="https://marvispace.com/checkout.html" />
+  <link rel="canonical" href="https://marvispace.com/checkout" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="checkout.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <link rel="stylesheet" href="/assets/css/cart-ui.css" />
+  <link rel="stylesheet" href="/assets/css/checkout.css" />
 </head>
 <body>
 
   <header class="checkout-nav">
-    <a class="back-link" href="index.html" aria-label="Back to store">‹</a>
-    <a class="brand" href="index.html">MARVISPACE</a>
+    <a class="back-link" href="/" aria-label="Back to store">‹</a>
+    <a class="brand" href="/">MARVISPACE</a>
     <span class="nav-spacer"></span>
   </header>
 
@@ -24,11 +27,31 @@
     <div class="checkout-layout">
 
       <section class="checkout-form-col">
-        <div class="express-row">
-          <button type="button" class="express-btn" disabled>Apple Pay</button>
-          <button type="button" class="express-btn" disabled>G Pay</button>
-          <button type="button" class="express-btn" disabled>PayPal</button>
+        <div class="summary-mobile" id="summaryMobile">
+          <h2 class="cart-summary-heading">Order Summary</h2>
+          <div class="cart-lines" id="summaryItemsMobile"></div>
+          <p class="cart-empty-msg" id="summaryEmptyMobile" hidden>Your cart is empty</p>
+          <div id="summaryTotalsMobile" hidden></div>
+          <button type="button" class="cart-discount-link" data-discount-toggle>MARVISPACE code</button>
+          <div class="cart-discount-form" data-discount-form hidden>
+            <input type="text" placeholder="Enter code" aria-label="Discount code" />
+            <button type="button">Apply</button>
+          </div>
         </div>
+
+        <section class="express-checkout" aria-label="Express checkout">
+          <h3 class="express-heading">Express Checkout</h3>
+          <div class="express-row">
+            <button type="button" class="express-btn" disabled>Apple Pay</button>
+            <button type="button" class="express-btn" disabled>G Pay</button>
+            <button type="button" class="express-btn" disabled>PayPal</button>
+          </div>
+          <div class="express-divider">
+            <span></span>
+            <span>Or continue below</span>
+            <span></span>
+          </div>
+        </section>
 
         <form class="checkout-form" id="checkoutForm">
           <fieldset class="form-block">
@@ -102,12 +125,15 @@
             </label>
             <label>
               <span>TAX ID (OPTIONAL)</span>
-              <input type="text" id="taxId" name="taxId" />
+              <input type="text" id="taxId" name="taxId" placeholder="ENTER YOUR TAX ID" />
             </label>
+            <p class="form-note">Turkish ID number (TCKN) or VAT number required</p>
             <p class="form-note warn" id="taxNote">
-              YOU MUST PROVIDE THE INFORMATION ABOVE TO SELECT A SHIPPING OPTION. IF YOU DO NOT SEE YOUR COUNTRY IN THE LIST ABOVE WE ARE ONLY DELIVERING TO THOSE COUNTRIES AT THIS MOMENT.
+              YOU MUST INCLUDE TAX ID FOR YOUR ORDER TO SHIP. IF YOU DO NOT INCLUDE IT NOW, WE WILL SEND AN EMAIL REQUESTING IT BEFORE YOUR ORDER IS RELEASED.
             </p>
           </fieldset>
+
+          <p class="form-note shipping-note">Enter your shipping address to see available shipping options.</p>
 
           <fieldset class="form-block payment-block" id="paymentBlock">
             <legend>PAYMENT DETAILS</legend>
@@ -147,27 +173,14 @@
 
       <aside class="checkout-summary-col">
         <div class="summary-panel">
-          <h2>ORDER SUMMARY</h2>
-          <div class="summary-items" id="summaryItems"></div>
-          <p class="summary-empty" id="summaryEmpty" hidden>YOUR CART IS EMPTY</p>
-
-          <div class="summary-totals" id="summaryTotals" hidden>
-            <div class="summary-row">
-              <span>SUBTOTAL</span>
-              <span id="summarySubtotal">$0.00</span>
-            </div>
-            <div class="summary-row">
-              <span>SHIPPING</span>
-              <span class="muted">CALCULATED AT NEXT STEP</span>
-            </div>
-            <div class="summary-row">
-              <span>TAXES</span>
-              <span id="summaryTaxes">$0.00</span>
-            </div>
-            <div class="summary-row total">
-              <span>TOTAL</span>
-              <span id="summaryTotal">$0.00</span>
-            </div>
+          <h2 class="cart-summary-heading">Order Summary</h2>
+          <div class="cart-lines" id="summaryItems"></div>
+          <p class="cart-empty-msg" id="summaryEmpty" hidden>Your cart is empty</p>
+          <div id="summaryTotals" hidden></div>
+          <button type="button" class="cart-discount-link" data-discount-toggle>MARVISPACE code</button>
+          <div class="cart-discount-form" data-discount-form hidden>
+            <input type="text" placeholder="Enter code" aria-label="Discount code" />
+            <button type="button">Apply</button>
           </div>
         </div>
       </aside>
@@ -175,6 +188,6 @@
     </div>
   </main>
 
-  <script type="module" src="checkout.js"></script>
+  <script type="module" src="/assets/js/pages/checkout.js"></script>
 </body>
 </html>

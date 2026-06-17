@@ -1,0 +1,27 @@
+{
+  "name": "marvispace",
+  "version": "1.0.0",
+  "description": "MARVISPACE premium leather apparel e-commerce storefront",
+  "private": true,
+  "type": "module",
+  "author": {
+    "name": "Ersan JT",
+    "url": "https://github.com/ersanjt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ersanjt/marvispace.com.git"
+  },
+  "homepage": "https://marvispace.com",
+  "bugs": {
+    "url": "https://github.com/ersanjt/marvispace.com/issues"
+  },
+  "scripts": {
+    "sitemap": "node tools/generate-sitemap.mjs",
+    "scrape:ottimo": "node tools/scrape-ottimo.mjs",
+    "translate:products": "node tools/translate-products.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,167 +1,314 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="developer" content="Ersan JT" />
   <title>Admin — MARVISPACE</title>
   <meta name="robots" content="noindex, nofollow, noarchive" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="admin.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <link rel="stylesheet" href="/assets/css/admin.css" />
 </head>
 <body>
 
-  <div class="login-screen" id="loginScreen">
-    <form class="login-card" id="loginForm">
-      <h1>پنل مدیریت</h1>
-      <p>رمز عبور: <code>admin123</code></p>
-      <label>
-        <span>رمز عبور</span>
-        <input type="password" id="loginPassword" required autocomplete="current-password" />
-      </label>
-      <button type="submit">ورود</button>
-      <a class="back-link" href="index.html">بازگشت به فروشگاه</a>
-    </form>
+  <div class="auth-screen" id="loginScreen">
+    <div class="auth-layout">
+      <div class="auth-brand">
+        <span class="auth-logo">MARVISPACE</span>
+        <p>Online store administration</p>
+        <ul class="auth-features">
+          <li>Manage products and inventory</li>
+          <li>Track customer orders</li>
+          <li>Sync with the storefront</li>
+        </ul>
+      </div>
+      <form class="auth-card" id="loginForm">
+        <h1>Sign in to dashboard</h1>
+        <p class="auth-sub">Enter your password to access the admin panel.</p>
+        <p class="auth-error" id="loginError" hidden role="alert">Incorrect password</p>
+        <label class="field">
+          <span>Password</span>
+          <input
+            type="password"
+            id="loginPassword"
+            name="password"
+            required
+            autocomplete="current-password"
+            placeholder="••••••••"
+          />
+        </label>
+        <button type="submit" class="btn btn-primary btn-block" id="loginSubmit">Sign in</button>
+        <a class="auth-back" href="/">← Back to store</a>
+      </form>
+    </div>
   </div>
 
-  <div class="admin-app" id="adminApp" hidden>
-    <header class="admin-header">
-      <div>
-        <h1>پنل مدیریت MARVISPACE</h1>
-        <p>marvispace.com — مدیریت محصولات و سفارش‌ها</p>
+  <div class="admin-shell" id="adminApp" hidden>
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo">MARVISPACE</span>
+        <small>Admin Panel</small>
       </div>
-      <div class="admin-header-actions">
-        <a href="index.html" class="ghost-btn">مشاهده فروشگاه</a>
-        <button type="button" class="ghost-btn" id="logoutBtn">خروج</button>
+      <nav class="sidebar-nav" aria-label="Admin navigation">
+        <button type="button" class="nav-item active" data-tab="dashboard">
+          <span class="nav-icon">◫</span>
+          <span>Dashboard</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="products">
+          <span class="nav-icon">▦</span>
+          <span>Products</span>
+          <span class="nav-badge" id="navProductCount">0</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="orders">
+          <span class="nav-icon">◎</span>
+          <span>Orders</span>
+          <span class="nav-badge" id="navOrderCount">0</span>
+        </button>
+      </nav>
+      <div class="sidebar-foot">
+        <a href="/" class="sidebar-link">View store</a>
+        <button type="button" class="sidebar-link danger" id="logoutBtn">Sign out</button>
+        <p class="sidebar-credit">Dev · <a href="https://github.com/ersanjt" target="_blank" rel="author noopener noreferrer">Ersan JT</a></p>
       </div>
-    </header>
+    </aside>
 
-    <nav class="admin-tabs">
-      <button type="button" class="tab-btn active" data-tab="products">محصولات</button>
-      <button type="button" class="tab-btn" data-tab="orders">سفارش‌ها</button>
-    </nav>
-
-    <section class="tab-panel active" id="productsPanel">
-      <div class="admin-grid">
-        <div class="panel">
-          <div class="panel-head">
-            <h2>لیست محصولات</h2>
-            <button type="button" class="solid-btn" id="newProductBtn">+ محصول جدید</button>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table" id="productsTable">
-              <thead>
-                <tr>
-                  <th>مدل</th>
-                  <th>دسته</th>
-                  <th>قیمت</th>
-                  <th>موجودی</th>
-                  <th>وضعیت</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="productsTableBody"></tbody>
-            </table>
-          </div>
+    <div class="admin-main">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Store overview</p>
         </div>
+        <div class="topbar-actions">
+          <button type="button" class="btn btn-primary" id="topNewProductBtn" hidden>+ New product</button>
+        </div>
+      </header>
 
-        <div class="panel">
-          <div class="panel-head">
-            <h2 id="formTitle">افزودن محصول</h2>
+      <main class="admin-content">
+
+        <section class="view-panel active" id="dashboardPanel" data-view="dashboard">
+          <div class="stats-grid">
+            <article class="stat-card">
+              <span class="stat-label">Total products</span>
+              <strong class="stat-value" id="statTotal">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">In stock</span>
+              <strong class="stat-value stat-ok" id="statInStock">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Out of stock</span>
+              <strong class="stat-value stat-warn" id="statOutStock">0</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Orders</span>
+              <strong class="stat-value" id="statOrders">0</strong>
+            </article>
+            <article class="stat-card stat-wide">
+              <span class="stat-label">Recorded revenue</span>
+              <strong class="stat-value" id="statRevenue">$0.00</strong>
+            </article>
           </div>
-          <form class="product-form" id="productForm">
-            <input type="hidden" id="productId" />
-
-            <label>
-              <span>مدل محصول</span>
-              <input type="text" id="productLabel" placeholder="SL-03" required />
-            </label>
-
-            <div class="form-row">
-              <label>
-                <span>قیمت ($)</span>
-                <input type="number" id="productPrice" min="0" step="1" required />
-              </label>
-              <label>
-                <span>موجودی (تعداد)</span>
-                <input type="number" id="productStock" min="0" step="1" value="0" />
-              </label>
+          <div class="dash-grid">
+            <div class="card">
+              <div class="card-head">
+                <h2>Recent orders</h2>
+                <button type="button" class="btn btn-ghost btn-sm" data-goto="orders">View all</button>
+              </div>
+              <div class="dash-orders" id="dashOrdersList">
+                <p class="empty-state">No orders yet.</p>
+              </div>
             </div>
+            <div class="card">
+              <div class="card-head">
+                <h2>Low stock</h2>
+                <button type="button" class="btn btn-ghost btn-sm" data-goto="products">Manage</button>
+              </div>
+              <div class="dash-low" id="dashLowStockList">
+                <p class="empty-state">All products have sufficient stock.</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            <div class="form-row">
-              <label>
-                <span>دسته‌بندی</span>
-                <select id="productCategory" required>
-                  <option value="footwear">FOOTWEAR</option>
-                  <option value="accessories">ACCESSORIES</option>
-                  <option value="slides">SLIDES</option>
+        <section class="view-panel" id="productsPanel" data-view="products">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-head-start">
+                <h2>Product catalog</h2>
+                <span class="muted" id="productsCount">0 products</span>
+              </div>
+              <div class="card-head-actions">
+                <input type="search" class="search-input" id="productSearch" placeholder="Search model, category..." />
+                <select class="filter-select" id="productFilter">
+                  <option value="all">All</option>
+                  <option value="in">In stock</option>
+                  <option value="out">Out of stock</option>
+                  <option value="low">Low stock (≤5)</option>
                 </select>
-              </label>
-              <label>
-                <span>جنسیت</span>
-                <select id="productGender" required>
-                  <option value="mens">MENS</option>
-                  <option value="womens">WOMENS</option>
-                </select>
-              </label>
+                <button type="button" class="btn btn-primary" id="newProductBtn">+ New product</button>
+              </div>
             </div>
-
-            <label class="checkbox-row">
-              <input type="checkbox" id="productInStock" checked />
-              <span>محصول موجود است</span>
-            </label>
-
-            <label>
-              <span>تصویر اصلی (URL)</span>
-              <input type="url" id="productImage" placeholder="https://..." required />
-            </label>
-
-            <label>
-              <span>گالری تصاویر (هر خط یک URL)</span>
-              <textarea id="productGallery" rows="4" placeholder="https://.../image-1.png&#10;https://.../image-2.png"></textarea>
-            </label>
-
-            <label>
-              <span>سایزهای موجود (با کاما جدا کنید)</span>
-              <input type="text" id="productSizes" placeholder="4,5,6,7,8,9,10,11,12" />
-            </label>
-
-            <div class="form-actions">
-              <button type="submit" class="solid-btn" id="saveProductBtn">ذخیره محصول</button>
-              <button type="button" class="ghost-btn" id="resetFormBtn">پاک کردن فرم</button>
+            <div class="table-wrap">
+              <table class="data-table" id="productsTable">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Model</th>
+                    <th>Category</th>
+                    <th>Gender</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="productsTableBody"></tbody>
+              </table>
             </div>
-          </form>
-        </div>
-      </div>
-    </section>
+            <p class="empty-state" id="productsEmpty" hidden>No products found.</p>
+          </div>
+        </section>
 
-    <section class="tab-panel" id="ordersPanel">
-      <div class="panel">
-        <div class="panel-head">
-          <h2>سفارش‌های ثبت‌شده</h2>
-          <span class="muted" id="ordersCount">0 سفارش</span>
-        </div>
-        <div class="table-wrap">
-          <table class="data-table" id="ordersTable">
-            <thead>
-              <tr>
-                <th>کد</th>
-                <th>تاریخ</th>
-                <th>اقلام</th>
-                <th>جمع</th>
-                <th>وضعیت</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="ordersTableBody"></tbody>
-          </table>
-        </div>
-        <p class="empty-note" id="ordersEmpty" hidden>هنوز سفارشی ثبت نشده است.</p>
-      </div>
-    </section>
+        <section class="view-panel" id="ordersPanel" data-view="orders">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-head-start">
+                <h2>Orders</h2>
+                <span class="muted" id="ordersCount">0 orders</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="ordersTable">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ordersTableBody"></tbody>
+              </table>
+            </div>
+            <p class="empty-state" id="ordersEmpty" hidden>No orders yet.</p>
+          </div>
+        </section>
+
+      </main>
+    </div>
   </div>
 
-  <script type="module" src="admin.js"></script>
+  <div class="modal" id="productModal" aria-hidden="true" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+      <div class="modal-head">
+        <h2 id="formTitle">Add product</h2>
+        <button type="button" class="modal-close" data-close-modal aria-label="Close">×</button>
+      </div>
+      <form class="product-form" id="productForm">
+        <input type="hidden" id="productId" />
+        <div class="form-grid">
+          <label class="field">
+            <span>Product name</span>
+            <input type="text" id="productLabel" placeholder="Leather Bomber Jacket" required />
+          </label>
+          <label class="field">
+            <span>Price (USD)</span>
+            <input type="number" id="productPrice" min="0" step="1" required />
+          </label>
+          <label class="field">
+            <span>Stock quantity</span>
+            <input type="number" id="productStock" min="0" step="1" value="0" />
+          </label>
+          <label class="field">
+            <span>Category</span>
+            <select id="productCategory" required>
+              <option value="jackets">Jackets</option>
+              <option value="coats">Coats</option>
+              <option value="shirts">Shirts</option>
+              <option value="bottoms">Bottoms</option>
+              <option value="accessories">Accessories</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Gender</span>
+            <select id="productGender" required>
+              <option value="mens">Mens</option>
+              <option value="womens">Womens</option>
+            </select>
+          </label>
+          <label class="field field-check">
+            <input type="checkbox" id="productInStock" checked />
+            <span>Visible in store (in stock)</span>
+          </label>
+        </div>
+        <label class="field">
+          <span>Main image (URL)</span>
+          <input type="url" id="productImage" placeholder="https://..." required />
+        </label>
+        <div class="img-preview" id="imagePreview" hidden>
+          <img id="imagePreviewImg" alt="" />
+        </div>
+        <label class="field">
+          <span>Gallery images (one URL per line)</span>
+          <textarea id="productGallery" rows="3" placeholder="https://.../image-1.jpg"></textarea>
+        </label>
+        <label class="field">
+          <span>Available sizes (comma-separated)</span>
+          <input type="text" id="productSizes" placeholder="XS,S,M,L,XL,XXL" />
+        </label>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" id="resetFormBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveProductBtn">Save product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script>
+    (function () {
+      var AUTH_KEY = 'yzy_admin_auth';
+      var PASS = 'admin123';
+
+      function setLoggedIn(on) {
+        document.body.classList.toggle('is-logged-in', on);
+        var login = document.getElementById('loginScreen');
+        var app = document.getElementById('adminApp');
+        if (login) login.hidden = !on ? false : true;
+        if (app) app.hidden = !on;
+      }
+
+      var form = document.getElementById('loginForm');
+      var input = document.getElementById('loginPassword');
+      var error = document.getElementById('loginError');
+      if (!form || !input) return;
+
+      if (sessionStorage.getItem(AUTH_KEY) === '1') setLoggedIn(true);
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var pwd = input.value.trim();
+        if (pwd !== PASS) {
+          if (error) error.hidden = false;
+          input.focus();
+          return;
+        }
+        if (error) error.hidden = true;
+        try { sessionStorage.setItem(AUTH_KEY, '1'); } catch (_) {}
+        setLoggedIn(true);
+        window.dispatchEvent(new CustomEvent('marvispace-admin-login'));
+      });
+    })();
+  </script>
+  <script type="module" src="/assets/js/pages/admin.js"></script>
 </body>
 </html>

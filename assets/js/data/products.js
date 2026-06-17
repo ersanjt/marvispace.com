@@ -1,0 +1,320 @@
+export const products = [
+  {
+    "id": "ottimo_22_KML_144_A_004",
+    "label": "Aris Leather Jacket",
+    "image": "/assets/images/products/22_KML_144_A_004_01.jpg",
+    "images": [
+      "/assets/images/products/22_KML_144_A_004_01.jpg",
+      "/assets/images/products/22_KML_144_A_004_02.jpg",
+      "/assets/images/products/22_KML_144_A_004_03.jpg",
+      "/assets/images/products/22_KML_144_A_004_04.jpg",
+      "/assets/images/products/22_KML_144_A_004_05.jpg",
+      "/assets/images/products/22_KML_144_A_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 545,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_850_000",
+    "label": "Apex Leather Jacket",
+    "image": "/assets/images/products/A15_850_000_01.jpg",
+    "images": [
+      "/assets/images/products/A15_850_000_01.jpg",
+      "/assets/images/products/A15_850_000_02.jpg",
+      "/assets/images/products/A15_850_000_03.jpg",
+      "/assets/images/products/A15_850_000_04.jpg",
+      "/assets/images/products/A15_850_000_05.jpg",
+      "/assets/images/products/A15_850_000_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 681,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_910_004",
+    "label": "Axis Bomber Leather Jacket",
+    "image": "/assets/images/products/A15_910_004_01.jpg",
+    "images": [
+      "/assets/images/products/A15_910_004_01.jpg",
+      "/assets/images/products/A15_910_004_02.jpg",
+      "/assets/images/products/A15_910_004_03.jpg",
+      "/assets/images/products/A15_910_004_04.jpg",
+      "/assets/images/products/A15_910_004_05.jpg",
+      "/assets/images/products/A15_910_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 1008,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_CMLB_1756_000_KREM",
+    "label": "Asis Bomber Leather Jacket",
+    "image": "/assets/images/products/DRK_CMLB_1756_000_KREM_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_01.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_02.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_03.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_04.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_05.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 490,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_CMLB_1756_TABA",
+    "label": "Aron Suede Shirt Jacket",
+    "image": "/assets/images/products/DRK_CMLB_1756_TABA_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_CMLB_1756_TABA_01.jpg",
+      "/assets/images/products/DRK_CMLB_1756_TABA_02.jpg",
+      "/assets/images/products/DRK_CMLB_1756_TABA_03.jpg",
+      "/assets/images/products/DRK_CMLB_1756_TABA_04.jpg",
+      "/assets/images/products/DRK_CMLB_1756_TABA_05.jpg",
+      "/assets/images/products/DRK_CMLB_1756_TABA_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 545,
+    "category": "shirts",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_854_000",
+    "label": "Aven Suede Bomber Jacket",
+    "image": "/assets/images/products/A15_854_000_01.jpg",
+    "images": [
+      "/assets/images/products/A15_854_000_01.jpg",
+      "/assets/images/products/A15_854_000_02.jpg",
+      "/assets/images/products/A15_854_000_03.jpg",
+      "/assets/images/products/A15_854_000_04.jpg",
+      "/assets/images/products/A15_854_000_05.jpg",
+      "/assets/images/products/A15_854_000_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 477,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_MACEOO_35_LACI",
+    "label": "Kros Suede Bomber Jacket",
+    "image": "/assets/images/products/DRK_MACEOO_35_LACI_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_MACEOO_35_LACI_01.jpg",
+      "/assets/images/products/DRK_MACEOO_35_LACI_02.jpg",
+      "/assets/images/products/DRK_MACEOO_35_LACI_03.jpg",
+      "/assets/images/products/DRK_MACEOO_35_LACI_04.jpg",
+      "/assets/images/products/DRK_MACEOO_35_LACI_05.jpg",
+      "/assets/images/products/DRK_MACEOO_35_LACI_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 613,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_MACEOO_35_NAVY",
+    "label": "Kian Leather Shirt Jacket",
+    "image": "/assets/images/products/DRK_MACEOO_35_NAVY_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_MACEOO_35_NAVY_01.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_02.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_03.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_04.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_05.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 490,
+    "category": "shirts",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_838_004",
+    "label": "Maya Mink Suede Shirt",
+    "image": "/assets/images/products/A15_838_004_01.jpg",
+    "images": [
+      "/assets/images/products/A15_838_004_01.jpg",
+      "/assets/images/products/A15_838_004_02.jpg",
+      "/assets/images/products/A15_838_004_03.jpg",
+      "/assets/images/products/A15_838_004_04.jpg",
+      "/assets/images/products/A15_838_004_05.jpg",
+      "/assets/images/products/A15_838_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 313,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_SEIL_09_A_VIZON",
+    "label": "Mila Leather Crop Bomber",
+    "image": "/assets/images/products/DRK_SEIL_09_A_VIZON_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_SEIL_09_A_VIZON_01.jpg",
+      "/assets/images/products/DRK_SEIL_09_A_VIZON_02.jpg",
+      "/assets/images/products/DRK_SEIL_09_A_VIZON_03.jpg",
+      "/assets/images/products/DRK_SEIL_09_A_VIZON_04.jpg",
+      "/assets/images/products/DRK_SEIL_09_A_VIZON_05.jpg",
+      "/assets/images/products/DRK_SEIL_09_A_VIZON_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 409,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A10_973_001",
+    "label": "Rhea Crop Biker Jacket",
+    "image": "/assets/images/products/A10_973_001_01.jpg",
+    "images": [
+      "/assets/images/products/A10_973_001_01.jpg",
+      "/assets/images/products/A10_973_001_02.jpg",
+      "/assets/images/products/A10_973_001_03.jpg",
+      "/assets/images/products/A10_973_001_04.jpg",
+      "/assets/images/products/A10_973_001_05.jpg",
+      "/assets/images/products/A10_973_001_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 429,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_CWLB_1040_004",
+    "label": "Scarlet Suede Jacket",
+    "image": "/assets/images/products/DRK_CWLB_1040_004_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_CWLB_1040_004_01.jpg"
+    ],
+    "galleryCount": 1,
+    "price": 686,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_25WPS107_900",
+    "label": "Nova Leather Shirt Jacket",
+    "image": "/assets/images/products/DRK_25WPS107_900_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_25WPS107_900_01.jpg",
+      "/assets/images/products/DRK_25WPS107_900_02.jpg",
+      "/assets/images/products/DRK_25WPS107_900_03.jpg",
+      "/assets/images/products/DRK_25WPS107_900_04.jpg",
+      "/assets/images/products/DRK_25WPS107_900_05.jpg",
+      "/assets/images/products/DRK_25WPS107_900_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 327,
+    "category": "shirts",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A05_015_000",
+    "label": "Rico Grey Suede Jacket",
+    "image": "/assets/images/products/A05_015_000_01.jpg",
+    "images": [
+      "/assets/images/products/A05_015_000_01.jpg",
+      "/assets/images/products/A05_015_000_02.jpg",
+      "/assets/images/products/A05_015_000_03.jpg",
+      "/assets/images/products/A05_015_000_04.jpg",
+      "/assets/images/products/A05_015_000_05.jpg",
+      "/assets/images/products/A05_015_000_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 517,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_875_000",
+    "label": "Omar Suede Bomber Jacket",
+    "image": "/assets/images/products/A15_875_000_01.jpg",
+    "images": [
+      "/assets/images/products/A15_875_000_01.jpg",
+      "/assets/images/products/A15_875_000_02.jpg",
+      "/assets/images/products/A15_875_000_03.jpg",
+      "/assets/images/products/A15_875_000_04.jpg",
+      "/assets/images/products/A15_875_000_05.jpg",
+      "/assets/images/products/A15_875_000_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 340,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_894_A_VISKI",
+    "label": "Luca Leather Jacket",
+    "image": "/assets/images/products/A15_894_A_VISKI_01.jpg",
+    "images": [
+      "/assets/images/products/A15_894_A_VISKI_01.jpg",
+      "/assets/images/products/A15_894_A_VISKI_02.jpg",
+      "/assets/images/products/A15_894_A_VISKI_03.jpg",
+      "/assets/images/products/A15_894_A_VISKI_04.jpg",
+      "/assets/images/products/A15_894_A_VISKI_05.jpg",
+      "/assets/images/products/A15_894_A_VISKI_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 436,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_930_004",
+    "label": "Zion Leather Bomber Jacket",
+    "image": "/assets/images/products/A15_930_004_01.jpg",
+    "images": [
+      "/assets/images/products/A15_930_004_01.jpg",
+      "/assets/images/products/A15_930_004_02.jpg",
+      "/assets/images/products/A15_930_004_03.jpg",
+      "/assets/images/products/A15_930_004_04.jpg",
+      "/assets/images/products/A15_930_004_05.jpg",
+      "/assets/images/products/A15_930_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 340,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  }
+];

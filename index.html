@@ -3,25 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MARVISPACE | Premium Footwear &amp; Apparel — marvispace.com</title>
-  <meta name="description" content="Shop minimalist footwear, slides, apparel and accessories at MARVISPACE. New arrivals for men and women — premium design, curated collections, secure checkout at marvispace.com." />
-  <meta name="keywords" content="MARVISPACE, marvispace.com, footwear, slides, mens fashion, womens fashion, minimalist store, online shop, sneakers, boots, accessories" />
+  <title>MARVISPACE | Premium Leather Apparel — marvispace.com</title>
+  <meta name="description" content="Shop premium leather jackets, coats, shirts and accessories at MARVISPACE. Curated mens and womens collections — secure checkout at marvispace.com." />
+  <meta name="keywords" content="MARVISPACE, marvispace.com, leather jacket, suede coat, bomber jacket, biker jacket, mens fashion, womens fashion, online shop" />
   <meta name="author" content="MARVISPACE" />
+  <meta name="developer" content="Ersan JT" />
+  <meta name="creator" content="Ersan JT" />
+  <link rel="author" href="https://github.com/ersanjt" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <link rel="canonical" href="https://marvispace.com/" />
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
   <meta name="theme-color" content="#f6f6f5" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="MARVISPACE" />
-  <meta property="og:title" content="MARVISPACE | Premium Footwear &amp; Apparel" />
-  <meta property="og:description" content="Shop minimalist footwear, slides, apparel and accessories at MARVISPACE. New arrivals for men and women at marvispace.com." />
+  <meta property="og:title" content="MARVISPACE | Premium Leather Apparel" />
+  <meta property="og:description" content="Shop premium leather jackets, coats and apparel at MARVISPACE. New arrivals for men and women at marvispace.com." />
   <meta property="og:url" content="https://marvispace.com/" />
   <meta property="og:image" content="https://cdn.swell.store/yzy-prod/694f03180da1910012a0e97c/205872b9cd6ca8619e84f61f025e115a/SL-03-BLACK-1.png" />
   <meta property="og:locale" content="en_US" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="MARVISPACE | Premium Footwear &amp; Apparel" />
-  <meta name="twitter:description" content="Shop minimalist footwear, slides, apparel and accessories at MARVISPACE — marvispace.com" />
+  <meta name="twitter:title" content="MARVISPACE | Premium Leather Apparel" />
+  <meta name="twitter:description" content="Shop premium leather jackets, coats and apparel at MARVISPACE — marvispace.com" />
   <meta name="twitter:image" content="https://cdn.swell.store/yzy-prod/694f03180da1910012a0e97c/205872b9cd6ca8619e84f61f025e115a/SL-03-BLACK-1.png" />
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -44,7 +48,7 @@
         "@id": "https://marvispace.com/#website",
         "url": "https://marvispace.com/",
         "name": "MARVISPACE",
-        "description": "Minimalist online store for premium footwear, apparel and accessories.",
+        "description": "Premium online store for leather jackets, coats, shirts and accessories.",
         "publisher": { "@id": "https://marvispace.com/#organization" },
         "inLanguage": "en"
       },
@@ -64,10 +68,13 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <link rel="stylesheet" href="/assets/css/cart-ui.css" />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
 </head>
 <body>
+  <!-- MARVISPACE Storefront · Developed by Ersan JT — https://github.com/ersanjt -->
 
   <!-- ═══ HEADER ═══ -->
   <header class="site-nav" role="banner">
@@ -89,7 +96,7 @@
     </button>
 
     <div class="brand" aria-label="MARVISPACE">
-      <h1 class="visually-hidden">MARVISPACE — Premium Footwear and Apparel Online Store</h1>
+      <h1 class="visually-hidden">MARVISPACE — Premium Leather Apparel Online Store</h1>
       <span class="brand-mark" aria-hidden="true">MARVISPACE</span>
     </div>
 
@@ -115,30 +122,21 @@
     </div>
 
     <div class="cart-body">
-      <div class="cart-items" id="cartItems">
+      <h2 class="cart-summary-heading">Order Summary</h2>
+      <div class="cart-lines" id="cartItems">
         <div class="cart-empty" id="cartEmpty">
-          <p>YOUR CART IS EMPTY</p>
+          <p class="cart-empty-msg">Your cart is empty</p>
         </div>
       </div>
 
       <div class="cart-summary" id="cartFooter" hidden>
-        <div class="cart-summary-row">
-          <span>SUBTOTAL</span>
-          <span id="cartSubtotal">$0.00</span>
+        <div id="cartTotals"></div>
+        <button type="button" class="cart-discount-link" id="cartDiscountToggle">MARVISPACE code</button>
+        <div class="cart-discount-form" id="cartDiscountForm" hidden>
+          <input type="text" id="cartDiscountInput" placeholder="Enter code" aria-label="Discount code" />
+          <button type="button" id="cartDiscountApply">Apply</button>
         </div>
-        <div class="cart-summary-row">
-          <span>SHIPPING</span>
-          <span class="cart-muted">CALCULATED AT NEXT STEP</span>
-        </div>
-        <div class="cart-summary-row">
-          <span>TAXES</span>
-          <span id="cartTaxes">$0.00</span>
-        </div>
-        <div class="cart-summary-row cart-summary-total">
-          <span>TOTAL</span>
-          <span class="cart-total-price" id="cartTotalPrice">$0.00</span>
-        </div>
-        <button class="checkout-btn" type="button" id="checkoutBtn">CHECKOUT</button>
+        <button class="checkout-btn" type="button" id="checkoutBtn">Checkout</button>
       </div>
     </div>
   </aside>
@@ -155,11 +153,13 @@
         <button class="f-btn" data-filter="womens">WOMENS</button>
       </div>
       <div class="filter-row">
-        <button class="f-btn" data-filter="footwear">FOOTWEAR</button>
-        <button class="f-btn" data-filter="accessories">ACCESSORIES</button>
+        <button class="f-btn" data-filter="jackets">JACKETS</button>
+        <button class="f-btn" data-filter="coats">COATS</button>
+        <button class="f-btn" data-filter="shirts">SHIRTS</button>
       </div>
       <div class="filter-row">
-        <button class="f-btn" data-filter="slides">SLIDES</button>
+        <button class="f-btn" data-filter="accessories">ACCESSORIES</button>
+        <button class="f-btn" data-filter="bottoms">BOTTOMS</button>
       </div>
     </nav>
 
@@ -169,12 +169,12 @@
     <!-- Footer links -->
     <footer class="site-footer">
       <ul class="footer-list">
-        <li><a href="#" class="foot-link">CONTACT</a></li>
-        <li><a href="#" class="foot-link">TERMS</a></li>
-        <li><a href="#" class="foot-link">PRIVACY</a></li>
-        <li><a href="#" class="foot-link">ACCESSIBILITY</a></li>
+        <li><a href="/contact" class="foot-link">CONTACT</a></li>
+        <li><a href="/terms" class="foot-link">TERMS</a></li>
+        <li><a href="/privacy" class="foot-link">PRIVACY</a></li>
+        <li><a href="/accessibility" class="foot-link">ACCESSIBILITY</a></li>
         <li><button class="foot-link">COOKIES</button></li>
-        <li><a href="#" class="foot-link">ORDER STATUS</a></li>
+        <li><a href="/order-status" class="foot-link">ORDER STATUS</a></li>
       </ul>
     </footer>
 
@@ -262,6 +262,6 @@
 
   </div>
 
-  <script type="module" src="app.js"></script>
+  <script type="module" src="/assets/js/pages/home.js"></script>
 </body>
 </html>

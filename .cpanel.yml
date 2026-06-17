@@ -2,4 +2,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/marvispace/public_html/
-    - /bin/rsync -av --delete --exclude .git --exclude .cpanel.yml --exclude .gitignore ./ $DEPLOYPATH
+    - /bin/rsync -av --delete --exclude .git --exclude .cpanel.yml --exclude .gitignore --exclude docs/ --exclude tools/ --exclude package.json ./ $DEPLOYPATH

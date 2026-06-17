@@ -1,0 +1,58 @@
+# MARVISPACE — clean URLs
+# @author Ersan JT <https://github.com/ersanjt>
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Legacy asset paths (pre-restructure)
+  RewriteRule ^fonts\.css$ /assets/css/fonts.css [R=301,L,NC]
+  RewriteRule ^styles\.css$ /assets/css/styles.css [R=301,L,NC]
+  RewriteRule ^cart-ui\.css$ /assets/css/cart-ui.css [R=301,L,NC]
+  RewriteRule ^checkout\.css$ /assets/css/checkout.css [R=301,L,NC]
+  RewriteRule ^admin\.css$ /assets/css/admin.css [R=301,L,NC]
+  RewriteRule ^page\.css$ /assets/css/page.css [R=301,L,NC]
+  RewriteRule ^app\.js$ /assets/js/pages/home.js [R=301,L,NC]
+  RewriteRule ^checkout\.js$ /assets/js/pages/checkout.js [R=301,L,NC]
+  RewriteRule ^admin\.js$ /assets/js/pages/admin.js [R=301,L,NC]
+  RewriteRule ^storage\.js$ /assets/js/core/storage.js [R=301,L,NC]
+  RewriteRule ^cart-ui\.js$ /assets/js/modules/cart-ui.js [R=301,L,NC]
+  RewriteRule ^products\.js$ /assets/js/data/products.js [R=301,L,NC]
+  RewriteRule ^images/(.*)$ /assets/images/$1 [R=301,L,NC]
+
+  # Redirect legacy .html URLs to clean paths
+  RewriteRule ^index\.html$ / [R=301,L,NC]
+  RewriteRule ^checkout\.html$ /checkout [R=301,L,NC]
+  RewriteRule ^admin\.html$ /admin [R=301,L,NC]
+  RewriteRule ^contact\.html$ /contact [R=301,L,NC]
+  RewriteRule ^terms\.html$ /terms [R=301,L,NC]
+  RewriteRule ^privacy\.html$ /privacy [R=301,L,NC]
+  RewriteRule ^accessibility\.html$ /accessibility [R=301,L,NC]
+  RewriteRule ^order-status\.html$ /order-status [R=301,L,NC]
+
+  # Clean URL routes
+  RewriteRule ^checkout/?$ checkout.html [L,NC]
+  RewriteRule ^admin/?$ admin.html [L,NC]
+  RewriteRule ^contact/?$ contact.html [L,NC]
+  RewriteRule ^terms/?$ terms.html [L,NC]
+  RewriteRule ^privacy/?$ privacy.html [L,NC]
+  RewriteRule ^accessibility/?$ accessibility.html [L,NC]
+  RewriteRule ^order-status/?$ order-status.html [L,NC]
+</IfModule>
+
+DirectoryIndex index.html
+
+# ES modules
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType text/css .css
+</IfModule>
+
+# Static assets caching
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+</IfModule>

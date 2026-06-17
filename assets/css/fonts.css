@@ -1,0 +1,26 @@
+/* MARVISPACE — multilingual typography */
+:root {
+  --font-en: 'Syne', system-ui, -apple-system, sans-serif;
+  --font-fa: 'Vazirmatn', 'Tahoma', sans-serif;
+  --font-tr: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+html {
+  font-family: var(--font-en);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html[lang="fa"] {
+  font-family: var(--font-fa);
+}
+
+html[lang="tr"] {
+  font-family: var(--font-tr);
+}
+
+.font-en { font-family: var(--font-en); }
+.font-fa { font-family: var(--font-fa); }
+.font-tr { font-family: var(--font-tr); }
+.font-mono { font-family: var(--font-mono); }

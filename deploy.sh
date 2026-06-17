@@ -1,4 +1,6 @@
 #!/bin/bash
+# MARVISPACE deploy script
+# @author Ersan JT <https://github.com/ersanjt>
 # Run on server as root: bash /home/marvispace/deploy.sh
 
 REPO="/home/marvispace/repositories/marvispace.com"
@@ -11,13 +13,15 @@ git pull origin main
 
 chown -R marvispace:marvispace "$REPO"
 
-rsync -av \
+rsync -av --delete \
   --exclude .git \
   --exclude .cpanel.yml \
   --exclude .gitignore \
+  --exclude docs/ \
+  --exclude tools/ \
+  --exclude package.json \
   --exclude DEPLOY.md \
   --exclude deploy.sh \
-  --exclude .htaccess \
   --exclude .user.ini \
   --exclude php.ini \
   --exclude .well-known \
