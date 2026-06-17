@@ -1,0 +1,33 @@
+# Auto-deploy marvispace.com to cPanel/WHM on every push to main
+# @author Ersan JT <https://github.com/ersanjt>
+
+name: Deploy to production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-marvispace-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: SSH deploy → marvispace.com
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Run deploy.sh on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          command_timeout: 5m
+          script: |
+            set -e
+            bash /home/marvispace/repositories/marvispace.com/deploy.sh

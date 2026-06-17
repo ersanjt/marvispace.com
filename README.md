@@ -23,6 +23,10 @@ Open `http://localhost:3000`
 
 ## Deploy (production)
 
+**Automatic:** every push to `main` runs [GitHub Actions](https://github.com/ersanjt/marvispace.com/actions) → SSH → `deploy.sh` on the server.
+
+**Manual fallback:**
+
 ```bash
 bash /home/marvispace/repositories/marvispace.com/deploy.sh
 ```

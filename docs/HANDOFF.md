@@ -53,6 +53,10 @@ For stronger protection, also enable **cPanel → Directory Privacy** on `/admin
 
 ## Deploy updates
 
+**Automatic:** push to `main` on GitHub → [Actions](https://github.com/ersanjt/marvispace.com/actions) deploys to the server.
+
+**Manual fallback:**
+
 ```bash
 bash /home/marvispace/repositories/marvispace.com/deploy.sh
 ```

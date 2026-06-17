@@ -18,7 +18,36 @@ Do not run these commands in other users' home folders.
 
 ---
 
-## Method A — cPanel UI (recommended, safest)
+## Method C — GitHub Actions (automatic on push)
+
+Every push to `main` triggers `.github/workflows/deploy.yml`, which SSHs to the server and runs `deploy.sh`.
+
+### One-time server setup (WHM as root)
+
+After pulling this workflow to the server, authorize the GitHub Actions deploy key:
+
+```bash
+bash /home/marvispace/repositories/marvispace.com/tools/setup-github-actions-ssh.sh --key "PASTE_PUBLIC_KEY_HERE"
+```
+
+Or add manually to `/root/.ssh/authorized_keys` (comment: `github-actions-marvispace-deploy`).
+
+GitHub repository secrets (already configured):
+
+| Secret | Purpose |
+|--------|---------|
+| `SSH_HOST` | Server IP (`92.205.182.143`) |
+| `SSH_USER` | `root` |
+| `SSH_PORT` | `22` |
+| `SSH_PRIVATE_KEY` | Deploy key (ed25519) |
+
+Monitor runs: https://github.com/ersanjt/marvispace.com/actions
+
+Re-run a failed deploy: **Actions** → **Deploy to production** → **Run workflow**.
+
+---
+
+## Method A — cPanel UI (manual)
 
 1. Log in to **cPanel** as `marvispace` (not WHM root).
 2. Open **Git™ Version Control**.
