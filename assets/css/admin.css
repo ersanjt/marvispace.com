@@ -408,6 +408,8 @@ body:not(.is-logged-in) .admin-shell { display: none; }
 .admin-content {
   padding: 24px 32px 48px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .view-panel { display: none; }
@@ -975,6 +977,11 @@ body:not(.is-logged-in) .admin-shell { display: none; }
 
 .settings-section {
   padding: 4px 0 8px;
+  max-width: 560px;
+}
+
+#settingsPanel .card {
+  align-self: flex-start;
 }
 
 .settings-block + .settings-block {

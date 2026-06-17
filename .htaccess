@@ -91,6 +91,7 @@ DirectoryIndex index.html
 <IfModule mod_mime.c>
   AddDefaultCharset UTF-8
   AddType application/javascript .js
+  AddType image/svg+xml .svg
   AddType text/css .css
   AddCharset UTF-8 .js .css .html .svg
 </IfModule>

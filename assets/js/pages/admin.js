@@ -186,21 +186,29 @@ function applyPageFavicon(favicon) {
   });
 }
 
-const faviconUpload = createFaviconUploadUI({
-  zone: document.getElementById('faviconZone'),
-  fileInput: document.getElementById('faviconFile'),
-  empty: document.getElementById('faviconEmpty'),
-  preview: document.getElementById('faviconPreview'),
-  previewImg: document.getElementById('faviconPreviewImg'),
-  removeBtn: null,
-  statusEl: document.getElementById('faviconStatus'),
-  resetBtn,
-  showToast,
-  onUpdated: favicon => {
-    siteSettings = { ...(siteSettings || {}), favicon };
-    applyPageFavicon(favicon);
-  },
-});
+let faviconUpload = null;
+
+function getFaviconUpload() {
+  if (faviconUpload) return faviconUpload;
+
+  faviconUpload = createFaviconUploadUI({
+    zone: document.getElementById('faviconZone'),
+    fileInput: document.getElementById('faviconFile'),
+    empty: document.getElementById('faviconEmpty'),
+    preview: document.getElementById('faviconPreview'),
+    previewImg: document.getElementById('faviconPreviewImg'),
+    removeBtn: null,
+    statusEl: document.getElementById('faviconStatus'),
+    resetBtn: resetFaviconBtn,
+    showToast,
+    onUpdated: favicon => {
+      siteSettings = { ...(siteSettings || {}), favicon };
+      applyPageFavicon(favicon);
+    },
+  });
+
+  return faviconUpload;
+}
 
 async function showApp() {
   document.body.classList.add('is-logged-in');
@@ -220,18 +228,39 @@ async function showApp() {
   orders = await loadOrders();
   await Promise.all([loadAdminUsers(), loadSiteSettings()]);
   renderAll();
+
+  let initialTab = 'dashboard';
+  try {
+    const saved = sessionStorage.getItem('adminTab');
+    if (saved && VIEW_META[saved]) initialTab = saved;
+  } catch {
+    /* ignore */
+  }
+  const hashTab = window.location.hash.replace(/^#/, '');
+  if (hashTab && VIEW_META[hashTab]) initialTab = hashTab;
+  switchTab(initialTab);
+}
+
+function syncPageHeader() {
+  const meta = VIEW_META[activeTab] || VIEW_META.dashboard;
+  if (pageTitle) pageTitle.textContent = meta.title;
+  if (pageSubtitle) pageSubtitle.textContent = meta.subtitle;
+  if (topNewProductBtn) topNewProductBtn.hidden = activeTab !== 'products';
+  if (topNewUserBtn) topNewUserBtn.hidden = activeTab !== 'users' || !usersApiReady;
 }
 
 function switchTab(name) {
+  if (!VIEW_META[name]) name = 'dashboard';
   activeTab = name;
+  try {
+    sessionStorage.setItem('adminTab', name);
+  } catch {
+    /* ignore */
+  }
+
   navItems.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === name));
   viewPanels.forEach(panel => panel.classList.toggle('active', panel.dataset.view === name));
-
-  const meta = VIEW_META[name] || VIEW_META.dashboard;
-  if (pageTitle) pageTitle.textContent = meta.title;
-  if (pageSubtitle) pageSubtitle.textContent = meta.subtitle;
-  if (topNewProductBtn) topNewProductBtn.hidden = name !== 'products';
-  if (topNewUserBtn) topNewUserBtn.hidden = name !== 'users' || !usersApiReady;
+  syncPageHeader();
 
   if (name === 'orders') renderOrders();
   if (name === 'dashboard') renderDashboard();
@@ -359,7 +388,7 @@ function renderSettings() {
   if (!apiOn) return;
 
   const favicon = siteSettings?.favicon;
-  faviconUpload.showPreview(favicon?.url || '/favicon.svg');
+  getFaviconUpload().showPreview(favicon?.url || '/favicon.svg');
 }
 
 function resetForm() {
@@ -674,6 +703,7 @@ function renderAll() {
   renderDashboard();
   renderUsers();
   renderSettings();
+  syncPageHeader();
 }
 
 async function refreshData() {
@@ -685,7 +715,12 @@ async function refreshData() {
 
 /* ── Events ── */
 navItems.forEach(btn => {
-  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  btn.addEventListener('click', () => {
+    switchTab(btn.dataset.tab);
+    if (btn.dataset.tab) {
+      window.location.hash = btn.dataset.tab;
+    }
+  });
 });
 
 document.querySelectorAll('[data-goto]').forEach(btn => {
