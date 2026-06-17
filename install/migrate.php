@@ -89,39 +89,16 @@ function migrate_run_sql_file(array $db, string $filePath): void
         throw new RuntimeException('Migration file not found: ' . $filePath);
     }
 
-    $host = (string) ($db['host'] ?? 'localhost');
-    $user = (string) $db['user'];
-    $pass = (string) $db['pass'];
-    $name = (string) $db['name'];
-
-    $mysql = trim((string) shell_exec('command -v mysql 2>/dev/null'));
-    if ($mysql !== '') {
-        $cmd = sprintf(
-            'MYSQL_PWD=%s %s -h %s -u %s %s < %s 2>&1',
-            escapeshellarg($pass),
-            escapeshellarg($mysql),
-            escapeshellarg($host),
-            escapeshellarg($user),
-            escapeshellarg($name),
-            escapeshellarg($filePath)
-        );
-        $output = [];
-        $code = 0;
-        exec($cmd, $output, $code);
-        if ($code !== 0) {
-            throw new RuntimeException(trim(implode("\n", $output)) ?: 'mysql CLI failed');
-        }
-        return;
-    }
-
     require_once dirname(__DIR__) . '/api/lib/db.php';
     $pdo = db_connect($db);
     if (defined('PDO::MYSQL_ATTR_MULTI_STATEMENTS')) {
         $pdo->setAttribute(PDO::MYSQL_ATTR_MULTI_STATEMENTS, true);
     }
+
     $sql = file_get_contents($filePath);
     if ($sql === false || trim($sql) === '') {
         throw new RuntimeException('Empty migration file');
     }
+
     $pdo->exec($sql);
 }

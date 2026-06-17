@@ -76,8 +76,6 @@ uapi_grant_all() {
     return 0
   fi
   echo "ERROR: Could not grant privileges."
-  uapi --user="$CPANEL_USER" Mysql set_privileges_on_database \
-    user="$DB_USER_FULL" database="$DB_FULL" privileges=ALL
   exit 1
 }
 

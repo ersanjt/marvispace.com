@@ -75,7 +75,11 @@ php install/seed.php
 Browser → /api/v1/*.php → MySQL (marvispace_store)
 Cart    → localStorage (browser)
 Admin   → PHP session cookie
-Secrets → /home/marvispace/api_config.php (NOT in git / public_html)
+bootstrap.php and health.php load config in this order:
+1. `/home/marvispace/api_config.php` (CLI / install scripts)
+2. `public_html/api/config.local.php` (synced on each deploy — used by web PHP)
+
+`deploy.sh` copies the private config into `api/config.local.php` (blocked by `.htaccess`).
 ```
 
 ## Troubleshooting
