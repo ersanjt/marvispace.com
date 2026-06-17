@@ -29,8 +29,14 @@ if ($method === 'POST') {
     $body = read_json_body();
     $order = $body['order'] ?? $body;
 
-    if (empty($order['items']) || empty($order['customer']['email'])) {
+    if (empty($order['items'])) {
         json_error('Invalid order payload', 400);
+    }
+
+    try {
+        order_validate_customer($order['customer'] ?? []);
+    } catch (InvalidArgumentException $e) {
+        json_error($e->getMessage(), 400);
     }
 
     if (empty($order['id'])) {
@@ -41,13 +47,13 @@ if ($method === 'POST') {
         $created = order_create($pdo, $order);
         try {
             require_once dirname(__DIR__) . '/lib/order-mail.php';
-            order_send_purchase_emails($created);
+            order_send_purchase_emails($pdo, $created);
         } catch (Throwable $mailErr) {
             error_log('MARVISPACE order mail: ' . $mailErr->getMessage());
         }
         json_ok($created, 201);
     } catch (Throwable $e) {
-        json_error($e->getMessage(), 409);
+        json_error($e->getMessage(), $e instanceof InvalidArgumentException ? 400 : 409);
     }
 }
 

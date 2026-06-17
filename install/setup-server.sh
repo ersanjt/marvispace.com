@@ -79,10 +79,8 @@ DB_NAME=$(php -r '$c=require "'"$CONFIG"'"; echo $c["db"]["name"];')
 DB_USER=$(php -r '$c=require "'"$CONFIG"'"; echo $c["db"]["user"];')
 DB_PASS=$(php -r '$c=require "'"$CONFIG"'"; echo $c["db"]["pass"];')
 
-echo "==> Importing schema..."
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$REPO/install/schema.sql"
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$REPO/install/migrate-admin-users.sql" 2>/dev/null || true
-mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$REPO/install/migrate-site-settings.sql" 2>/dev/null || true
+echo "==> Running database migrations..."
+php "$REPO/install/migrate.php"
 
 echo "==> Seeding products + admin..."
 cd "$REPO"

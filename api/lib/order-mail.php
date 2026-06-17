@@ -153,17 +153,22 @@ function order_mail_admin_notification(array $order): bool
     ]);
 }
 
-function order_send_purchase_emails(array $order): array
+function order_send_purchase_emails(PDO $pdo, array $order): array
 {
     $result = [
         'customer' => order_mail_customer_confirmation($order),
         'admin' => order_mail_admin_notification($order),
     ];
 
-    if (!$result['customer']) {
+    if ($result['customer']) {
+        order_mark_email_sent($pdo, (string) ($order['id'] ?? ''), true, false);
+    } else {
         error_log('MARVISPACE: customer order email failed for ' . ($order['id'] ?? 'unknown'));
     }
-    if (!$result['admin']) {
+
+    if ($result['admin']) {
+        order_mark_email_sent($pdo, (string) ($order['id'] ?? ''), false, true);
+    } else {
         error_log('MARVISPACE: admin order email failed for ' . ($order['id'] ?? 'unknown'));
     }
 

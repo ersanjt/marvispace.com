@@ -548,6 +548,7 @@ function openOrderModal(order) {
         </div>
         ${detailRow('Total', money(order.total), { ltr: true })}
         ${detailRow('Payment', paymentLabel(customer.payment))}
+        ${detailRow('Email sent', order.emailSentAt ? fmtDate(order.emailSentAt) : 'Not sent yet')}
       </section>
 
       <section class="order-detail-section">

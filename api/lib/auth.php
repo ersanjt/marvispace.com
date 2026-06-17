@@ -18,6 +18,35 @@ function admin_session_start(): void
     session_start();
 }
 
+function auth_client_ip(): string
+{
+    return (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+}
+
+function auth_log_login_attempt(PDO $pdo, string $email, bool $success): void
+{
+    try {
+        $stmt = $pdo->prepare('INSERT INTO login_attempts (email, ip_address, success) VALUES (?, ?, ?)');
+        $stmt->execute([strtolower(trim($email)), auth_client_ip(), $success ? 1 : 0]);
+    } catch (Throwable $e) {
+        /* migration pending */
+    }
+}
+
+function auth_login_rate_limited(PDO $pdo, string $email): bool
+{
+    try {
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) FROM login_attempts
+             WHERE email = ? AND success = 0 AND attempted_at > (NOW() - INTERVAL 15 MINUTE)'
+        );
+        $stmt->execute([strtolower(trim($email))]);
+        return (int) $stmt->fetchColumn() >= 8;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
 function admin_login(PDO $pdo, string $email, string $password): bool
 {
     $email = strtolower(trim($email));
@@ -25,12 +54,31 @@ function admin_login(PDO $pdo, string $email, string $password): bool
         return false;
     }
 
-    $stmt = $pdo->prepare('SELECT id, password_hash FROM admin_users WHERE email = ? LIMIT 1');
+    if (auth_login_rate_limited($pdo, $email)) {
+        return false;
+    }
+
+    $stmt = $pdo->prepare('SELECT * FROM admin_users WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $row = $stmt->fetch();
 
     if (!$row || !password_verify($password, $row['password_hash'])) {
+        auth_log_login_attempt($pdo, $email, false);
         return false;
+    }
+
+    if (array_key_exists('is_active', $row) && !(int) $row['is_active']) {
+        auth_log_login_attempt($pdo, $email, false);
+        return false;
+    }
+
+    auth_log_login_attempt($pdo, $email, true);
+
+    try {
+        $upd = $pdo->prepare('UPDATE admin_users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $upd->execute([(int) $row['id']]);
+    } catch (Throwable $e) {
+        /* column may not exist yet */
     }
 
     admin_session_start();

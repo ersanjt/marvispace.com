@@ -47,7 +47,13 @@ $stmt = $pdo->prepare(
     'INSERT INTO admin_users (email, name, password_hash) VALUES (?, ?, ?)
      ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), name = VALUES(name)'
 );
-$stmt->execute([strtolower($adminEmail), 'Admin', $hash]);
+$stmt->execute([strtolower($adminEmail), 'Owner', $hash]);
+
+try {
+    $pdo->prepare('UPDATE admin_users SET role = ? WHERE email = ?')->execute(['owner', strtolower($adminEmail)]);
+} catch (Throwable $e) {
+    /* role column after migration 003 */
+}
 
 echo "==> Admin user: {$adminEmail}\n";
 echo "==> Seed completed.\n";

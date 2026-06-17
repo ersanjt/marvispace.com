@@ -1,14 +1,13 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/order-customer.php';
+
 function order_row_to_array(PDO $pdo, array $row): array
 {
-    $customer = json_decode($row['customer'] ?? '{}', true);
-    if (!is_array($customer)) {
-        $customer = [];
-    }
+    $customer = order_row_customer($row);
 
-    $stmt = $pdo->prepare('SELECT * FROM order_items WHERE order_id = ?');
+    $stmt = $pdo->prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY id ASC');
     $stmt->execute([$row['id']]);
     $items = [];
     foreach ($stmt->fetchAll() as $item) {
@@ -22,7 +21,7 @@ function order_row_to_array(PDO $pdo, array $row): array
         ];
     }
 
-    return [
+    $order = [
         'id' => $row['id'],
         'createdAt' => gmdate('c', strtotime($row['created_at'])),
         'status' => $row['status'],
@@ -30,6 +29,15 @@ function order_row_to_array(PDO $pdo, array $row): array
         'total' => (float) $row['total'],
         'customer' => $customer,
     ];
+
+    if (order_has_professional_columns($pdo)) {
+        $order['currency'] = $row['currency'] ?? 'USD';
+        $order['emailSentAt'] = !empty($row['confirmation_email_sent_at'])
+            ? gmdate('c', strtotime($row['confirmation_email_sent_at']))
+            : null;
+    }
+
+    return $order;
 }
 
 function orders_list(PDO $pdo): array
@@ -52,6 +60,8 @@ function order_get(PDO $pdo, string $id): ?array
 
 function order_create(PDO $pdo, array $order): array
 {
+    order_validate_customer($order['customer'] ?? []);
+
     $pdo->beginTransaction();
     try {
         $items = $order['items'] ?? [];
@@ -82,15 +92,55 @@ function order_create(PDO $pdo, array $order): array
             $upd->execute([$newStock, $inStock, $pid]);
         }
 
-        $stmt = $pdo->prepare(
-            'INSERT INTO orders (id, status, total, customer) VALUES (?, ?, ?, ?)'
-        );
-        $stmt->execute([
-            $order['id'],
-            $order['status'] ?? 'pending',
-            (float) ($order['total'] ?? 0),
-            json_encode($order['customer'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-        ]);
+        $customer = order_customer_from_input($order['customer'] ?? []);
+        $customerJson = order_customer_to_legacy_json($customer);
+        $status = (string) ($order['status'] ?? 'pending');
+        $allowed = ['pending', 'processing', 'completed', 'shipped', 'cancelled'];
+        if (!in_array($status, $allowed, true)) {
+            $status = 'pending';
+        }
+
+        if (order_has_professional_columns($pdo)) {
+            $stmt = $pdo->prepare(
+                'INSERT INTO orders (
+                    id, status, total, currency,
+                    customer_email, customer_first_name, customer_last_name, customer_phone,
+                    shipping_address1, shipping_address2, shipping_city, shipping_state,
+                    shipping_zip, shipping_country, payment_method, tax_id, customer_subscribed,
+                    customer
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            );
+            $stmt->execute([
+                $order['id'],
+                $status,
+                (float) ($order['total'] ?? 0),
+                'USD',
+                $customer['email'],
+                $customer['firstName'],
+                $customer['lastName'],
+                $customer['phone'],
+                $customer['address'],
+                $customer['address2'],
+                $customer['city'],
+                $customer['state'],
+                $customer['zip'],
+                $customer['country'],
+                $customer['payment'],
+                $customer['taxId'],
+                $customer['subscribe'] ? 1 : 0,
+                $customerJson,
+            ]);
+        } else {
+            $stmt = $pdo->prepare(
+                'INSERT INTO orders (id, status, total, customer) VALUES (?, ?, ?, ?)'
+            );
+            $stmt->execute([
+                $order['id'],
+                $status,
+                (float) ($order['total'] ?? 0),
+                $customerJson,
+            ]);
+        }
 
         $itemStmt = $pdo->prepare(
             'INSERT INTO order_items (order_id, product_id, label, size, price, qty, image)
@@ -130,4 +180,26 @@ function order_update_status(PDO $pdo, string $id, string $status): ?array
     }
 
     return order_get($pdo, $id);
+}
+
+function order_mark_email_sent(PDO $pdo, string $orderId, bool $customer = true, bool $admin = false): void
+{
+    if (!order_has_professional_columns($pdo)) {
+        return;
+    }
+
+    $fields = [];
+    if ($customer) {
+        $fields[] = 'confirmation_email_sent_at = CURRENT_TIMESTAMP';
+    }
+    if ($admin) {
+        $fields[] = 'admin_notified_at = CURRENT_TIMESTAMP';
+    }
+    if (!$fields) {
+        return;
+    }
+
+    $sql = 'UPDATE orders SET ' . implode(', ', $fields) . ' WHERE id = ?';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$orderId]);
 }
