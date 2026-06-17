@@ -34,7 +34,7 @@ See [docs/DEPLOY.md](docs/DEPLOY.md) and [docs/HANDOFF.md](docs/HANDOFF.md).
 ```
 index.html          Storefront
 checkout.html       Checkout flow
-admin.html          Admin panel (HTTP Basic Auth on server)
+admin.html          Admin panel (custom sign-in page)
 assets/css/         Stylesheets
 assets/js/          Application code
 assets/images/      Product photography
