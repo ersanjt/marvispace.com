@@ -14,9 +14,43 @@
   <link rel="stylesheet" href="/assets/css/fonts.css" />
   <link rel="stylesheet" href="/assets/css/admin.css" />
 </head>
-<body class="is-logged-in">
+<body>
 
-  <div class="admin-shell" id="adminApp">
+  <div class="auth-screen" id="loginScreen">
+    <header class="auth-top">
+      <a class="auth-back" href="/" aria-label="Back to store">‹</a>
+      <span class="auth-mark">MARVISPACE</span>
+      <span class="auth-spacer" aria-hidden="true"></span>
+    </header>
+
+    <main class="auth-main">
+      <form class="auth-form" id="loginForm">
+        <h1 class="auth-title">Admin sign in</h1>
+        <p class="auth-lead">Enter your password to access the dashboard.</p>
+        <p class="auth-error" id="loginError" hidden role="alert">Incorrect password. Try again.</p>
+
+        <label class="auth-field">
+          <span>Password</span>
+          <div class="auth-pass-row">
+            <input
+              type="password"
+              id="loginPassword"
+              name="password"
+              required
+              autocomplete="current-password"
+              placeholder="Enter password"
+            />
+            <button type="button" class="auth-show-pass" id="loginShowPass" aria-pressed="false">Show</button>
+          </div>
+        </label>
+
+        <button type="submit" class="auth-submit" id="loginSubmit">Sign in</button>
+        <a class="auth-store-link" href="/">← Back to store</a>
+      </form>
+    </main>
+  </div>
+
+  <div class="admin-shell" id="adminApp" hidden>
     <aside class="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo">MARVISPACE</span>
@@ -40,7 +74,7 @@
       </nav>
       <div class="sidebar-foot">
         <a href="/" class="sidebar-link">View store</a>
-        <a class="sidebar-link" href="/">Back to store</a>
+        <button type="button" class="sidebar-link sidebar-link--btn" id="logoutBtn">Sign out</button>
         <p class="sidebar-credit">Dev · <a href="https://github.com/ersanjt" target="_blank" rel="author noopener noreferrer">Ersan JT</a></p>
       </div>
     </aside>

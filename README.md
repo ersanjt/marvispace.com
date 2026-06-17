@@ -46,14 +46,17 @@ Full tree: [docs/STRUCTURE.md](docs/STRUCTURE.md)
 
 ## Admin access
 
-Protected by **Apache HTTP Basic Auth** at `/admin`.
+Open `/admin` for the custom sign-in page (Yeezy-style UI).
 
-First deploy creates `/home/marvispace/.htpasswd` automatically.  
-To set a custom password on the server:
+Set password hash:
 
 ```bash
-bash tools/setup-admin-auth.sh 'YourSecurePassword'
+node tools/set-admin-password.mjs 'YourSecurePassword'
 ```
+
+Default password after setup: `MarviAdmin2026!` (change immediately).
+
+Optional: cPanel **Directory Privacy** on `/admin` for server-level protection.
 
 ## Developer
 

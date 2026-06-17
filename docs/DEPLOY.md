@@ -93,34 +93,17 @@ git config --global --add safe.directory /home/marvispace/repositories/marvispac
 chown -R marvispace:marvispace /home/marvispace/repositories/marvispace.com
 ```
 
-### Admin shows 500 Internal Server Error
+### Admin shows 500 or browser popup login
 
-The password file is missing or Apache cannot read it. On the server run:
+The site now uses a **custom admin login page** (not HTTP Basic Auth).
 
-```bash
-bash /home/marvispace/repositories/marvispace.com/tools/setup-admin-auth.sh 'YourSecurePassword'
-bash /home/marvispace/repositories/marvispace.com/deploy.sh
-```
-
-Verify:
+Change password locally, then deploy:
 
 ```bash
-ls -la /home/marvispace/.htpasswd
+node tools/set-admin-password.mjs 'YourSecurePassword'
 ```
 
-You should see a non-empty file. Then open `/admin` — browser will ask for username `admin` and your password.
-
----
-
-`/admin` is protected by Apache. On first deploy, `deploy.sh` creates `/home/marvispace/.htpasswd` if missing.
-
-Set a custom password:
-
-```bash
-bash /home/marvispace/repositories/marvispace.com/tools/setup-admin-auth.sh 'YourSecurePassword'
-```
-
-Username is always `admin`. See `docs/HANDOFF.md` for client delivery notes.
+Optional extra protection: cPanel → **Directory Privacy** on `/admin`.
 
 ---
 

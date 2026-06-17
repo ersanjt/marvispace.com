@@ -31,103 +31,160 @@ button, input, select, textarea {
 button { cursor: pointer; border: 0; background: none; }
 a { color: inherit; text-decoration: none; }
 
-/* ── Auth ── */
+/* ── Auth (Yeezy-minimal login) ── */
 .auth-screen {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  font-family: var(--font-mono);
+  color: #000;
+}
+
+body.is-logged-in .auth-screen {
+  display: none;
+}
+
+.auth-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #000;
+}
+
+.auth-back {
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1;
+  opacity: 0.35;
+  width: 32px;
+}
+
+.auth-mark {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.auth-spacer {
+  width: 32px;
+}
+
+.auth-main {
+  flex: 1;
   display: grid;
   place-items: center;
-  padding: 24px;
-  background: var(--bg);
+  padding: 32px 20px 48px;
 }
 
-body.is-logged-in .auth-screen { display: none; }
-
-.auth-layout {
-  width: min(920px, 100%);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--ink);
-  background: var(--surface);
-  overflow: hidden;
-}
-
-.auth-brand {
-  padding: 48px 40px;
-  background: var(--ink);
-  color: #fff;
+.auth-form {
+  width: min(22rem, 100%);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 20px;
+  gap: 14px;
 }
 
-.auth-logo {
-  font-size: 22px;
+.auth-title {
+  margin: 0;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.auth-brand > p {
-  margin: 0;
-  font-size: 12px;
+.auth-lead {
+  margin: 0 0 8px;
+  font-size: 10px;
   line-height: 1.7;
-  opacity: 0.7;
-}
-
-.auth-features {
-  margin: 8px 0 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  font-size: 11px;
-  opacity: 0.85;
-}
-
-.auth-features li::before {
-  content: '— ';
-  opacity: 0.5;
-}
-
-.auth-card {
-  padding: 48px 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  justify-content: center;
-}
-
-.auth-card h1 {
-  margin: 0;
-  font-size: 18px;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.55;
 }
 
-.auth-sub {
-  margin: 0;
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-pass-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.auth-field input {
+  height: 42px;
+  border: 1px solid #000;
+  background: #fff;
+  padding: 0 12px;
   font-size: 11px;
-  color: var(--muted);
-  line-height: 1.6;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 0;
+  width: 100%;
+}
+
+.auth-field input::placeholder {
+  opacity: 0.35;
+}
+
+.auth-show-pass {
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #000;
+  background: #fff;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-submit {
+  height: 48px;
+  margin-top: 8px;
+  border: 0;
+  background: #000;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.auth-submit:hover {
+  opacity: 0.9;
+}
+
+.auth-store-link {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0.45;
+}
+
+.auth-store-link:hover {
+  opacity: 1;
 }
 
 .auth-error {
   margin: 0;
   padding: 10px 12px;
-  background: #fdecea;
-  color: var(--danger);
-  font-size: 11px;
-  border: 1px solid #f5c4bf;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
-
-.auth-back {
-  font-size: 10px;
-  text-align: center;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.auth-back:hover { color: var(--ink); }
 
 /* ── Shell ── */
 .admin-shell {
@@ -240,6 +297,17 @@ body:not(.is-logged-in) .admin-shell { display: none; }
 }
 
 .sidebar-link:hover { color: #fff; }
+
+.sidebar-link--btn {
+  width: 100%;
+  text-align: left;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
 
 .sidebar-credit {
   margin: 8px 0 0;

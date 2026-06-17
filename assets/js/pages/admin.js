@@ -8,8 +8,11 @@ import {
   saveProducts,
   updateOrderStatus,
 } from '../core/storage.js';
+import { mountAdminLogin, signOutAdmin } from '../core/admin-auth.js';
 
+const loginScreen = document.getElementById('loginScreen');
 const adminApp = document.getElementById('adminApp');
+const logoutBtn = document.getElementById('logoutBtn');
 const navItems = [...document.querySelectorAll('.nav-item')];
 const viewPanels = [...document.querySelectorAll('.view-panel')];
 const pageTitle = document.getElementById('pageTitle');
@@ -110,6 +113,14 @@ function showToast(msg) {
   toast.hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { toast.hidden = true; }, 2800);
+}
+
+function showApp() {
+  document.body.classList.add('is-logged-in');
+  if (loginScreen) loginScreen.hidden = true;
+  if (adminApp) adminApp.hidden = false;
+  products = getProducts(seedProducts);
+  renderAll();
 }
 
 function switchTab(name) {
@@ -440,5 +451,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && productModal && !productModal.hidden) closeModal();
 });
 
-products = getProducts(seedProducts);
-renderAll();
+logoutBtn?.addEventListener('click', signOutAdmin);
+
+mountAdminLogin({ onSuccess: showApp });

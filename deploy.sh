@@ -32,20 +32,6 @@ fi
 
 chown -R "$USER:$USER" "$REPO"
 
-HTPASSWD="/home/$USER/.htpasswd"
-if [[ ! -f "$HTPASSWD" ]] || [[ ! -s "$HTPASSWD" ]]; then
-  echo "==> Creating admin .htpasswd (required for /admin)..."
-  bash "$REPO/tools/setup-admin-auth.sh"
-else
-  echo "==> Admin .htpasswd exists ($(wc -c < "$HTPASSWD") bytes)"
-fi
-
-if [[ ! -r "$HTPASSWD" ]]; then
-  echo "ERROR: $HTPASSWD is missing or not readable. Run:"
-  echo "  bash $REPO/tools/setup-admin-auth.sh 'YourPassword'"
-  exit 1
-fi
-
 echo "==> Syncing to public_html..."
 rsync -av --delete \
   --exclude .git \

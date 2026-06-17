@@ -6,6 +6,7 @@
 const PRODUCTS_KEY = 'marvispace_products_v3';
 const ORDERS_KEY = 'marvispace_orders';
 const CART_KEY = 'marvispace_cart';
+const AUTH_KEY = 'marvispace_admin_auth';
 const LAST_ORDER_KEY = 'marvispace_last_order';
 
 const LEGACY_KEYS = {
@@ -150,6 +151,29 @@ export function updateOrderStatus(orderId, status) {
 
 export function createId() {
   return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function isAdminAuthed() {
+  try {
+    if (sessionStorage.getItem(AUTH_KEY) === '1') return true;
+    if (sessionStorage.getItem('yzy_admin_auth') === '1') {
+      sessionStorage.setItem(AUTH_KEY, '1');
+      sessionStorage.removeItem('yzy_admin_auth');
+      return true;
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+
+export function setAdminAuthed(value) {
+  try {
+    if (value) sessionStorage.setItem(AUTH_KEY, '1');
+    else sessionStorage.removeItem(AUTH_KEY);
+  } catch {
+    /* ignore */
+  }
 }
 
 export function getCart() {

@@ -62,16 +62,6 @@
   RewriteRule ^privacy-right-center/?$ privacy-right-center.html [L,NC]
 </IfModule>
 
-# Admin — HTTP Basic Auth (requires /home/marvispace/.htpasswd from deploy.sh)
-<Files "admin.html">
-  <IfModule mod_auth_basic.c>
-    AuthType Basic
-    AuthName "MARVISPACE Admin"
-    AuthUserFile /home/marvispace/.htpasswd
-    Require valid-user
-  </IfModule>
-</Files>
-
 # Security headers
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"

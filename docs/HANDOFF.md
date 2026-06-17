@@ -31,16 +31,17 @@
 
 ## Admin login
 
-1. Open https://marvispace.com/admin
-2. Browser prompts for username/password (HTTP Basic Auth)
-3. Default username: `admin`
-4. Password: created on first deploy — check deploy output or run:
+Open https://marvispace.com/admin — a custom sign-in page (not the browser popup).
+
+Default password (change after first login): set via:
 
 ```bash
-bash /home/marvispace/repositories/marvispace.com/tools/setup-admin-auth.sh 'NewPassword'
+node tools/set-admin-password.mjs 'YourSecurePassword'
+git add assets/js/config/admin-auth.js && git commit && git push
+bash deploy.sh
 ```
 
-There is **no password in the website source code**.
+For stronger protection, also enable **cPanel → Directory Privacy** on `/admin`.
 
 ## Deploy updates
 
