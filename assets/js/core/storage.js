@@ -227,6 +227,10 @@ export function clearCart() {
 
 let apiEnabled = null;
 
+export function resetApiHealthCache() {
+  apiEnabled = null;
+}
+
 export async function isApiEnabled() {
   if (apiEnabled !== null) return apiEnabled;
   try {

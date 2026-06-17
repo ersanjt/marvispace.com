@@ -47,6 +47,8 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/response.php';
 require_once __DIR__ . '/products-repo.php';
 require_once __DIR__ . '/orders-repo.php';
+require_once __DIR__ . '/admin-users-repo.php';
+require_once __DIR__ . '/settings-repo.php';
 
 $pdo = db_connect($config['db']);
 

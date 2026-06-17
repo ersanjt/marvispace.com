@@ -8,6 +8,7 @@
   <meta name="description" content="MARVISPACE store administration — products, inventory, and orders." />
   <meta name="robots" content="noindex, nofollow, noarchive" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <script type="module" src="/assets/js/core/favicon-loader.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -67,6 +68,7 @@
       <form class="auth-form" id="recoveryForm" hidden>
         <h1 class="auth-title">Reset password</h1>
         <p class="auth-lead">Enter your admin email, recovery code, and a new password.</p>
+        <p class="auth-hint">Recovery code default: <code>MarviRecover2026!</code> (set on server during install).</p>
         <p class="auth-error" id="recoveryError" hidden role="alert"></p>
         <p class="auth-success" id="recoverySuccess" hidden role="status">Password updated. Opening dashboard…</p>
 
@@ -156,6 +158,15 @@
           <span>Orders</span>
           <span class="nav-badge" id="navOrderCount">0</span>
         </button>
+        <button type="button" class="nav-item" data-tab="users">
+          <span class="nav-icon">◉</span>
+          <span>Users</span>
+          <span class="nav-badge" id="navUserCount">0</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="settings">
+          <span class="nav-icon">⚙</span>
+          <span>Settings</span>
+        </button>
       </nav>
       <div class="sidebar-foot">
         <a href="/" class="sidebar-link">View store</a>
@@ -172,6 +183,7 @@
         </div>
         <div class="topbar-actions">
           <button type="button" class="btn btn-primary" id="topNewProductBtn" hidden>+ New product</button>
+          <button type="button" class="btn btn-primary" id="topNewUserBtn" hidden>+ New user</button>
         </div>
       </header>
 
@@ -289,7 +301,121 @@
           </div>
         </section>
 
+        <section class="view-panel" id="usersPanel" data-view="users">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-head-start">
+                <h2>Admin users</h2>
+                <span class="muted" id="usersCount">0 users</span>
+              </div>
+              <div class="card-head-actions">
+                <button type="button" class="btn btn-primary" id="newUserBtn">+ New user</button>
+              </div>
+            </div>
+            <p class="empty-state" id="usersApiNotice" hidden>
+              User management requires server database. Run <code>bash install/setup-server.sh</code> on the server.
+            </p>
+            <div class="table-wrap" id="usersTableWrap">
+              <table class="data-table" id="usersTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Added</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+              </table>
+            </div>
+            <p class="empty-state" id="usersEmpty" hidden>No admin users yet.</p>
+          </div>
+        </section>
+
+        <section class="view-panel" id="settingsPanel" data-view="settings">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-head-start">
+                <h2>Site settings</h2>
+                <span class="muted">Branding and appearance</span>
+              </div>
+            </div>
+            <p class="empty-state" id="settingsApiNotice" hidden>
+              Settings require server database. Run <code>bash install/setup-server.sh</code> on the server.
+            </p>
+            <div class="settings-section" id="settingsContent">
+              <div class="settings-block">
+                <h3 class="settings-title">Website favicon</h3>
+                <p class="settings-lead">Shown in browser tabs and bookmarks. Recommended: square SVG or PNG, at least 64×64 px.</p>
+                <div class="field field-upload">
+                  <div class="upload-zone upload-zone--favicon" id="faviconZone">
+                    <input type="file" id="faviconFile" accept="image/svg+xml,image/png,image/webp,image/x-icon,.ico" hidden />
+                    <div class="upload-zone-empty" id="faviconEmpty">
+                      <strong>Click or drop favicon</strong>
+                      <small>SVG, PNG, WebP, ICO · max 512 KB</small>
+                    </div>
+                    <div class="upload-preview upload-preview--favicon" id="faviconPreview" hidden>
+                      <img id="faviconPreviewImg" alt="Current favicon preview" />
+                    </div>
+                    <p class="upload-status" id="faviconStatus" hidden></p>
+                  </div>
+                </div>
+                <div class="settings-actions">
+                  <button type="button" class="btn btn-ghost" id="resetFaviconBtn">Reset to default</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
+    </div>
+  </div>
+
+  <div class="modal" id="orderModal" aria-hidden="true" hidden>
+    <div class="modal-backdrop" data-close-order-modal></div>
+    <div class="modal-dialog modal-dialog--wide" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+      <div class="modal-head">
+        <h2 id="orderModalTitle">Order details</h2>
+        <button type="button" class="modal-close" data-close-order-modal aria-label="Close">×</button>
+      </div>
+      <div class="order-detail" id="orderModalBody"></div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close-order-modal>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="userModal" aria-hidden="true" hidden>
+    <div class="modal-backdrop" data-close-user-modal></div>
+    <div class="modal-dialog modal-dialog--narrow" role="dialog" aria-modal="true" aria-labelledby="userFormTitle">
+      <div class="modal-head">
+        <h2 id="userFormTitle">Add admin user</h2>
+        <button type="button" class="modal-close" data-close-user-modal aria-label="Close">×</button>
+      </div>
+      <form class="product-form" id="userForm">
+        <p class="auth-error" id="userFormError" hidden role="alert"></p>
+        <label class="field">
+          <span>Display name</span>
+          <input type="text" id="userName" placeholder="Store manager" autocomplete="name" />
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="userEmail" required placeholder="user@example.com" autocomplete="username" />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input type="password" id="userPassword" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" />
+        </label>
+        <label class="field">
+          <span>Confirm password</span>
+          <input type="password" id="userPasswordConfirm" required minlength="8" autocomplete="new-password" />
+        </label>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" id="cancelUserBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create user</button>
+        </div>
+      </form>
     </div>
   </div>
 

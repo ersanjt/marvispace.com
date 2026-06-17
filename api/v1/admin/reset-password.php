@@ -10,20 +10,18 @@ if ($method !== 'POST') {
 
 $body = read_json_body();
 $email = (string) ($body['email'] ?? '');
-$recoveryCode = (string) ($body['recoveryCode'] ?? '');
-$newPassword = (string) ($body['newPassword'] ?? '');
+$recoveryCode = (string) ($body['recoveryCode'] ?? $body['recovery_code'] ?? '');
+$newPassword = (string) ($body['newPassword'] ?? $body['new_password'] ?? '');
 
-if ($newPassword !== (string) ($body['confirmPassword'] ?? '')) {
+if ($newPassword !== (string) ($body['confirmPassword'] ?? $body['confirm_password'] ?? '')) {
     json_error('New passwords do not match', 400);
 }
 
 $config = app_config();
-if (empty($config['admin']['recovery_bcrypt'])) {
-    json_error('Password recovery is not configured on the server. Run install/patch-api-config.php', 503);
+$result = admin_reset_password_result($pdo, $config, $email, $recoveryCode, $newPassword);
+
+if (!$result['ok']) {
+    json_error($result['error'] ?? 'Could not reset password', $result['status'] ?? 400);
 }
 
-if (!admin_reset_password($pdo, $config, $email, $recoveryCode, $newPassword)) {
-    json_error('Invalid email or recovery code', 401);
-}
-
-json_ok(['email' => strtolower(trim($email)), 'reset' => true]);
+json_ok(['email' => $result['email'] ?? strtolower(trim($email)), 'reset' => true]);

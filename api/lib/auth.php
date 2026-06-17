@@ -71,27 +71,53 @@ function admin_require(PDO $pdo): array
 
 function admin_reset_password(PDO $pdo, array $config, string $email, string $recoveryCode, string $newPassword): bool
 {
+    return admin_reset_password_result($pdo, $config, $email, $recoveryCode, $newPassword)['ok'];
+}
+
+function admin_reset_password_result(PDO $pdo, array $config, string $email, string $recoveryCode, string $newPassword): array
+{
     $email = strtolower(trim($email));
+    $recoveryCode = trim($recoveryCode);
     $recoveryHash = $config['admin']['recovery_bcrypt'] ?? '';
 
-    if ($email === '' || $recoveryCode === '' || strlen($newPassword) < 8) {
-        return false;
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return ['ok' => false, 'error' => 'Valid admin email is required.', 'status' => 400];
     }
 
-    if ($recoveryHash === '' || !password_verify($recoveryCode, $recoveryHash)) {
-        return false;
+    if ($recoveryCode === '') {
+        return ['ok' => false, 'error' => 'Recovery code is required.', 'status' => 400];
+    }
+
+    if (strlen($newPassword) < 8) {
+        return ['ok' => false, 'error' => 'Password must be at least 8 characters.', 'status' => 400];
+    }
+
+    if ($recoveryHash === '') {
+        return [
+            'ok' => false,
+            'error' => 'Password recovery is not configured on the server. Run: php install/patch-api-config.php',
+            'status' => 503,
+        ];
+    }
+
+    if (!password_verify($recoveryCode, $recoveryHash)) {
+        return ['ok' => false, 'error' => 'Invalid recovery code.', 'status' => 401];
     }
 
     $stmt = $pdo->prepare('SELECT id FROM admin_users WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $row = $stmt->fetch();
     if (!$row) {
-        return false;
+        return ['ok' => false, 'error' => 'No admin account exists for this email.', 'status' => 404];
     }
 
     $hash = password_hash($newPassword, PASSWORD_BCRYPT);
     $upd = $pdo->prepare('UPDATE admin_users SET password_hash = ? WHERE id = ?');
     $upd->execute([$hash, (int) $row['id']]);
 
-    return admin_login($pdo, $email, $newPassword);
+    if (!admin_login($pdo, $email, $newPassword)) {
+        return ['ok' => false, 'error' => 'Password updated but sign-in failed. Try signing in manually.', 'status' => 500];
+    }
+
+    return ['ok' => true, 'email' => $email];
 }

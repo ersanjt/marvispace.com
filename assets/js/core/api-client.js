@@ -127,3 +127,57 @@ export async function adminUploadImage(file) {
 
   return payload.data;
 }
+
+export async function adminFetchUsers() {
+  return request('/admin/users.php');
+}
+
+export async function adminCreateUser({ email, name, password, confirmPassword }) {
+  return request('/admin/users.php', {
+    method: 'POST',
+    body: { email, name, password, confirmPassword },
+  });
+}
+
+export async function adminDeleteUser(id) {
+  return request(`/admin/users.php?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export async function fetchSiteSettings() {
+  return request('/settings.php');
+}
+
+export async function adminFetchSettings() {
+  return request('/admin/settings.php');
+}
+
+export async function adminUploadFavicon(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+
+  const res = await fetch(`${API_BASE}/admin/settings.php`, {
+    method: 'POST',
+    credentials: 'include',
+    body: fd,
+  });
+
+  let payload = {};
+  try {
+    payload = await res.json();
+  } catch {
+    /* ignore */
+  }
+
+  if (!res.ok || payload.ok === false) {
+    throw new Error(payload.error || `Upload failed (${res.status})`);
+  }
+
+  return payload.data;
+}
+
+export async function adminResetFavicon() {
+  return request('/admin/settings.php', {
+    method: 'POST',
+    body: { resetFavicon: true },
+  });
+}

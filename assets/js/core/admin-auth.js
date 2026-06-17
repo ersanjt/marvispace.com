@@ -12,6 +12,7 @@ import {
   getAdminPasswordHashOverride,
   isAdminAuthed,
   isApiEnabled,
+  resetApiHealthCache,
   setAdminAuthed,
   setAdminPasswordHashOverride,
 } from './storage.js';
@@ -64,41 +65,75 @@ export async function verifyAdminCredentials(email, password) {
   return hash === activePasswordHash();
 }
 
+function isProductionHost() {
+  return /marvispace\.com$/i.test(window.location.hostname);
+}
+
 export async function verifyRecoveryCode(code) {
-  if (!code) return false;
-  const hash = await sha256(code);
+  const value = String(code || '').trim();
+  if (!value) return false;
+  const hash = await sha256(value);
   return hash === ADMIN_RECOVERY_SHA256;
 }
 
+async function resetViaApi(email, recoveryCode, newPassword) {
+  await api.adminResetPassword({
+    email,
+    recoveryCode,
+    newPassword,
+    confirmPassword: newPassword,
+  });
+  return { ok: true };
+}
+
 export async function resetAdminPassword(email, recoveryCode, newPassword) {
-  if (!newPassword || newPassword.length < 8) {
+  const normalizedEmail = normalizeEmail(email);
+  const code = String(recoveryCode || '').trim();
+  const password = String(newPassword || '');
+
+  if (!password || password.length < 8) {
     return { ok: false, error: 'Password must be at least 8 characters.' };
   }
 
+  resetApiHealthCache();
   if (await isApiEnabled()) {
     try {
-      await api.adminResetPassword({
-        email,
-        recoveryCode,
-        newPassword,
-        confirmPassword: newPassword,
-      });
-      return { ok: true };
+      return await resetViaApi(normalizedEmail, code, password);
     } catch (err) {
       return { ok: false, error: err.message || 'Could not reset password.' };
     }
   }
 
-  if (!verifyAdminEmail(email)) {
+  // Health check may have failed once — retry before local fallback.
+  resetApiHealthCache();
+  if (await isApiEnabled()) {
+    try {
+      return await resetViaApi(normalizedEmail, code, password);
+    } catch (err) {
+      return { ok: false, error: err.message || 'Could not reset password.' };
+    }
+  }
+
+  if (isProductionHost()) {
+    return {
+      ok: false,
+      error: 'Password reset requires the server API. Run php install/patch-api-config.php on the server, then use recovery code MarviRecover2026! (unless changed).',
+    };
+  }
+
+  if (!verifyAdminEmail(normalizedEmail)) {
     return { ok: false, error: 'This email is not authorized for admin access.' };
   }
 
-  const codeOk = await verifyRecoveryCode(recoveryCode);
+  const codeOk = await verifyRecoveryCode(code);
   if (!codeOk) {
-    return { ok: false, error: 'Invalid recovery code.' };
+    return {
+      ok: false,
+      error: 'Invalid recovery code. Default code: MarviRecover2026! (unless changed on server).',
+    };
   }
 
-  const hash = await sha256(newPassword);
+  const hash = await sha256(password);
   setAdminPasswordHashOverride(hash);
   return { ok: true };
 }
@@ -224,8 +259,8 @@ export function mountAdminLogin({ onSuccess }) {
 
   recoveryForm?.addEventListener('submit', async e => {
     e.preventDefault();
-    const email = document.getElementById('recoveryEmail')?.value || '';
-    const code = document.getElementById('recoveryCode')?.value || '';
+    const email = normalizeEmail(document.getElementById('recoveryEmail')?.value || '');
+    const code = String(document.getElementById('recoveryCode')?.value || '').trim();
     const newPwd = document.getElementById('recoveryNewPassword')?.value || '';
     const confirmPwd = document.getElementById('recoveryConfirmPassword')?.value || '';
 

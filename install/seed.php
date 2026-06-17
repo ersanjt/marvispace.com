@@ -44,10 +44,10 @@ $adminPass = getenv('MARVISPACE_ADMIN_PASSWORD') ?: '20231030Zhanna@';
 $hash = password_hash($adminPass, PASSWORD_BCRYPT);
 
 $stmt = $pdo->prepare(
-    'INSERT INTO admin_users (email, password_hash) VALUES (?, ?)
-     ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash)'
+    'INSERT INTO admin_users (email, name, password_hash) VALUES (?, ?, ?)
+     ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), name = VALUES(name)'
 );
-$stmt->execute([strtolower($adminEmail), $hash]);
+$stmt->execute([strtolower($adminEmail), 'Admin', $hash]);
 
 echo "==> Admin user: {$adminEmail}\n";
 echo "==> Seed completed.\n";

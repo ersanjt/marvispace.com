@@ -35,6 +35,7 @@ else
 
   RECOVERY_CODE="${MARVISPACE_RECOVERY_CODE:-MarviRecover2026!}"
   RECOVERY_BCRYPT="$(php -r 'echo password_hash(getenv("RC"), PASSWORD_BCRYPT);' RC="$RECOVERY_CODE")"
+  ADMIN_NOTIFY_EMAIL="${MARVISPACE_ADMIN_EMAIL:-ersanjahedtabrizi@gmail.com}"
 
   echo "==> Writing $CONFIG ..."
   cat > "$CONFIG" <<EOF
@@ -52,6 +53,19 @@ return [
   'admin' => [
     'recovery_bcrypt' => '${RECOVERY_BCRYPT}',
   ],
+  'mail' => [
+    'from' => 'orders@marvispace.com',
+    'from_name' => 'MARVISPACE Orders',
+    'support' => 'support@marvispace.com',
+    'admin_notify' => '${ADMIN_NOTIFY_EMAIL}',
+    'smtp' => [
+      'host' => 'mail.marvispace.com',
+      'port' => 465,
+      'secure' => 'ssl',
+      'user' => 'orders@marvispace.com',
+      'pass' => '',
+    ],
+  ],
 ];
 EOF
   chmod 640 "$CONFIG"
@@ -67,6 +81,8 @@ DB_PASS=$(php -r '$c=require "'"$CONFIG"'"; echo $c["db"]["pass"];')
 
 echo "==> Importing schema..."
 mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$REPO/install/schema.sql"
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$REPO/install/migrate-admin-users.sql" 2>/dev/null || true
+mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$REPO/install/migrate-site-settings.sql" 2>/dev/null || true
 
 echo "==> Seeding products + admin..."
 cd "$REPO"
@@ -76,6 +92,9 @@ php install/seed.php
 
 echo "==> Ensuring recovery code in API config..."
 php install/patch-api-config.php
+
+echo "==> Ensuring mail settings in API config..."
+php install/patch-api-config-mail.php
 
 echo "==> Deploying site files..."
 bash "$REPO/deploy.sh"

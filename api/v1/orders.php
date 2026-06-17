@@ -39,6 +39,12 @@ if ($method === 'POST') {
 
     try {
         $created = order_create($pdo, $order);
+        try {
+            require_once dirname(__DIR__) . '/lib/order-mail.php';
+            order_send_purchase_emails($created);
+        } catch (Throwable $mailErr) {
+            error_log('MARVISPACE order mail: ' . $mailErr->getMessage());
+        }
         json_ok($created, 201);
     } catch (Throwable $e) {
         json_error($e->getMessage(), 409);
