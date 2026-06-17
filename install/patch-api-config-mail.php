@@ -7,6 +7,10 @@
  *
  * With SMTP password (recommended on cPanel):
  *   MARVISPACE_SMTP_PASS='your-orders-mailbox-password' php install/patch-api-config-mail.php
+ *
+ * Same-server cPanel (when mail.marvispace.com has no DNS yet):
+ *   MARVISPACE_SMTP_HOST=localhost MARVISPACE_SMTP_PORT=587 MARVISPACE_SMTP_SECURE=tls \
+ *   MARVISPACE_SMTP_PASS='...' php install/patch-api-config-mail.php
  */
 declare(strict_types=1);
 
@@ -20,13 +24,29 @@ if (!is_file($configPath)) {
     exit(1);
 }
 
+require_once dirname(__DIR__) . '/api/lib/mail.php';
+
 $config = require $configPath;
 $adminEmail = getenv('MARVISPACE_ADMIN_EMAIL') ?: '';
 $smtpPass = getenv('MARVISPACE_SMTP_PASS') ?: (string) ($config['mail']['smtp']['pass'] ?? '');
-$smtpPort = (int) (getenv('MARVISPACE_SMTP_PORT') ?: ($config['mail']['smtp']['port'] ?? 465));
-$smtpSecure = getenv('MARVISPACE_SMTP_SECURE') ?: (string) ($config['mail']['smtp']['secure'] ?? 'ssl');
-$smtpHost = getenv('MARVISPACE_SMTP_HOST') ?: (string) ($config['mail']['smtp']['host'] ?? 'mail.marvispace.com');
 $smtpUser = getenv('MARVISPACE_SMTP_USER') ?: (string) ($config['mail']['smtp']['user'] ?? '');
+
+$recommended = mail_recommended_smtp();
+$smtpHost = getenv('MARVISPACE_SMTP_HOST') ?: (string) ($config['mail']['smtp']['host'] ?? $recommended['host']);
+$smtpPort = (int) (getenv('MARVISPACE_SMTP_PORT') ?: ($config['mail']['smtp']['port'] ?? $recommended['port']));
+$smtpSecure = getenv('MARVISPACE_SMTP_SECURE') ?: (string) ($config['mail']['smtp']['secure'] ?? $recommended['secure']);
+
+// Auto-fix broken mail.marvispace.com DNS → localhost (cPanel local Exim)
+if (!getenv('MARVISPACE_SMTP_HOST') && !mail_host_resolves($smtpHost)) {
+    fwrite(STDERR, "NOTE: {$smtpHost} does not resolve — using localhost:587 (cPanel local mail).\n");
+    $smtpHost = 'localhost';
+    if (!getenv('MARVISPACE_SMTP_PORT')) {
+        $smtpPort = 587;
+    }
+    if (!getenv('MARVISPACE_SMTP_SECURE')) {
+        $smtpSecure = 'tls';
+    }
+}
 
 $config['mail'] = array_merge([
     'from' => 'orders@marvispace.com',
@@ -34,9 +54,9 @@ $config['mail'] = array_merge([
     'support' => 'support@marvispace.com',
     'admin_notify' => $adminEmail,
     'smtp' => [
-        'host' => 'mail.marvispace.com',
-        'port' => 465,
-        'secure' => 'ssl',
+        'host' => $recommended['host'],
+        'port' => $recommended['port'],
+        'secure' => $recommended['secure'],
         'user' => 'orders@marvispace.com',
         'pass' => '',
     ],
@@ -47,8 +67,8 @@ $config['mail']['support'] = $config['mail']['support'] ?: 'support@marvispace.c
 $config['mail']['admin_notify'] = $config['mail']['admin_notify'] ?: $adminEmail;
 $config['mail']['smtp'] = array_merge([
     'host' => $smtpHost,
-    'port' => $smtpPort > 0 ? $smtpPort : 465,
-    'secure' => $smtpSecure !== '' ? $smtpSecure : 'ssl',
+    'port' => $smtpPort > 0 ? $smtpPort : 587,
+    'secure' => $smtpSecure !== '' ? $smtpSecure : 'tls',
     'user' => $config['mail']['from'],
     'pass' => '',
 ], $config['mail']['smtp'] ?? []);
@@ -76,5 +96,9 @@ echo "==> Mail settings updated in API config.\n";
 echo "    From:          {$config['mail']['from']}\n";
 echo "    Support:       {$config['mail']['support']}\n";
 echo "    Admin notify:  {$config['mail']['admin_notify']}\n";
-echo "    SMTP:          {$config['mail']['smtp']['host']}:{$config['mail']['smtp']['port']}\n";
+echo "    SMTP:          {$config['mail']['smtp']['host']}:{$config['mail']['smtp']['port']} ({$config['mail']['smtp']['secure']})\n";
 echo '    SMTP auth:     ' . ($config['mail']['smtp']['pass'] !== '' ? 'configured' : 'not set (uses PHP mail())') . "\n";
+
+if (!mail_host_resolves('mail.marvispace.com')) {
+    echo "\n    Tip: add DNS A record mail.marvispace.com → server IP, or keep localhost for cPanel.\n";
+}

@@ -73,7 +73,12 @@ php install/seed.php
 
 Create mailbox **orders@marvispace.com** in cPanel → Email Accounts.
 
+**On the same cPanel server** (recommended when `mail.marvispace.com` DNS is missing):
+
 ```bash
+MARVISPACE_SMTP_HOST=localhost \
+MARVISPACE_SMTP_PORT=587 \
+MARVISPACE_SMTP_SECURE=tls \
 MARVISPACE_SMTP_PASS='orders-mailbox-password' \
 php install/patch-api-config-mail.php
 
@@ -81,16 +86,13 @@ php install/test-mail.php --probe
 php install/test-mail.php
 ```
 
-If port **465/SSL** fails on your host, try **587/TLS**:
+`patch-api-config-mail.php` auto-switches to `localhost:587` if `mail.marvispace.com` does not resolve.
+
+Optional: add DNS **A** record `mail.marvispace.com` → server IP, then use port 465/ssl.
 
 ```bash
-MARVISPACE_SMTP_PORT=587 \
-MARVISPACE_SMTP_SECURE=tls \
 MARVISPACE_SMTP_PASS='orders-mailbox-password' \
 php install/patch-api-config-mail.php
-
-php install/test-mail.php --probe --tls
-php install/test-mail.php
 ```
 
 Enable **SPF** and **DKIM** in cPanel → Email Deliverability.

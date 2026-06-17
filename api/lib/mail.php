@@ -15,6 +15,28 @@ function mail_last_error(): string
     return (string) ($GLOBALS['marvispace_mail_last_error'] ?? '');
 }
 
+function mail_host_resolves(string $host): bool
+{
+    if ($host === 'localhost' || $host === '127.0.0.1') {
+        return true;
+    }
+
+    return gethostbyname($host) !== $host;
+}
+
+/** cPanel: send via local Exim on localhost when mail.domain has no DNS yet */
+function mail_recommended_smtp(): array
+{
+    $domain = 'marvispace.com';
+    $mailHost = 'mail.' . $domain;
+
+    if (mail_host_resolves($mailHost)) {
+        return ['host' => $mailHost, 'port' => 465, 'secure' => 'ssl'];
+    }
+
+    return ['host' => 'localhost', 'port' => 587, 'secure' => 'tls'];
+}
+
 function mail_config(): array
 {
     $config = app_config();
@@ -29,9 +51,9 @@ function mail_config(): array
         'site_url' => rtrim((string) ($site['url'] ?? 'https://marvispace.com'), '/'),
         'support' => (string) ($mail['support'] ?? 'support@marvispace.com'),
         'smtp' => [
-            'host' => (string) ($smtp['host'] ?? 'mail.marvispace.com'),
-            'port' => (int) ($smtp['port'] ?? 465),
-            'secure' => (string) ($smtp['secure'] ?? 'ssl'),
+            'host' => (string) ($smtp['host'] ?? mail_recommended_smtp()['host']),
+            'port' => (int) ($smtp['port'] ?? mail_recommended_smtp()['port']),
+            'secure' => (string) ($smtp['secure'] ?? mail_recommended_smtp()['secure']),
             'user' => (string) ($smtp['user'] ?? ($mail['from'] ?? 'orders@marvispace.com')),
             'pass' => (string) ($smtp['pass'] ?? ''),
         ],
