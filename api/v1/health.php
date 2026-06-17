@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+require_once dirname(__DIR__) . '/lib/cache-headers.php';
+send_no_cache_headers();
+
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 

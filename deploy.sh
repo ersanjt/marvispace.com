@@ -78,3 +78,6 @@ cp -f "$REPO/deploy.sh" /home/marvispace/deploy.sh
 chmod 755 /home/marvispace/deploy.sh
 
 echo "==> Deploy completed successfully."
+echo ""
+echo "==> Cache: clear NGINX cache in cPanel if the site looks stale:"
+echo "    cPanel → NGINX Caching → Clear Cache"

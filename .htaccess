@@ -83,6 +83,34 @@
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+
+  # Do not cache HTML — always serve latest after deploy
+  <FilesMatch "\.(html?)$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+
+  # JS/CSS: revalidate every request (no stale admin/storefront after git pull)
+  <FilesMatch "\.(js|css)$">
+    Header set Cache-Control "no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+  </FilesMatch>
+
+  # SVG favicon + small assets that change from admin
+  <FilesMatch "\.(svg)$">
+    Header set Cache-Control "no-cache, must-revalidate, max-age=0"
+  </FilesMatch>
+</IfModule>
+
+# Disable long-lived Expires (was 7–30 days — caused stale site)
+<IfModule mod_expires.c>
+  ExpiresActive Off
+</IfModule>
+
+FileETag None
+<IfModule mod_headers.c>
+  Header unset ETag
 </IfModule>
 
 DirectoryIndex index.html
@@ -96,12 +124,5 @@ DirectoryIndex index.html
   AddCharset UTF-8 .js .css .html .svg
 </IfModule>
 
-# Static assets caching
-<IfModule mod_expires.c>
-  ExpiresActive On
-  ExpiresByType text/css "access plus 7 days"
-  ExpiresByType application/javascript "access plus 7 days"
-  ExpiresByType image/svg+xml "access plus 30 days"
-  ExpiresByType image/jpeg "access plus 30 days"
-  ExpiresByType image/webp "access plus 30 days"
-</IfModule>
+# Product photos only — short cache (large files, rarely change)
+# HTML/JS/CSS are no-cache via rules above

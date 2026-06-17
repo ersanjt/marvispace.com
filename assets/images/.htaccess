@@ -1,0 +1,6 @@
+# Product images — 1 day cache (large files; separate from HTML/JS)
+<IfModule mod_headers.c>
+  <FilesMatch "\.(jpe?g|webp|gif|png|ico)$">
+    Header set Cache-Control "public, max-age=86400, must-revalidate"
+  </FilesMatch>
+</IfModule>

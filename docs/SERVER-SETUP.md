@@ -90,3 +90,14 @@ php install/migrate.php --status
 ```
 
 See [DATABASE.md](DATABASE.md) for full database documentation.
+
+## Caching (no stale site after deploy)
+
+The repo sends **no-cache** for HTML, JS, CSS, and API. Product photos in `/assets/images/` use 1-day cache only.
+
+**cPanel NGINX Caching** (separate layer) may still cache pages. After each deploy:
+
+1. cPanel → **NGINX Caching** → **Clear Cache**
+2. Or disable NGINX cache for this account if you prefer always-fresh HTML
+
+Browser: hard refresh `Ctrl+Shift+R` once after deploy if needed.
