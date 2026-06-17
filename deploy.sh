@@ -22,12 +22,28 @@ chmod -R u+rwX "$REPO/.git"
 echo "==> Pulling latest from GitHub..."
 git config --global --add safe.directory "$REPO" 2>/dev/null || true
 
+ADMIN_CFG="assets/js/config/admin-auth.js"
+ADMIN_BACKUP=""
+cd "$REPO"
+
+if [[ -f "$ADMIN_CFG" ]] && ! git diff --quiet HEAD -- "$ADMIN_CFG" 2>/dev/null; then
+  ADMIN_BACKUP="$(mktemp)"
+  cp "$ADMIN_CFG" "$ADMIN_BACKUP"
+  echo "    Preserving local admin password hash..."
+  git checkout -- "$ADMIN_CFG"
+fi
+
 if su "$USER" -s /bin/bash -c "cd '$REPO' && git pull origin main"; then
   echo "    git pull OK (as $USER)"
 else
   echo "    git pull as $USER failed, retrying as root..."
-  cd "$REPO"
   git pull origin main
+fi
+
+if [[ -n "$ADMIN_BACKUP" && -f "$ADMIN_BACKUP" ]]; then
+  cp "$ADMIN_BACKUP" "$ADMIN_CFG"
+  rm -f "$ADMIN_BACKUP"
+  echo "    Restored local admin password hash."
 fi
 
 chown -R "$USER:$USER" "$REPO"
