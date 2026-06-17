@@ -51,7 +51,16 @@ require_once __DIR__ . '/order-customer.php';
 require_once __DIR__ . '/admin-users-repo.php';
 require_once __DIR__ . '/settings-repo.php';
 
-$pdo = db_connect($config['db']);
+try {
+    $pdo = db_connect($config['db']);
+} catch (Throwable $e) {
+    http_response_code(503);
+    echo json_encode([
+        'ok' => false,
+        'error' => 'Database connection failed. Run: php install/doctor.php',
+    ]);
+    exit;
+}
 
 function app_config(): array
 {

@@ -80,7 +80,11 @@ DB_USER=$(php -r '$c=require "'"$CONFIG"'"; echo $c["db"]["user"];')
 DB_PASS=$(php -r '$c=require "'"$CONFIG"'"; echo $c["db"]["pass"];')
 
 echo "==> Running database migrations..."
-php "$REPO/install/migrate.php"
+if ! php "$REPO/install/migrate.php"; then
+  echo "ERROR: migrations failed. Running doctor..."
+  php "$REPO/install/doctor.php" || true
+  exit 1
+fi
 
 echo "==> Seeding products + admin..."
 cd "$REPO"

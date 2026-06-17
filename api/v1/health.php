@@ -1,6 +1,41 @@
 <?php
 declare(strict_types=1);
-require_once dirname(__DIR__) . '/lib/bootstrap.php';
+
+header('Content-Type: application/json; charset=utf-8');
+header('X-Content-Type-Options: nosniff');
+
+$configPaths = [
+    '/home/marvispace/api_config.php',
+    dirname(__DIR__, 2) . '/api/config.local.php',
+];
+
+$config = null;
+foreach ($configPaths as $path) {
+    if (is_file($path)) {
+        $config = require $path;
+        break;
+    }
+}
+
+if (!$config || empty($config['db'])) {
+    http_response_code(503);
+    echo json_encode(['ok' => false, 'error' => 'API not configured']);
+    exit;
+}
+
+require_once dirname(__DIR__) . '/lib/db.php';
+require_once dirname(__DIR__) . '/lib/response.php';
+
+try {
+    $pdo = db_connect($config['db']);
+} catch (Throwable $e) {
+    json_ok([
+        'database' => false,
+        'version' => '2',
+        'error' => 'Database connection failed',
+        'hint' => 'Run php install/doctor.php on the server',
+    ]);
+}
 
 $requiredTables = ['products', 'orders', 'order_items', 'admin_users'];
 $optionalTables = ['site_settings', 'login_attempts', 'schema_migrations'];
