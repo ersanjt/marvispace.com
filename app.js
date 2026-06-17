@@ -344,7 +344,46 @@ function applyFilter(key) {
   filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === key));
   visible = filtered(key);
   renderGrid(visible);
+  injectProductSchema(visible);
   updateCols();
+}
+
+function injectProductSchema(items) {
+  let el = document.getElementById('productSchema');
+  if (!el) {
+    el = document.createElement('script');
+    el.id = 'productSchema';
+    el.type = 'application/ld+json';
+    document.head.append(el);
+  }
+
+  const list = items
+    .filter(p => p.inStock !== false)
+    .slice(0, 24)
+    .map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Product',
+        name: p.label,
+        image: p.image,
+        brand: { '@type': 'Brand', name: 'MARVISPACE' },
+        offers: {
+          '@type': 'Offer',
+          url: 'https://marvispace.com/',
+          priceCurrency: 'USD',
+          price: p.price,
+          availability: 'https://schema.org/InStock',
+        },
+      },
+    }));
+
+  el.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'MARVISPACE Product Catalog',
+    itemListElement: list,
+  });
 }
 
 filterBtns.forEach(b => {
@@ -365,7 +404,8 @@ function renderGrid(items) {
     const btn = document.createElement('button');
     btn.className = 'product-btn';
     btn.type = 'button';
-    btn.setAttribute('aria-label', `View ${item.label}`);
+    btn.setAttribute('aria-label', `${item.label} — $${item.price}`);
+    btn.title = `${item.label} — $${item.price}`;
     btn.dataset.id = item.id;
     btn.dataset.i = String(i);
 
