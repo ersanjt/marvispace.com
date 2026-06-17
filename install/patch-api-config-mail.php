@@ -32,12 +32,21 @@ $smtpPass = getenv('MARVISPACE_SMTP_PASS') ?: (string) ($config['mail']['smtp'][
 $smtpUser = getenv('MARVISPACE_SMTP_USER') ?: (string) ($config['mail']['smtp']['user'] ?? '');
 
 $recommended = mail_recommended_smtp();
-$smtpHost = getenv('MARVISPACE_SMTP_HOST') ?: (string) ($config['mail']['smtp']['host'] ?? $recommended['host']);
-$smtpPort = (int) (getenv('MARVISPACE_SMTP_PORT') ?: ($config['mail']['smtp']['port'] ?? $recommended['port']));
-$smtpSecure = getenv('MARVISPACE_SMTP_SECURE') ?: (string) ($config['mail']['smtp']['secure'] ?? $recommended['secure']);
+$smtpHost = getenv('MARVISPACE_SMTP_HOST') ?: '';
+$smtpPort = getenv('MARVISPACE_SMTP_PORT') ? (int) getenv('MARVISPACE_SMTP_PORT') : 0;
+$smtpSecure = getenv('MARVISPACE_SMTP_SECURE') ?: '';
 
-// Auto-fix broken mail.marvispace.com DNS → localhost (cPanel local Exim)
-if (!getenv('MARVISPACE_SMTP_HOST') && !mail_host_resolves($smtpHost)) {
+if ($smtpHost === '') {
+    $smtpHost = (string) ($config['mail']['smtp']['host'] ?? $recommended['host']);
+}
+if ($smtpPort <= 0) {
+    $smtpPort = (int) ($config['mail']['smtp']['port'] ?? $recommended['port']);
+}
+if ($smtpSecure === '') {
+    $smtpSecure = (string) ($config['mail']['smtp']['secure'] ?? $recommended['secure']);
+}
+
+if (!mail_host_resolves($smtpHost)) {
     fwrite(STDERR, "NOTE: {$smtpHost} does not resolve — using localhost:587 (cPanel local mail).\n");
     $smtpHost = 'localhost';
     if (!getenv('MARVISPACE_SMTP_PORT')) {
@@ -65,20 +74,17 @@ $config['mail'] = array_merge([
 $config['mail']['from'] = $config['mail']['from'] ?: 'orders@marvispace.com';
 $config['mail']['support'] = $config['mail']['support'] ?: 'support@marvispace.com';
 $config['mail']['admin_notify'] = $config['mail']['admin_notify'] ?: $adminEmail;
-$config['mail']['smtp'] = array_merge([
+
+$existingSmtp = $config['mail']['smtp'] ?? [];
+$config['mail']['smtp'] = array_merge($existingSmtp, [
     'host' => $smtpHost,
     'port' => $smtpPort > 0 ? $smtpPort : 587,
     'secure' => $smtpSecure !== '' ? $smtpSecure : 'tls',
-    'user' => $config['mail']['from'],
-    'pass' => '',
-], $config['mail']['smtp'] ?? []);
+    'user' => $smtpUser !== '' ? $smtpUser : ($existingSmtp['user'] ?? $config['mail']['from']),
+    'pass' => $smtpPass !== '' ? $smtpPass : (string) ($existingSmtp['pass'] ?? ''),
+]);
 
-if ($smtpPass !== '') {
-    $config['mail']['smtp']['pass'] = $smtpPass;
-}
-if ($smtpUser !== '') {
-    $config['mail']['smtp']['user'] = $smtpUser;
-} elseif ($config['mail']['smtp']['user'] === '') {
+if ($config['mail']['smtp']['user'] === '') {
     $config['mail']['smtp']['user'] = $config['mail']['from'];
 }
 
