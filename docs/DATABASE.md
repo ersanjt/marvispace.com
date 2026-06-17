@@ -29,6 +29,32 @@ This will:
 
 ---
 
+## Troubleshooting `Access denied (1045)`
+
+The password in `api_config.php` may not match cPanel MySQL (often when the user was created manually).
+
+**As root on WHM:**
+
+```bash
+cd /home/marvispace/repositories/marvispace.com
+git pull
+bash install/fix-mysql-user.sh
+php install/migrate.php
+php install/doctor.php
+```
+
+Or run UAPI manually:
+
+```bash
+DB_PASS=$(php -r '$c=require "/home/marvispace/api_config.php"; echo $c["db"]["pass"];')
+uapi --user=marvispace Mysql create_database name=store || true
+uapi --user=marvispace Mysql set_password user=storeuser password="$DB_PASS" \
+  || uapi --user=marvispace Mysql create_user name=storeuser password="$DB_PASS"
+uapi --user=marvispace Mysql set_privileges_on_database user=storeuser database=store privileges=ALL
+```
+
+---
+
 ## Manual cPanel database
 
 If you created a database in cPanel:
