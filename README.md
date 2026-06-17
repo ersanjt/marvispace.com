@@ -1,74 +1,64 @@
 # MARVISPACE
 
-Premium leather apparel storefront — **marvispace.com**
+Premium leather apparel e-commerce — [marvispace.com](https://marvispace.com)
 
-Static frontend with Yeezy-inspired UX, client-side cart/checkout demo, and admin dashboard.
+Static storefront + PHP/MySQL API + admin dashboard. Yeezy-inspired UX.
 
 ## Stack
 
-- HTML / CSS / ES modules (no build step required for production)
-- Apache clean URLs (`.htaccess`)
-- cPanel + Cloudflare hosting
-- Product data: `assets/js/data/products.js`
-- Persistence: browser `localStorage` (demo — replace with backend for production sales)
+- HTML / CSS / ES modules (no build step)
+- PHP 8+ REST API (`/api/v1/`)
+- MySQL on cPanel
+- Apache clean URLs
+- GitHub Actions deploy
 
 ## Quick start (local)
 
 ```bash
+git clone https://github.com/ersanjt/marvispace.com.git
+cd marvispace.com
+cp .env.example .env          # fill in locally — never commit .env
+cp assets/js/config/admin-auth.js.example assets/js/config/admin-auth.js
 npx serve .
-# or any static file server from project root
 ```
 
-Open `http://localhost:3000`
+## Server setup
 
-## Deploy (production)
-
-**Automatic:** every push to `main` runs [GitHub Actions](https://github.com/ersanjt/marvispace.com/actions) → SSH → `deploy.sh` on the server.
-
-**Manual fallback:**
+See [docs/SERVER-SETUP.md](docs/SERVER-SETUP.md) and [docs/DATABASE.md](docs/DATABASE.md).
 
 ```bash
-bash /home/marvispace/repositories/marvispace.com/deploy.sh
+MARVISPACE_ADMIN_EMAIL='you@example.com' \
+MARVISPACE_ADMIN_PASSWORD='YourStrongPassword' \
+bash install/setup-server.sh
 ```
 
-See [docs/DEPLOY.md](docs/DEPLOY.md) and [docs/HANDOFF.md](docs/HANDOFF.md).
+## Security
+
+- **No secrets in git** — see [SECURITY.md](SECURITY.md)
+- Production config: `/home/marvispace/api_config.php` (outside web root)
+- Report vulnerabilities privately (see SECURITY.md)
 
 ## Project layout
 
 ```
-index.html          Storefront
-checkout.html       Checkout flow
-admin.html          Admin panel (custom sign-in page)
-assets/css/         Stylesheets
-assets/js/          Application code
-assets/images/      Product photography
-docs/               Deploy & handoff guides
-tools/              Sitemap generator, admin auth setup
+index.html              Storefront
+admin.html              Admin panel
+api/                    PHP REST API
+assets/                 CSS, JS, images
+install/                Migrations, seed, server scripts
+docs/                   Deployment & database guides
 ```
 
-Full tree: [docs/STRUCTURE.md](docs/STRUCTURE.md)
+## Admin
 
-## Admin access
+`/admin` — server-side session auth (MySQL). Local fallback config is gitignored.
 
-Open `/admin` for the custom sign-in page (Yeezy-style UI).
+## Deploy
 
-| Field | Default |
-|-------|---------|
-| Email | `ersanjahedtabrizi@gmail.com` |
-| Recovery code | `MarviRecover2026!` |
+Push to `main` → GitHub Actions → SSH → `deploy.sh`
 
-Set password hash:
-
-```bash
-node tools/set-admin-password.mjs 'YourSecurePassword' 'YourRecoveryCode'
-```
-
-Use **Forgot password?** on `/admin` to reset with email + recovery code.
-
-Optional: cPanel **Directory Privacy** on `/admin` for server-level protection.
+Manual: `bash deploy.sh` on server
 
 ## Developer
 
 **Ersan JT** — [github.com/ersanjt](https://github.com/ersanjt)
-
-Repository: [github.com/ersanjt/marvispace.com](https://github.com/ersanjt/marvispace.com)

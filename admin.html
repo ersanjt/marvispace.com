@@ -68,7 +68,7 @@
       <form class="auth-form" id="recoveryForm" hidden>
         <h1 class="auth-title">Reset password</h1>
         <p class="auth-lead">Enter your admin email, recovery code, and a new password.</p>
-        <p class="auth-hint">Recovery code default: <code>MarviRecover2026!</code> (set on server during install).</p>
+        <p class="auth-hint">Recovery code is set on the server during install (not stored in git).</p>
         <p class="auth-error" id="recoveryError" hidden role="alert"></p>
         <p class="auth-success" id="recoverySuccess" hidden role="status">Password updated. Opening dashboard…</p>
 
@@ -80,7 +80,7 @@
             name="email"
             required
             autocomplete="username"
-            value="ersanjahedtabrizi@gmail.com"
+            placeholder="admin@yourdomain.com"
             inputmode="email"
           />
         </label>

@@ -4,7 +4,7 @@
 #   bash /home/marvispace/repositories/marvispace.com/install/setup-server.sh
 #
 # Optional env:
-#   MARVISPACE_ADMIN_EMAIL=ersanjahedtabrizi@gmail.com
+#   MARVISPACE_ADMIN_EMAIL=admin@yourdomain.com
 #   MARVISPACE_ADMIN_PASSWORD='YourSecurePassword'
 
 set -euo pipefail
@@ -22,6 +22,17 @@ if [[ ! -d "$REPO" ]]; then
   exit 1
 fi
 
+if [[ -z "${MARVISPACE_ADMIN_EMAIL:-}" ]]; then
+  echo "ERROR: MARVISPACE_ADMIN_EMAIL is required."
+  echo "       MARVISPACE_ADMIN_EMAIL='admin@yourdomain.com' MARVISPACE_ADMIN_PASSWORD='...' bash install/setup-server.sh"
+  exit 1
+fi
+
+if [[ -z "${MARVISPACE_ADMIN_PASSWORD:-}" ]]; then
+  echo "ERROR: MARVISPACE_ADMIN_PASSWORD is required."
+  exit 1
+fi
+
 if [[ -f "$CONFIG" ]]; then
   echo "==> Config exists: $CONFIG"
   echo "    Skipping database creation. To reset, remove config and re-run."
@@ -33,9 +44,13 @@ else
   uapi --user="$USER" Mysql create_user name="$DB_USER_SHORT" password="$DB_PASS" || true
   uapi --user="$USER" Mysql set_privileges_on_database user="$DB_USER_SHORT" database="$DB_SHORT" privileges=ALL
 
-  RECOVERY_CODE="${MARVISPACE_RECOVERY_CODE:-MarviRecover2026!}"
+  RECOVERY_CODE="${MARVISPACE_RECOVERY_CODE:-}"
+  if [[ -z "$RECOVERY_CODE" ]]; then
+    RECOVERY_CODE="$(openssl rand -base64 18 | tr -dc 'A-Za-z0-9!@#%' | head -c 16)"
+    echo "    Generated recovery code (save it securely): ${RECOVERY_CODE}"
+  fi
   RECOVERY_BCRYPT="$(php -r 'echo password_hash(getenv("RC"), PASSWORD_BCRYPT);' RC="$RECOVERY_CODE")"
-  ADMIN_NOTIFY_EMAIL="${MARVISPACE_ADMIN_EMAIL:-ersanjahedtabrizi@gmail.com}"
+  ADMIN_NOTIFY_EMAIL="${MARVISPACE_ADMIN_EMAIL:-}"
 
   echo "==> Writing $CONFIG ..."
   cat > "$CONFIG" <<EOF
@@ -88,8 +103,8 @@ fi
 
 echo "==> Seeding products + admin..."
 cd "$REPO"
-MARVISPACE_ADMIN_EMAIL="${MARVISPACE_ADMIN_EMAIL:-ersanjahedtabrizi@gmail.com}" \
-MARVISPACE_ADMIN_PASSWORD="${MARVISPACE_ADMIN_PASSWORD:-20231030Zhanna@}" \
+MARVISPACE_ADMIN_EMAIL="${MARVISPACE_ADMIN_EMAIL}" \
+MARVISPACE_ADMIN_PASSWORD="${MARVISPACE_ADMIN_PASSWORD}" \
 php install/seed.php
 
 echo "==> Ensuring recovery code in API config..."

@@ -117,7 +117,7 @@ export async function resetAdminPassword(email, recoveryCode, newPassword) {
   if (isProductionHost()) {
     return {
       ok: false,
-      error: 'Password reset requires the server API. Run php install/patch-api-config.php on the server, then use recovery code MarviRecover2026! (unless changed).',
+      error: 'Password reset requires the server API. Contact your administrator or run php install/patch-api-config.php on the server.',
     };
   }
 
@@ -129,7 +129,7 @@ export async function resetAdminPassword(email, recoveryCode, newPassword) {
   if (!codeOk) {
     return {
       ok: false,
-      error: 'Invalid recovery code. Default code: MarviRecover2026! (unless changed on server).',
+      error: 'Invalid recovery code.',
     };
   }
 

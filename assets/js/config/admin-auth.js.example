@@ -1,0 +1,10 @@
+/**
+ * Local admin fallback (offline dev only). NOT used when MySQL API is active.
+ *
+ * Setup (never commit admin-auth.js):
+ *   cp assets/js/config/admin-auth.js.example assets/js/config/admin-auth.js
+ *   node tools/set-admin-password.mjs 'YourPassword' 'YourRecoveryCode'
+ */
+export const ADMIN_EMAIL = 'admin@example.com';
+export const ADMIN_PASSWORD_SHA256 = '';
+export const ADMIN_RECOVERY_SHA256 = '';

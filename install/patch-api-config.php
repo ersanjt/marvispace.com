@@ -1,6 +1,6 @@
 <?php
 /**
- * Ensure api_config.php recovery bcrypt matches MARVISPACE_RECOVERY_CODE (default: MarviRecover2026!).
+ * Ensure api_config.php recovery bcrypt matches MARVISPACE_RECOVERY_CODE.
  * Re-hashes automatically when the stored hash no longer verifies.
  *
  * Run on server:
@@ -25,7 +25,11 @@ if (!is_file($configPath)) {
 }
 
 $config = require $configPath;
-$recoveryCode = getenv('MARVISPACE_RECOVERY_CODE') ?: 'MarviRecover2026!';
+$recoveryCode = getenv('MARVISPACE_RECOVERY_CODE') ?: '';
+if ($recoveryCode === '') {
+    fwrite(STDERR, "ERROR: Set MARVISPACE_RECOVERY_CODE or run via setup-server.sh (auto-generates).\n");
+    exit(1);
+}
 $force = getenv('MARVISPACE_FORCE_RECOVERY') === '1';
 $existing = (string) ($config['admin']['recovery_bcrypt'] ?? '');
 

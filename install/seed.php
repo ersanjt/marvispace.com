@@ -39,8 +39,13 @@ foreach ($products as $product) {
     product_save($pdo, $product);
 }
 
-$adminEmail = getenv('MARVISPACE_ADMIN_EMAIL') ?: 'ersanjahedtabrizi@gmail.com';
-$adminPass = getenv('MARVISPACE_ADMIN_PASSWORD') ?: '20231030Zhanna@';
+$adminEmail = getenv('MARVISPACE_ADMIN_EMAIL') ?: '';
+$adminPass = getenv('MARVISPACE_ADMIN_PASSWORD') ?: '';
+
+if ($adminEmail === '' || $adminPass === '') {
+    fwrite(STDERR, "ERROR: Set MARVISPACE_ADMIN_EMAIL and MARVISPACE_ADMIN_PASSWORD.\n");
+    exit(1);
+}
 $hash = password_hash($adminPass, PASSWORD_BCRYPT);
 
 $stmt = $pdo->prepare(

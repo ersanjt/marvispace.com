@@ -21,7 +21,7 @@ if (!is_file($configPath)) {
 }
 
 $config = require $configPath;
-$adminEmail = getenv('MARVISPACE_ADMIN_EMAIL') ?: 'ersanjahedtabrizi@gmail.com';
+$adminEmail = getenv('MARVISPACE_ADMIN_EMAIL') ?: '';
 $smtpPass = getenv('MARVISPACE_SMTP_PASS') ?: (string) ($config['mail']['smtp']['pass'] ?? '');
 
 $config['mail'] = array_merge([

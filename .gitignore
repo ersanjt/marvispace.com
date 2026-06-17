@@ -1,8 +1,33 @@
+# OS
 .DS_Store
 Thumbs.db
+
+# Logs
 *.log
+error_log
+
+# Dependencies
+node_modules/
+
+# Secrets & local config (NEVER commit)
 .env
 .env.*
-node_modules/
-.deploy-keys/
+!.env.example
 api/config.local.php
+assets/js/config/admin-auth.js
+.deploy-keys/
+*.pem
+*.key
+id_rsa
+id_rsa.*
+*_rsa
+*_ed25519
+*.ppk
+
+# Client-specific handoff (use HANDOFF.example.md as template)
+docs/HANDOFF.local.md
+
+# Editor
+.idea/
+.vscode/
+*.swp

@@ -23,14 +23,12 @@ echo "==> Pulling latest from GitHub..."
 git config --global --add safe.directory "$REPO" 2>/dev/null || true
 
 ADMIN_CFG="assets/js/config/admin-auth.js"
-ADMIN_BACKUP=""
+ADMIN_EXAMPLE="assets/js/config/admin-auth.js.example"
 cd "$REPO"
 
-if [[ -f "$ADMIN_CFG" ]] && ! git diff --quiet HEAD -- "$ADMIN_CFG" 2>/dev/null; then
-  ADMIN_BACKUP="$(mktemp)"
-  cp "$ADMIN_CFG" "$ADMIN_BACKUP"
-  echo "    Preserving local admin password hash..."
-  git checkout -- "$ADMIN_CFG"
+if [[ ! -f "$ADMIN_CFG" && -f "$ADMIN_EXAMPLE" ]]; then
+  cp "$ADMIN_EXAMPLE" "$ADMIN_CFG"
+  echo "    Created admin-auth.js from example (local fallback — configure if needed)"
 fi
 
 if su "$USER" -s /bin/bash -c "cd '$REPO' && git pull origin main"; then
@@ -38,12 +36,6 @@ if su "$USER" -s /bin/bash -c "cd '$REPO' && git pull origin main"; then
 else
   echo "    git pull as $USER failed, retrying as root..."
   git pull origin main
-fi
-
-if [[ -n "$ADMIN_BACKUP" && -f "$ADMIN_BACKUP" ]]; then
-  cp "$ADMIN_BACKUP" "$ADMIN_CFG"
-  rm -f "$ADMIN_BACKUP"
-  echo "    Restored local admin password hash."
 fi
 
 chown -R "$USER:$USER" "$REPO"

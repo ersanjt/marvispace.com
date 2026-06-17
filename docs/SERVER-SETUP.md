@@ -3,95 +3,86 @@
 Run **once** on WHM as **root** after `git pull`:
 
 ```bash
+MARVISPACE_ADMIN_EMAIL='admin@yourdomain.com' \
+MARVISPACE_ADMIN_PASSWORD='YourStrongPasswordHere' \
 bash /home/marvispace/repositories/marvispace.com/install/setup-server.sh
 ```
 
-Optional custom admin password:
+`MARVISPACE_ADMIN_PASSWORD` is **required** (never stored in git).
+
+Optional recovery code:
 
 ```bash
-MARVISPACE_ADMIN_EMAIL='ersanjahedtabrizi@gmail.com' \
-MARVISPACE_ADMIN_PASSWORD='YourSecurePassword' \
-bash /home/marvispace/repositories/marvispace.com/install/setup-server.sh
+MARVISPACE_RECOVERY_CODE='YourRecoveryCode' \
+MARVISPACE_ADMIN_EMAIL='admin@yourdomain.com' \
+MARVISPACE_ADMIN_PASSWORD='YourStrongPasswordHere' \
+bash install/setup-server.sh
 ```
 
 ## What this script does
 
 1. Creates MySQL database `marvispace_store` + user via cPanel UAPI
 2. Writes private config: `/home/marvispace/api_config.php` (outside git)
-3. Imports `install/schema.sql`
-4. Seeds 17 products + admin user (`install/seed.php`)
-5. Runs `deploy.sh` → syncs `api/` to `public_html`
+3. Runs database migrations
+4. Seeds products + admin user
+5. Runs `deploy.sh`
 
 ## Verify
 
 ```bash
 curl -s https://marvispace.com/api/v1/health.php
-# {"ok":true,"data":{"database":true,"version":"1"}}
+php install/doctor.php
 ```
 
-## phpMyAdmin (manual check)
+## phpMyAdmin
 
 cPanel → **phpMyAdmin** → database `marvispace_store`
 
-| Table | Contents |
-|-------|----------|
+| Table | Purpose |
+|-------|---------|
 | `products` | Catalog |
-| `orders` | Customer orders |
+| `orders` | Orders (indexed customer fields) |
 | `order_items` | Line items |
-| `admin_users` | Admin login (bcrypt) |
+| `admin_users` | Admin accounts (bcrypt) |
+| `site_settings` | Favicon, store config |
+| `schema_migrations` | DB version |
 
-## Admin login (after setup)
+## Admin login
 
-- URL: https://marvispace.com/admin
-- Email: `ersanjahedtabrizi@gmail.com`
-- Password: set in `MARVISPACE_ADMIN_PASSWORD` (default in script: `20231030Zhanna@`)
+Credentials are set via environment variables during setup — not in the repository.
 
-Login uses **PHP session** on the server (secure). Client-side password hash is no longer used when API is active.
+Login uses **PHP session** (HttpOnly, Secure). Passwords stored as **bcrypt** in MySQL.
 
-## Password recovery (Forgot password?)
+## Password recovery
 
-Default **recovery code:** `MarviRecover2026!`
-
-On the server (once, if not done during setup):
+Set recovery code on server only:
 
 ```bash
-cd /home/marvispace/repositories/marvispace.com
-php install/patch-api-config.php
-bash deploy.sh
-```
-
-Custom recovery code:
-
-```bash
-MARVISPACE_RECOVERY_CODE='YourRecoveryCode' php install/patch-api-config.php
+MARVISPACE_RECOVERY_CODE='YourCode' php install/patch-api-config.php
 ```
 
 ## Re-run seed only
 
 ```bash
-cd /home/marvispace/repositories/marvispace.com
+MARVISPACE_ADMIN_EMAIL='admin@yourdomain.com' \
+MARVISPACE_ADMIN_PASSWORD='NewPassword' \
 php install/seed.php
-bash deploy.sh
 ```
 
 ## Architecture
 
 ```
 Browser → /api/v1/*.php → MySQL (marvispace_store)
-Cart    → localStorage (browser only)
-Admin   → PHP session cookie (httponly, secure)
-Config  → /home/marvispace/api_config.php (not in public_html)
+Cart    → localStorage (browser)
+Admin   → PHP session cookie
+Secrets → /home/marvispace/api_config.php (NOT in git / public_html)
 ```
 
 ## Troubleshooting
 
-**health.php shows `"database":false`**
-- Run `install/setup-server.sh` again
-- Check `/home/marvispace/api_config.php` exists
+```bash
+php install/doctor.php
+php install/migrate.php --status
+```
 
-**Admin login fails after API setup**
-- Clear browser cookies for `marvispace.com`
-- Re-run seed: `php install/seed.php`
-
-**500 on API**
-- Check `tail -f /home/marvispace/logs/error_log` in cPanel
+See [DATABASE.md](DATABASE.md) for full database documentation.

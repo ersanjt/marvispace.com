@@ -16,7 +16,7 @@ return [
     'from' => 'orders@marvispace.com',
     'from_name' => 'MARVISPACE Orders',
     'support' => 'support@marvispace.com',
-    'admin_notify' => 'ersanjahedtabrizi@gmail.com',
+    'admin_notify' => '',
     'smtp' => [
       'host' => 'mail.marvispace.com',
       'port' => 465,
