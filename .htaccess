@@ -66,6 +66,7 @@
   RewriteRule ^api/v1/products/?$ api/v1/products.php [L,QSA]
   RewriteRule ^api/v1/orders/?$ api/v1/orders.php [L,QSA]
   RewriteRule ^api/v1/admin/login/?$ api/v1/admin/login.php [L,QSA]
+  RewriteRule ^api/v1/admin/reset-password/?$ api/v1/admin/reset-password.php [L,QSA]
   RewriteRule ^api/v1/admin/logout/?$ api/v1/admin/logout.php [L,QSA]
   RewriteRule ^api/v1/admin/me/?$ api/v1/admin/me.php [L,QSA]
   RewriteRule ^api/v1/admin/products/?$ api/v1/admin/products.php [L,QSA]

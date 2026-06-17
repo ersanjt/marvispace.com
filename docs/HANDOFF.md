@@ -59,6 +59,8 @@ bash /home/marvispace/repositories/marvispace.com/install/setup-server.sh
 
 Legacy client-side login applies only if API/database is not configured.
 
+**Forgot password (recovery code):** `MarviRecover2026!` (change via `MARVISPACE_RECOVERY_CODE` on server)
+
 ## Deploy updates
 
 **Automatic:** push to `main` on GitHub → [Actions](https://github.com/ersanjt/marvispace.com/actions) deploys to the server.

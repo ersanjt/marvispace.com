@@ -48,6 +48,24 @@ cPanel → **phpMyAdmin** → database `marvispace_store`
 
 Login uses **PHP session** on the server (secure). Client-side password hash is no longer used when API is active.
 
+## Password recovery (Forgot password?)
+
+Default **recovery code:** `MarviRecover2026!`
+
+On the server (once, if not done during setup):
+
+```bash
+cd /home/marvispace/repositories/marvispace.com
+php install/patch-api-config.php
+bash deploy.sh
+```
+
+Custom recovery code:
+
+```bash
+MARVISPACE_RECOVERY_CODE='YourRecoveryCode' php install/patch-api-config.php
+```
+
 ## Re-run seed only
 
 ```bash

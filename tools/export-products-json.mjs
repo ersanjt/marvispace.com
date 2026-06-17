@@ -9,6 +9,6 @@ if (!match) {
 }
 
 const products = JSON.parse(match[1]);
-const out = new URL('./products.json', import.meta.url);
+const out = new URL('../install/products.json', import.meta.url);
 writeFileSync(out, JSON.stringify(products, null, 2), 'utf8');
 console.log(`Wrote ${products.length} products to install/products.json`);

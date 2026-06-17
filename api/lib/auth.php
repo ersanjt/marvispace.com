@@ -68,3 +68,30 @@ function admin_require(PDO $pdo): array
 
     return $row;
 }
+
+function admin_reset_password(PDO $pdo, array $config, string $email, string $recoveryCode, string $newPassword): bool
+{
+    $email = strtolower(trim($email));
+    $recoveryHash = $config['admin']['recovery_bcrypt'] ?? '';
+
+    if ($email === '' || $recoveryCode === '' || strlen($newPassword) < 8) {
+        return false;
+    }
+
+    if ($recoveryHash === '' || !password_verify($recoveryCode, $recoveryHash)) {
+        return false;
+    }
+
+    $stmt = $pdo->prepare('SELECT id FROM admin_users WHERE email = ? LIMIT 1');
+    $stmt->execute([$email]);
+    $row = $stmt->fetch();
+    if (!$row) {
+        return false;
+    }
+
+    $hash = password_hash($newPassword, PASSWORD_BCRYPT);
+    $upd = $pdo->prepare('UPDATE admin_users SET password_hash = ? WHERE id = ?');
+    $upd->execute([$hash, (int) $row['id']]);
+
+    return admin_login($pdo, $email, $newPassword);
+}

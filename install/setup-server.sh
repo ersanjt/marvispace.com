@@ -33,6 +33,9 @@ else
   uapi --user="$USER" Mysql create_user name="$DB_USER_SHORT" password="$DB_PASS" || true
   uapi --user="$USER" Mysql set_privileges_on_database user="$DB_USER_SHORT" database="$DB_SHORT" privileges=ALL
 
+  RECOVERY_CODE="${MARVISPACE_RECOVERY_CODE:-MarviRecover2026!}"
+  RECOVERY_BCRYPT="$(php -r 'echo password_hash(getenv("RC"), PASSWORD_BCRYPT);' RC="$RECOVERY_CODE")"
+
   echo "==> Writing $CONFIG ..."
   cat > "$CONFIG" <<EOF
 <?php
@@ -45,6 +48,9 @@ return [
   ],
   'site' => [
     'url' => 'https://marvispace.com',
+  ],
+  'admin' => [
+    'recovery_bcrypt' => '${RECOVERY_BCRYPT}',
   ],
 ];
 EOF
@@ -67,6 +73,9 @@ cd "$REPO"
 MARVISPACE_ADMIN_EMAIL="${MARVISPACE_ADMIN_EMAIL:-ersanjahedtabrizi@gmail.com}" \
 MARVISPACE_ADMIN_PASSWORD="${MARVISPACE_ADMIN_PASSWORD:-20231030Zhanna@}" \
 php install/seed.php
+
+echo "==> Ensuring recovery code in API config..."
+php install/patch-api-config.php
 
 echo "==> Deploying site files..."
 bash "$REPO/deploy.sh"

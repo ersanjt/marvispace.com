@@ -70,17 +70,34 @@ export async function verifyRecoveryCode(code) {
   return hash === ADMIN_RECOVERY_SHA256;
 }
 
-export async function resetAdminPassword(newPassword) {
-  if (await isApiEnabled()) {
-    return {
-      ok: false,
-      error: 'Change admin password on the server: MARVISPACE_ADMIN_PASSWORD=\'...\' bash install/setup-server.sh',
-    };
-  }
-
+export async function resetAdminPassword(email, recoveryCode, newPassword) {
   if (!newPassword || newPassword.length < 8) {
     return { ok: false, error: 'Password must be at least 8 characters.' };
   }
+
+  if (await isApiEnabled()) {
+    try {
+      await api.adminResetPassword({
+        email,
+        recoveryCode,
+        newPassword,
+        confirmPassword: newPassword,
+      });
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: err.message || 'Could not reset password.' };
+    }
+  }
+
+  if (!verifyAdminEmail(email)) {
+    return { ok: false, error: 'This email is not authorized for admin access.' };
+  }
+
+  const codeOk = await verifyRecoveryCode(recoveryCode);
+  if (!codeOk) {
+    return { ok: false, error: 'Invalid recovery code.' };
+  }
+
   const hash = await sha256(newPassword);
   setAdminPasswordHashOverride(hash);
   return { ok: true };
@@ -212,23 +229,6 @@ export function mountAdminLogin({ onSuccess }) {
     const newPwd = document.getElementById('recoveryNewPassword')?.value || '';
     const confirmPwd = document.getElementById('recoveryConfirmPassword')?.value || '';
 
-    if (!(await isApiEnabled()) && !verifyAdminEmail(email)) {
-      if (recoveryError) {
-        recoveryError.hidden = false;
-        recoveryError.textContent = 'This email is not authorized for admin access.';
-      }
-      return;
-    }
-
-    const codeOk = await verifyRecoveryCode(code);
-    if (!codeOk) {
-      if (recoveryError) {
-        recoveryError.hidden = false;
-        recoveryError.textContent = 'Invalid recovery code. Check your handoff notes or contact the developer.';
-      }
-      return;
-    }
-
     if (newPwd !== confirmPwd) {
       if (recoveryError) {
         recoveryError.hidden = false;
@@ -237,11 +237,11 @@ export function mountAdminLogin({ onSuccess }) {
       return;
     }
 
-    const result = await resetAdminPassword(newPwd);
+    const result = await resetAdminPassword(email, code, newPwd);
     if (!result.ok) {
       if (recoveryError) {
         recoveryError.hidden = false;
-        recoveryError.textContent = result.error;
+        recoveryError.textContent = result.error || 'Could not reset password.';
       }
       return;
     }

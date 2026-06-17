@@ -60,6 +60,13 @@ export async function adminLogin(email, password) {
   return request('/admin/login.php', { method: 'POST', body: { email, password } });
 }
 
+export async function adminResetPassword({ email, recoveryCode, newPassword, confirmPassword }) {
+  return request('/admin/reset-password.php', {
+    method: 'POST',
+    body: { email, recoveryCode, newPassword, confirmPassword },
+  });
+}
+
 export async function adminLogout() {
   return request('/admin/logout.php', { method: 'POST', body: {} });
 }
