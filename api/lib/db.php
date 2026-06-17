@@ -8,17 +8,32 @@ function db_connect(array $db): PDO
         return $pdo;
     }
 
-    $dsn = sprintf(
-        'mysql:host=%s;dbname=%s;charset=utf8mb4',
-        $db['host'] ?? 'localhost',
-        $db['name']
-    );
+    $hosts = [];
+    $primary = (string) ($db['host'] ?? 'localhost');
+    $hosts[] = $primary;
+    if ($primary === 'localhost') {
+        $hosts[] = '127.0.0.1';
+    }
 
-    $pdo = new PDO($dsn, $db['user'], $db['pass'], [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-    ]);
+    $last = null;
+    foreach (array_unique($hosts) as $host) {
+        try {
+            $dsn = sprintf(
+                'mysql:host=%s;dbname=%s;charset=utf8mb4',
+                $host,
+                $db['name']
+            );
+            $pdo = new PDO($dsn, $db['user'], $db['pass'], [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+            return $pdo;
+        } catch (Throwable $e) {
+            $last = $e;
+            $pdo = null;
+        }
+    }
 
-    return $pdo;
+    throw $last ?? new RuntimeException('Database connection failed');
 }

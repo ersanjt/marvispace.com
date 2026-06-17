@@ -4,27 +4,17 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
-$configPaths = [
-    '/home/marvispace/api_config.php',
-    dirname(__DIR__, 2) . '/api/config.local.php',
-];
+require_once dirname(__DIR__) . '/lib/config.php';
+require_once dirname(__DIR__) . '/lib/db.php';
+require_once dirname(__DIR__) . '/lib/response.php';
 
-$config = null;
-foreach ($configPaths as $path) {
-    if (is_file($path)) {
-        $config = require $path;
-        break;
-    }
-}
+$config = app_load_config();
 
 if (!$config || empty($config['db'])) {
     http_response_code(503);
     echo json_encode(['ok' => false, 'error' => 'API not configured']);
     exit;
 }
-
-require_once dirname(__DIR__) . '/lib/db.php';
-require_once dirname(__DIR__) . '/lib/response.php';
 
 try {
     $pdo = db_connect($config['db']);
@@ -34,6 +24,7 @@ try {
         'version' => '2',
         'error' => 'Database connection failed',
         'hint' => 'Run php install/doctor.php on the server',
+        'config' => basename((string) app_config_source()),
     ]);
 }
 
@@ -70,4 +61,5 @@ json_ok([
     'schema' => $schemaVersion,
     'tables' => $checks,
     'counts' => $counts,
+    'config' => basename((string) app_config_source()),
 ]);

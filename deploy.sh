@@ -57,16 +57,20 @@ rsync -av --delete \
 
 chown -R "$USER:$USER" "$WEB"
 find "$WEB" -type d -exec chmod 755 {} \;
-find "$WEB" -type f -exec chmod 644 {} \;
+find "$WEB" -type f ! -name 'config.local.php' -exec chmod 644 {} \;
 
 # Web PHP (open_basedir) may not read /home/marvispace/api_config.php — sync for includes
 CONFIG_SRC="/home/marvispace/api_config.php"
 CONFIG_DST="$WEB/api/config.local.php"
 if [[ -f "$CONFIG_SRC" ]]; then
-  cp -f "$CONFIG_SRC" "$CONFIG_DST"
+  php -r '
+    $c = require "'"$CONFIG_SRC"'";
+    $c["db"]["host"] = "127.0.0.1";
+    file_put_contents("'"$CONFIG_DST"'", "<?php\nreturn " . var_export($c, true) . ";\n");
+  '
   chown "$USER:$USER" "$CONFIG_DST"
   chmod 640 "$CONFIG_DST"
-  echo "==> Synced API config → public_html/api/config.local.php"
+  echo "==> Synced API config → public_html/api/config.local.php (host 127.0.0.1)"
 fi
 
 # Keep a root-level shortcut in sync with the repo script

@@ -23,18 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$configPaths = [
-    '/home/marvispace/api_config.php',
-    dirname(__DIR__, 2) . '/api/config.local.php',
-];
+require_once __DIR__ . '/config.php';
 
-$config = null;
-foreach ($configPaths as $path) {
-    if (is_file($path)) {
-        $config = require $path;
-        break;
-    }
-}
+$config = app_load_config();
 
 if (!$config || empty($config['db'])) {
     http_response_code(503);

@@ -82,6 +82,24 @@ echo "\n==> Git commit (if available)\n";
 chdir($repoRoot);
 passthru('git log -1 --oneline 2>/dev/null');
 
+echo "\n==> Web config (public_html)\n";
+$webConfig = '/home/marvispace/public_html/api/config.local.php';
+if (is_readable($webConfig)) {
+    echo "    OK  {$webConfig}\n";
+    try {
+        $webCfg = require $webConfig;
+        $pdoWeb = db_connect($webCfg['db']);
+        $pdoWeb->query('SELECT 1');
+        echo "    Web config DB connection: OK\n";
+    } catch (Throwable $e) {
+        echo "    Web config DB connection: FAILED\n";
+        echo '    ' . $e->getMessage() . "\n";
+    }
+} else {
+    echo "    MISSING  {$webConfig}\n";
+    echo "    Run: bash deploy.sh\n";
+}
+
 echo "\n==> Next steps\n";
 echo "    php install/migrate.php\n";
 echo "    php install/seed.php\n";
