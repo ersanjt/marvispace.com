@@ -68,8 +68,17 @@ find /home/marvispace/public_html -type f -exec chmod 644 {} \;
 
 ### 5) Future updates
 
+`marvispace` shell is disabled on this server, so run deploy as **root**:
+
 ```bash
-su - marvispace -c 'cd ~/repositories/marvispace.com && git pull origin main && rsync -av --delete --exclude .git --exclude .cpanel.yml --exclude .gitignore ./ ~/public_html/'
+bash /home/marvispace/deploy.sh
+```
+
+If you see `dubious ownership` once:
+
+```bash
+git config --global --add safe.directory /home/marvispace/repositories/marvispace.com
+chown -R marvispace:marvispace /home/marvispace/repositories/marvispace.com
 ```
 
 ---
