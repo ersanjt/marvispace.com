@@ -22,34 +22,42 @@
 
 **Not included yet (next phase for real sales):**
 - Payment gateway (Stripe, PayPal, etc.)
-- Server database for orders
 - Transactional email (order confirmations)
-- Multi-device order tracking
 - Shipping carrier integration
 
-> Orders today are stored in the **customer's browser**. Admin sees orders placed from browsers that share the same device storage context. For a live store, connect a payment provider and backend API.
+> **Setup:** Run `install/setup-server.sh` once on WHM to create MySQL + API. See `docs/SERVER-SETUP.md`.
+
+> Orders and products are stored in **MySQL** on the server (`marvispace_store`).  
+> Shopping cart stays in the **customer's browser** until checkout.  
+> For a live store, connect a payment provider and backend API.
+
+## Database (MySQL on cPanel)
+
+| Item | Value |
+|------|-------|
+| Database | `marvispace_store` |
+| Tables | `products`, `orders`, `order_items`, `admin_users` |
+| Config file | `/home/marvispace/api_config.php` (private) |
+| API health | https://marvispace.com/api/v1/health.php |
+| Setup (once) | `bash install/setup-server.sh` — see `docs/SERVER-SETUP.md` |
+| phpMyAdmin | cPanel → phpMyAdmin → `marvispace_store` |
 
 ## Admin login
 
-Open https://marvispace.com/admin — custom sign-in page.
+Open https://marvispace.com/admin — server-side session (after MySQL setup).
 
 | Field | Value |
 |-------|-------|
 | Email | `ersanjahedtabrizi@gmail.com` |
-| Password | Set on server (see below) |
-| Recovery code (default) | `MarviRecover2026!` — change after first use |
+| Password | Set in `install/setup-server.sh` (`MARVISPACE_ADMIN_PASSWORD`) |
 
-**Change password on server:**
+**First-time server setup:**
 
 ```bash
-cd /home/marvispace/repositories/marvispace.com
-node tools/set-admin-password.mjs 'YourSecurePassword' 'YourRecoveryCode'
-bash deploy.sh
+bash /home/marvispace/repositories/marvispace.com/install/setup-server.sh
 ```
 
-**Forgot password in browser:** use **Forgot password?** on `/admin` with admin email + recovery code.
-
-For stronger protection, also enable **cPanel → Directory Privacy** on `/admin`.
+Legacy client-side login applies only if API/database is not configured.
 
 ## Deploy updates
 

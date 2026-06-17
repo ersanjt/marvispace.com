@@ -1,8 +1,9 @@
 /**
- * @file storage.js — client-side persistence (demo storefront)
+ * @file storage.js — persistence layer (server API + local cart fallback)
  * @project MARVISPACE
  * @author Ersan JT <https://github.com/ersanjt>
  */
+import * as api from './api-client.js';
 const PRODUCTS_KEY = 'marvispace_products_v3';
 const ORDERS_KEY = 'marvispace_orders';
 const CART_KEY = 'marvispace_cart';
@@ -220,4 +221,87 @@ export function saveCart(items) {
 
 export function clearCart() {
   localStorage.removeItem(CART_KEY);
+}
+
+/* ── Server API (MySQL on cPanel) ── */
+
+let apiEnabled = null;
+
+export async function isApiEnabled() {
+  if (apiEnabled !== null) return apiEnabled;
+  try {
+    const health = await api.healthCheck();
+    apiEnabled = !!health?.database;
+  } catch {
+    apiEnabled = false;
+  }
+  return apiEnabled;
+}
+
+export async function loadProducts(seed = []) {
+  if (await isApiEnabled()) {
+    const list = await api.fetchProducts();
+    return list.map(normalizeProduct);
+  }
+  return getProducts(seed);
+}
+
+export async function persistProducts(products) {
+  if (await isApiEnabled()) {
+    await Promise.all(products.map(p => api.adminUpsertProduct(normalizeProduct(p))));
+    return products.map(normalizeProduct);
+  }
+  saveProducts(products);
+  return products;
+}
+
+export async function saveProduct(product) {
+  const normalized = normalizeProduct(product);
+  if (await isApiEnabled()) {
+    return api.adminUpsertProduct(normalized);
+  }
+  const products = getProducts();
+  const idx = products.findIndex(p => p.id === normalized.id);
+  if (idx >= 0) products[idx] = normalized;
+  else products.unshift(normalized);
+  saveProducts(products);
+  return normalized;
+}
+
+export async function removeProduct(id) {
+  if (await isApiEnabled()) {
+    await api.adminDeleteProduct(id);
+    return;
+  }
+  saveProducts(getProducts().filter(p => p.id !== id));
+}
+
+export async function loadOrders() {
+  if (await isApiEnabled()) {
+    return api.adminFetchOrders();
+  }
+  return getOrders();
+}
+
+export async function lookupOrder(orderId, email = '') {
+  if (await isApiEnabled()) {
+    return api.fetchOrder(orderId, email);
+  }
+  return getOrderById(orderId);
+}
+
+export async function placeOrder(order) {
+  if (await isApiEnabled()) {
+    const created = await api.createOrder(order);
+    setLastOrder(created);
+    return created;
+  }
+  return addOrder(order);
+}
+
+export async function setOrderStatus(orderId, status) {
+  if (await isApiEnabled()) {
+    return api.adminUpdateOrderStatus(orderId, status);
+  }
+  return updateOrderStatus(orderId, status);
 }

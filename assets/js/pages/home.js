@@ -1,5 +1,5 @@
 import { products as seedProducts } from '../data/products.js';
-import { getCart, getProducts, saveCart } from '../core/storage.js';
+import { getCart, loadProducts, saveCart } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { SITE } from '../config/site.js';
@@ -83,7 +83,7 @@ let cartItems      = getCart();
 let gridMode       = 'dense'; // dense = 6 cols | sparse = 3 cols
 let activeImageIdx = 0;
 let wheelLock      = false;
-let products       = getProducts(seedProducts);
+let products       = [];
 
 /* ════════════════════════════════════
    CDN image helpers
@@ -805,9 +805,9 @@ pinchWrap.addEventListener('pointercancel', e => {
    ════════════════════════════════════ */
 window.addEventListener('resize', updateCols);
 
-window.addEventListener('storage', e => {
+window.addEventListener('storage', async e => {
   if (!e.key || !['marvispace_products_v3', 'marvispace_products_v2', 'marvispace_orders', 'yzy_products', 'yzy_orders'].includes(e.key)) return;
-  products = getProducts(seedProducts);
+  products = await loadProducts(seedProducts);
   if (isOpen) closePreview(false);
   applyFilter(activeFilter);
 });
@@ -818,5 +818,10 @@ window.addEventListener('storage', e => {
 syncSpacer(false);
 syncGridMode();
 renderCart();
-applyFilter('new');
+
+(async () => {
+  products = await loadProducts(seedProducts);
+  applyFilter('new');
+})();
+
 mountDeveloperCredit();

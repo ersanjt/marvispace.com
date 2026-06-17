@@ -1,4 +1,4 @@
-import { getOrderById } from '../core/storage.js';
+import { lookupOrder } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 
@@ -15,30 +15,11 @@ function statusLabel(status) {
   if (status === 'shipped') return 'Shipped';
   if (status === 'cancelled') return 'Cancelled';
   if (status === 'processing') return 'Processing';
+  if (status === 'completed') return 'Completed';
   return 'Pending';
 }
 
-form?.addEventListener('submit', e => {
-  e.preventDefault();
-  const id = orderIdInput?.value.trim();
-  const email = emailInput?.value.trim().toLowerCase();
-  const order = getOrderById(id);
-
-  if (!order) {
-    errorEl.hidden = false;
-    errorEl.textContent = 'Order not found on this device. Contact support with your order ID.';
-    resultEl.hidden = true;
-    return;
-  }
-
-  const orderEmail = String(order.customer?.email || '').toLowerCase();
-  if (email && orderEmail && email !== orderEmail) {
-    errorEl.hidden = false;
-    errorEl.textContent = 'Email does not match this order.';
-    resultEl.hidden = true;
-    return;
-  }
-
+function showOrder(order) {
   errorEl.hidden = true;
   resultEl.hidden = false;
   statusEl.textContent = statusLabel(order.status);
@@ -53,6 +34,27 @@ form?.addEventListener('submit', e => {
   });
 
   renderTotalsBlock(totalsEl, { subtotal: order.total || 0, taxes: 0 });
+}
+
+form?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = orderIdInput?.value.trim();
+  const email = emailInput?.value.trim().toLowerCase();
+
+  try {
+    const order = await lookupOrder(id, email);
+    if (!order) {
+      errorEl.hidden = false;
+      errorEl.textContent = 'Order not found. Check your order ID and email.';
+      resultEl.hidden = true;
+      return;
+    }
+    showOrder(order);
+  } catch (err) {
+    errorEl.hidden = false;
+    errorEl.textContent = err.message || 'Could not look up order.';
+    resultEl.hidden = true;
+  }
 });
 
 const presetId = new URLSearchParams(window.location.search).get('id');

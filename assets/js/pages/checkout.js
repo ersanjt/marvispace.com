@@ -1,10 +1,11 @@
 import { products as seedProducts } from '../data/products.js';
 import { COUNTRIES } from '../data/countries.js';
 import {
-  addOrder,
   clearCart,
   getCart,
-  getProducts,
+  isApiEnabled,
+  loadProducts,
+  placeOrder,
   saveCart,
   saveProducts,
 } from '../core/storage.js';
@@ -32,7 +33,7 @@ const phoneCodeLabel = document.getElementById('phoneCodeLabel');
 const phoneCodeBtn = document.getElementById('phoneCodeBtn');
 
 let cartItems = getCart();
-let products = getProducts(seedProducts);
+let products = [];
 let selectedPayment = '';
 
 if (!cartItems.length) {
@@ -161,7 +162,7 @@ checkoutForm.addEventListener('input', updatePaymentState);
 checkoutForm.addEventListener('change', updatePaymentState);
 countryEl.addEventListener('change', updateTaxNote);
 
-checkoutForm.addEventListener('submit', e => {
+checkoutForm.addEventListener('submit', async e => {
   e.preventDefault();
   if (!cartItems.length || !selectedPayment) return;
 
@@ -190,19 +191,32 @@ checkoutForm.addEventListener('submit', e => {
     },
   };
 
-  cartItems.forEach(ci => {
-    const product = products.find(p => p.id === ci.id);
-    if (!product) return;
-    product.stock = Math.max(0, (product.stock || 0) - ci.qty);
-    if (product.stock <= 0) product.inStock = false;
-  });
+  placeOrderBtn.disabled = true;
 
-  saveProducts(products);
-  addOrder(order);
-  clearCart();
-  cartItems = [];
-  window.location.href = `/order-confirmation?id=${encodeURIComponent(order.id)}`;
+  try {
+    if (!(await isApiEnabled())) {
+      cartItems.forEach(ci => {
+        const product = products.find(p => p.id === ci.id);
+        if (!product) return;
+        product.stock = Math.max(0, (product.stock || 0) - ci.qty);
+        if (product.stock <= 0) product.inStock = false;
+      });
+      saveProducts(products);
+    }
+
+    const created = await placeOrder(order);
+    clearCart();
+    cartItems = [];
+    window.location.href = `/order-confirmation?id=${encodeURIComponent(created.id)}`;
+  } catch (err) {
+    placeOrderBtn.disabled = false;
+    alert(err.message || 'Could not place order. Please try again.');
+  }
 });
+
+(async () => {
+  products = await loadProducts(seedProducts);
+})();
 
 populateCountries();
 renderSummary();

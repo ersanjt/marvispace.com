@@ -2,11 +2,12 @@ import { products as seedProducts } from '../data/products.js';
 import {
   createId,
   DEFAULT_SIZES,
-  getOrders,
-  getProducts,
+  loadOrders,
+  loadProducts,
   normalizeProduct,
-  saveProducts,
-  updateOrderStatus,
+  removeProduct,
+  saveProduct,
+  setOrderStatus,
 } from '../core/storage.js';
 import { mountAdminLogin, signOutAdmin } from '../core/admin-auth.js';
 
@@ -69,6 +70,7 @@ const VIEW_META = {
 };
 
 let products = [];
+let orders = [];
 let activeTab = 'dashboard';
 let toastTimer;
 
@@ -115,11 +117,12 @@ function showToast(msg) {
   toastTimer = setTimeout(() => { toast.hidden = true; }, 2800);
 }
 
-function showApp() {
+async function showApp() {
   document.body.classList.add('is-logged-in');
   if (loginScreen) loginScreen.hidden = true;
   if (adminApp) adminApp.hidden = false;
-  products = getProducts(seedProducts);
+  products = await loadProducts(seedProducts);
+  orders = await loadOrders();
   renderAll();
 }
 
@@ -276,7 +279,6 @@ function renderProducts() {
 }
 
 function renderOrders() {
-  const orders = getOrders();
   if (ordersCount) ordersCount.textContent = `${orders.length} orders`;
   if (navOrderCount) navOrderCount.textContent = String(orders.length);
   ordersTableBody.innerHTML = '';
@@ -320,7 +322,6 @@ function renderOrders() {
 }
 
 function renderDashboard() {
-  const orders = getOrders();
   const inStock = products.filter(p => p.inStock).length;
   const outStock = products.length - inStock;
   const revenue = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
@@ -365,6 +366,12 @@ function renderAll() {
   renderDashboard();
 }
 
+async function refreshData() {
+  products = await loadProducts(seedProducts);
+  orders = await loadOrders();
+  renderAll();
+}
+
 /* ── Events ── */
 navItems.forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -395,21 +402,24 @@ fields.image?.addEventListener('input', updateImagePreview);
 productSearch?.addEventListener('input', renderProducts);
 productFilter?.addEventListener('change', renderProducts);
 
-productForm?.addEventListener('submit', e => {
+productForm?.addEventListener('submit', async e => {
   e.preventDefault();
   const product = readForm();
   const index = products.findIndex(item => item.id === product.id);
 
-  if (index >= 0) products[index] = product;
-  else products.unshift(product);
-
-  saveProducts(products);
-  renderAll();
-  closeModal();
-  showToast(index >= 0 ? 'Product updated' : 'Product added');
+  try {
+    await saveProduct(product);
+    if (index >= 0) products[index] = product;
+    else products.unshift(product);
+    await refreshData();
+    closeModal();
+    showToast(index >= 0 ? 'Product updated' : 'Product added');
+  } catch (err) {
+    showToast(err.message || 'Could not save product');
+  }
 });
 
-productsTableBody?.addEventListener('click', e => {
+productsTableBody?.addEventListener('click', async e => {
   const btn = e.target.closest('button[data-action]');
   if (!btn) return;
 
@@ -424,27 +434,39 @@ productsTableBody?.addEventListener('click', e => {
 
   if (btn.dataset.action === 'toggle') {
     product.inStock = !product.inStock;
-    saveProducts(products);
-    renderAll();
-    showToast(product.inStock ? 'Product published' : 'Product hidden from store');
+    try {
+      await saveProduct(product);
+      await refreshData();
+      showToast(product.inStock ? 'Product published' : 'Product hidden from store');
+    } catch (err) {
+      showToast(err.message || 'Could not update product');
+    }
     return;
   }
 
   if (btn.dataset.action === 'delete') {
     if (!confirm(`Delete product "${product.label}"?`)) return;
-    products = products.filter(item => item.id !== id);
-    saveProducts(products);
-    renderAll();
-    showToast('Product deleted');
+    try {
+      await removeProduct(id);
+      await refreshData();
+      showToast('Product deleted');
+    } catch (err) {
+      showToast(err.message || 'Could not delete product');
+    }
   }
 });
 
-ordersTableBody?.addEventListener('click', e => {
+ordersTableBody?.addEventListener('click', async e => {
   const btn = e.target.closest('button[data-order-action]');
   if (!btn) return;
-  updateOrderStatus(btn.dataset.orderId, btn.dataset.orderAction);
-  renderAll();
-  showToast('Order status updated');
+  try {
+    await setOrderStatus(btn.dataset.orderId, btn.dataset.orderAction);
+    orders = await loadOrders();
+    renderAll();
+    showToast('Order status updated');
+  } catch (err) {
+    showToast(err.message || 'Could not update order');
+  }
 });
 
 document.addEventListener('keydown', e => {

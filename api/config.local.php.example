@@ -1,0 +1,15 @@
+<?php
+/**
+ * Copy to api/config.local.php for local dev, or use /home/marvispace/api_config.php on server.
+ */
+return [
+    'db' => [
+        'host' => 'localhost',
+        'name' => 'marvispace_store',
+        'user' => 'marvispace_storeuser',
+        'pass' => 'CHANGE_ME',
+    ],
+    'site' => [
+        'url' => 'https://marvispace.com',
+    ],
+];

@@ -60,6 +60,16 @@
   RewriteRule ^order-status/?$ order-status.html [L,NC]
   RewriteRule ^order-confirmation/?$ order-confirmation.html [L,NC]
   RewriteRule ^privacy-right-center/?$ privacy-right-center.html [L,NC]
+
+  # REST API (PHP + MySQL)
+  RewriteRule ^api/v1/health/?$ api/v1/health.php [L,QSA]
+  RewriteRule ^api/v1/products/?$ api/v1/products.php [L,QSA]
+  RewriteRule ^api/v1/orders/?$ api/v1/orders.php [L,QSA]
+  RewriteRule ^api/v1/admin/login/?$ api/v1/admin/login.php [L,QSA]
+  RewriteRule ^api/v1/admin/logout/?$ api/v1/admin/logout.php [L,QSA]
+  RewriteRule ^api/v1/admin/me/?$ api/v1/admin/me.php [L,QSA]
+  RewriteRule ^api/v1/admin/products/?$ api/v1/admin/products.php [L,QSA]
+  RewriteRule ^api/v1/admin/orders/?$ api/v1/admin/orders.php [L,QSA]
 </IfModule>
 
 # Security headers

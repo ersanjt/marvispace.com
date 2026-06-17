@@ -54,6 +54,7 @@ rsync -av --delete \
   --exclude .cpanel.yml \
   --exclude .gitignore \
   --exclude docs/ \
+  --exclude install/ \
   --exclude tools/ \
   --exclude package.json \
   --exclude deploy.sh \

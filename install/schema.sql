@@ -1,0 +1,56 @@
+-- MARVISPACE MySQL schema
+-- @author Ersan JT <https://github.com/ersanjt>
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+CREATE TABLE IF NOT EXISTS products (
+  id VARCHAR(64) NOT NULL PRIMARY KEY,
+  label VARCHAR(255) NOT NULL,
+  image VARCHAR(512) NOT NULL,
+  images JSON NOT NULL,
+  gallery_count INT UNSIGNED NOT NULL DEFAULT 6,
+  price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  category VARCHAR(64) NOT NULL DEFAULT 'jackets',
+  gender VARCHAR(16) NOT NULL DEFAULT 'mens',
+  in_stock TINYINT(1) NOT NULL DEFAULT 1,
+  stock INT UNSIGNED NOT NULL DEFAULT 0,
+  sizes JSON NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_products_category (category),
+  INDEX idx_products_gender (gender),
+  INDEX idx_products_in_stock (in_stock)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS orders (
+  id VARCHAR(32) NOT NULL PRIMARY KEY,
+  status VARCHAR(32) NOT NULL DEFAULT 'pending',
+  total DECIMAL(10,2) NOT NULL DEFAULT 0,
+  customer JSON NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_orders_status (status),
+  INDEX idx_orders_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS order_items (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  order_id VARCHAR(32) NOT NULL,
+  product_id VARCHAR(64) NOT NULL,
+  label VARCHAR(255) NOT NULL,
+  size VARCHAR(32) NOT NULL DEFAULT '',
+  price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  qty INT UNSIGNED NOT NULL DEFAULT 1,
+  image VARCHAR(512) DEFAULT NULL,
+  INDEX idx_order_items_order (order_id),
+  CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS admin_users (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET FOREIGN_KEY_CHECKS = 1;

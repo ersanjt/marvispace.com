@@ -1,7 +1,8 @@
 /**
- * @file admin-auth.js — client-side admin session (custom login UI)
+ * @file admin-auth.js — admin session (server PHP session or local fallback)
  * @author Ersan JT <https://github.com/ersanjt>
  */
+import * as api from './api-client.js';
 import {
   ADMIN_EMAIL,
   ADMIN_PASSWORD_SHA256,
@@ -10,6 +11,7 @@ import {
 import {
   getAdminPasswordHashOverride,
   isAdminAuthed,
+  isApiEnabled,
   setAdminAuthed,
   setAdminPasswordHashOverride,
 } from './storage.js';
@@ -46,7 +48,18 @@ export function verifyAdminEmail(email) {
 }
 
 export async function verifyAdminCredentials(email, password) {
-  if (!verifyAdminEmail(email) || !password) return false;
+  if (!password) return false;
+
+  if (await isApiEnabled()) {
+    try {
+      await api.adminLogin(email, password);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  if (!verifyAdminEmail(email)) return false;
   const hash = await sha256(password);
   return hash === activePasswordHash();
 }
@@ -58,6 +71,13 @@ export async function verifyRecoveryCode(code) {
 }
 
 export async function resetAdminPassword(newPassword) {
+  if (await isApiEnabled()) {
+    return {
+      ok: false,
+      error: 'Change admin password on the server: MARVISPACE_ADMIN_PASSWORD=\'...\' bash install/setup-server.sh',
+    };
+  }
+
   if (!newPassword || newPassword.length < 8) {
     return { ok: false, error: 'Password must be at least 8 characters.' };
   }
@@ -117,17 +137,31 @@ export function mountAdminLogin({ onSuccess }) {
     document.getElementById('recoveryEmail')?.focus();
   }
 
-  if (isAdminAuthed()) {
-    setLoggedIn(true);
-    onSuccess?.();
-    return;
-  }
+  async function boot() {
+    if (await isApiEnabled()) {
+      try {
+        const me = await api.adminMe();
+        if (me.authenticated) {
+          setAdminAuthed(true);
+          setLoggedIn(true);
+          onSuccess?.();
+          return;
+        }
+      } catch {
+        /* not logged in */
+      }
+    } else if (isAdminAuthed()) {
+      setLoggedIn(true);
+      onSuccess?.();
+      return;
+    }
 
-  setLoggedIn(false);
-  showLoginView();
+    setLoggedIn(false);
+    showLoginView();
 
-  if (emailInput && !emailInput.value) {
-    emailInput.value = ADMIN_EMAIL;
+    if (emailInput && !emailInput.value) {
+      emailInput.value = ADMIN_EMAIL;
+    }
   }
 
   bindPasswordToggle(loginShowPass, passwordInput);
@@ -146,7 +180,7 @@ export function mountAdminLogin({ onSuccess }) {
     const email = emailInput?.value || '';
     const pwd = passwordInput?.value || '';
 
-    if (!verifyAdminEmail(email)) {
+    if (!(await isApiEnabled()) && !verifyAdminEmail(email)) {
       if (loginError) {
         loginError.hidden = false;
         loginError.textContent = 'This email is not authorized for admin access.';
@@ -178,7 +212,7 @@ export function mountAdminLogin({ onSuccess }) {
     const newPwd = document.getElementById('recoveryNewPassword')?.value || '';
     const confirmPwd = document.getElementById('recoveryConfirmPassword')?.value || '';
 
-    if (!verifyAdminEmail(email)) {
+    if (!(await isApiEnabled()) && !verifyAdminEmail(email)) {
       if (recoveryError) {
         recoveryError.hidden = false;
         recoveryError.textContent = 'This email is not authorized for admin access.';
@@ -222,9 +256,18 @@ export function mountAdminLogin({ onSuccess }) {
       onSuccess?.();
     }, 1200);
   });
+
+  boot();
 }
 
-export function signOutAdmin() {
+export async function signOutAdmin() {
+  if (await isApiEnabled()) {
+    try {
+      await api.adminLogout();
+    } catch {
+      /* ignore */
+    }
+  }
   setAdminAuthed(false);
   window.location.href = '/admin';
 }
