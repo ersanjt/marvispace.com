@@ -1,13 +1,10 @@
-import { products as seedProducts } from '../data/products.js';
 import { COUNTRIES } from '../data/countries.js';
 import {
   clearCart,
-  getCart,
-  isApiEnabled,
+  loadCart,
   loadProducts,
   placeOrder,
   saveCart,
-  saveProducts,
 } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
@@ -32,12 +29,12 @@ const phoneCodeEl = document.getElementById('phoneCode');
 const phoneCodeLabel = document.getElementById('phoneCodeLabel');
 const phoneCodeBtn = document.getElementById('phoneCodeBtn');
 
-let cartItems = getCart();
+let cartItems = [];
 let products = [];
 let selectedPayment = '';
 
-if (!cartItems.length) {
-  window.location.replace('/');
+function persistCart() {
+  void saveCart(cartItems).catch(() => {});
 }
 
 function cartQtyTotal() {
@@ -64,7 +61,7 @@ function changeQty(index, delta) {
     window.location.replace('/');
     return;
   }
-  saveCart(cartItems);
+  persistCart();
   renderSummary();
 }
 
@@ -194,20 +191,10 @@ checkoutForm.addEventListener('submit', async e => {
   placeOrderBtn.disabled = true;
 
   try {
-    if (!(await isApiEnabled())) {
-      cartItems.forEach(ci => {
-        const product = products.find(p => p.id === ci.id);
-        if (!product) return;
-        product.stock = Math.max(0, (product.stock || 0) - ci.qty);
-        if (product.stock <= 0) product.inStock = false;
-      });
-      saveProducts(products);
-    }
-
     const created = await placeOrder(order);
-    clearCart();
+    await clearCart();
     cartItems = [];
-    window.location.href = `/order-confirmation?id=${encodeURIComponent(created.id)}`;
+    window.location.href = `/order-confirmation?id=${encodeURIComponent(created.id)}&email=${encodeURIComponent(order.customer.email || '')}`;
   } catch (err) {
     placeOrderBtn.disabled = false;
     alert(err.message || 'Could not place order. Please try again.');
@@ -215,12 +202,17 @@ checkoutForm.addEventListener('submit', async e => {
 });
 
 (async () => {
-  products = await loadProducts(seedProducts);
+  cartItems = await loadCart();
+  if (!cartItems.length) {
+    window.location.replace('/');
+    return;
+  }
+  products = await loadProducts([]);
+  populateCountries();
+  renderSummary();
+  updatePaymentState();
+  updateTaxNote();
+  syncPhoneCodeLabel();
 })();
 
-populateCountries();
-renderSummary();
-updatePaymentState();
-updateTaxNote();
-syncPhoneCodeLabel();
 mountDeveloperCredit();

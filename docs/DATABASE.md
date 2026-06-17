@@ -87,6 +87,8 @@ bash deploy.sh
 | `order_items` | Line items (FK → orders) |
 | `admin_users` | Admins (bcrypt, role, is_active) |
 | `site_settings` | Favicon and site config |
+| `cart_sessions` | Shopping cart (browser cookie → session row) |
+| `cart_items` | Cart line items |
 | `login_attempts` | Brute-force protection |
 | `schema_migrations` | Schema version tracking |
 
@@ -111,6 +113,7 @@ Files in `install/migrations/`:
 - `002_professional_orders.sql`
 - `003_admin_and_settings.sql`
 - `004_products_constraints.sql`
+- `005_cart.sql`
 
 ---
 

@@ -1,5 +1,4 @@
-import { products as seedProducts } from '../data/products.js';
-import { getCart, loadProducts, saveCart } from '../core/storage.js';
+import { loadCart, loadProducts, saveCart } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { SITE } from '../config/site.js';
@@ -79,7 +78,11 @@ let sizeOOS        = false;
 let szOpen         = false;
 let euMode         = false;
 let descVisible    = false;
-let cartItems      = getCart();
+let cartItems      = [];
+
+function persistCart() {
+  void saveCart(cartItems).catch(() => {});
+}
 let gridMode       = 'dense'; // dense = 6 cols | sparse = 3 cols
 let activeImageIdx = 0;
 let wheelLock      = false;
@@ -174,6 +177,7 @@ function changeQty(idx, delta) {
   item.qty += delta;
   if (item.qty <= 0) cartItems.splice(idx, 1);
   renderCart();
+  persistCart();
 }
 
 function openCart() {
@@ -210,7 +214,6 @@ function renderCart() {
   });
 
   renderTotalsBlock(cartTotalsEl, { subtotal: cartSubtotal(), taxes: 0 });
-  saveCart(cartItems);
 }
 
 cartBtn.addEventListener('click', openCart);
@@ -219,7 +222,7 @@ cartOverlay.addEventListener('click', closeCart);
 
 checkoutBtn?.addEventListener('click', () => {
   if (!cartItems.length) return;
-  saveCart(cartItems);
+  persistCart();
   window.location.href = '/checkout';
 });
 
@@ -704,6 +707,7 @@ szAdd.addEventListener('click', () => {
   if (existing) existing.qty += 1;
   else cartItems.push({ id: item.id, label: item.label, price: item.price, size: selectedSize, image: item.image, qty: 1 });
   renderCart();
+  persistCart();
   setTimeout(() => {
     szNameStack.dataset.alt = 'false';
     closeSizes();
@@ -805,23 +809,22 @@ pinchWrap.addEventListener('pointercancel', e => {
    ════════════════════════════════════ */
 window.addEventListener('resize', updateCols);
 
-window.addEventListener('storage', async e => {
-  if (!e.key || !['marvispace_products_v3', 'marvispace_products_v2', 'marvispace_orders', 'yzy_products', 'yzy_orders'].includes(e.key)) return;
-  products = await loadProducts(seedProducts);
-  if (isOpen) closePreview(false);
-  applyFilter(activeFilter);
-});
-
 /* ════════════════════════════════════
    Init
    ════════════════════════════════════ */
 syncSpacer(false);
 syncGridMode();
-renderCart();
 
 (async () => {
-  products = await loadProducts(seedProducts);
-  applyFilter('new');
+  try {
+    products = await loadProducts([]);
+    cartItems = await loadCart();
+    renderCart();
+    applyFilter('new');
+  } catch (err) {
+    console.error(err);
+    grid.innerHTML = '<p class="empty-state">Store is temporarily unavailable.</p>';
+  }
 })();
 
 mountDeveloperCredit();

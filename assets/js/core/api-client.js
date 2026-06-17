@@ -181,3 +181,21 @@ export async function adminResetFavicon() {
     body: { resetFavicon: true },
   });
 }
+
+export async function fetchCart() {
+  const data = await request('/cart.php');
+  return Array.isArray(data?.items) ? data.items : [];
+}
+
+export async function saveCart(items) {
+  const data = await request('/cart.php', {
+    method: 'PUT',
+    body: { items },
+  });
+  return Array.isArray(data?.items) ? data.items : [];
+}
+
+export async function clearCart() {
+  const data = await request('/cart.php', { method: 'DELETE' });
+  return Array.isArray(data?.items) ? data.items : [];
+}

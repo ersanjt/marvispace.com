@@ -1,4 +1,4 @@
-import { getLastOrder, lookupOrder } from '../core/storage.js';
+import { lookupOrder } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { SITE } from '../config/site.js';
@@ -46,12 +46,13 @@ function renderOrder(order) {
 }
 
 (async () => {
-  let order = getLastOrder();
+  const email = params.get('email') || '';
+  let order = null;
   if (orderId) {
     try {
-      order = await lookupOrder(orderId, order?.customer?.email || '') || order;
+      order = await lookupOrder(orderId, email);
     } catch {
-      order = order || null;
+      order = null;
     }
   }
   renderOrder(order);

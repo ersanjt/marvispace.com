@@ -1,4 +1,3 @@
-import { products as seedProducts } from '../data/products.js';
 import {
   createId,
   DEFAULT_SIZES,
@@ -224,7 +223,7 @@ async function showApp() {
     }
   }
 
-  products = await loadProducts(seedProducts);
+  products = await loadProducts([]);
   orders = await loadOrders();
   await Promise.all([loadAdminUsers(), loadSiteSettings()]);
   renderAll();
@@ -707,7 +706,7 @@ function renderAll() {
 }
 
 async function refreshData() {
-  products = await loadProducts(seedProducts);
+  products = await loadProducts([]);
   orders = await loadOrders();
   await Promise.all([loadAdminUsers(), loadSiteSettings()]);
   renderAll();

@@ -1,15 +1,15 @@
 /**
- * @file storage.js — persistence layer (server API + local cart fallback)
+ * @file storage.js — persistence via server API (MySQL). localStorage only for offline local dev.
  * @project MARVISPACE
  * @author Ersan JT <https://github.com/ersanjt>
  */
 import * as api from './api-client.js';
+
 const PRODUCTS_KEY = 'marvispace_products_v3';
 const ORDERS_KEY = 'marvispace_orders';
 const CART_KEY = 'marvispace_cart';
 const AUTH_KEY = 'marvispace_admin_auth';
 const ADMIN_PWD_OVERRIDE_KEY = 'marvispace_admin_pwd_hash';
-const LAST_ORDER_KEY = 'marvispace_last_order';
 
 const LEGACY_KEYS = {
   orders: ['yzy_orders', 'marvispace_orders_v1'],
@@ -19,6 +19,10 @@ const LEGACY_KEYS = {
 export const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
 let migrated = false;
+
+export function isProductionHost() {
+  return /marvispace\.com$/i.test(window.location.hostname);
+}
 
 function migrateLegacyStorage() {
   if (migrated) return;
@@ -67,7 +71,7 @@ export function normalizeProduct(product) {
   };
 }
 
-export function getProducts(seed = []) {
+function getProductsLocal(seed = []) {
   migrateLegacyStorage();
   try {
     const raw = localStorage.getItem(PRODUCTS_KEY);
@@ -79,21 +83,15 @@ export function getProducts(seed = []) {
     /* ignore */
   }
   const normalized = seed.map(normalizeProduct);
-  saveProducts(normalized);
+  saveProductsLocal(normalized);
   return normalized;
 }
 
-export function saveProducts(products) {
+function saveProductsLocal(products) {
   localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products.map(normalizeProduct)));
 }
 
-export function resetProducts(seed = []) {
-  const normalized = seed.map(normalizeProduct);
-  saveProducts(normalized);
-  return normalized;
-}
-
-export function getOrders() {
+function getOrdersLocal() {
   migrateLegacyStorage();
   try {
     const raw = localStorage.getItem(ORDERS_KEY);
@@ -107,48 +105,50 @@ export function getOrders() {
   return [];
 }
 
-export function saveOrders(orders) {
+function saveOrdersLocal(orders) {
   localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
 }
 
-export function getOrderById(orderId) {
+function getOrderByIdLocal(orderId) {
   if (!orderId) return null;
-  return getOrders().find(o => o.id === orderId) || null;
+  return getOrdersLocal().find(o => o.id === orderId) || null;
 }
 
-export function addOrder(order) {
-  const orders = getOrders();
+function addOrderLocal(order) {
+  const orders = getOrdersLocal();
   orders.unshift(order);
-  saveOrders(orders);
-  setLastOrder(order);
+  saveOrdersLocal(orders);
   return order;
 }
 
-export function setLastOrder(order) {
-  try {
-    sessionStorage.setItem(LAST_ORDER_KEY, JSON.stringify(order));
-  } catch {
-    /* ignore */
-  }
-}
-
-export function getLastOrder() {
-  try {
-    const raw = sessionStorage.getItem(LAST_ORDER_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {
-    /* ignore */
-  }
-  return null;
-}
-
-export function updateOrderStatus(orderId, status) {
-  const orders = getOrders();
+function updateOrderStatusLocal(orderId, status) {
+  const orders = getOrdersLocal();
   const order = orders.find(o => o.id === orderId);
   if (!order) return null;
   order.status = status;
-  saveOrders(orders);
+  saveOrdersLocal(orders);
   return order;
+}
+
+function getCartLocal() {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {
+    /* ignore */
+  }
+  return [];
+}
+
+function saveCartLocal(items) {
+  localStorage.setItem(CART_KEY, JSON.stringify(items));
+}
+
+function clearCartLocal() {
+  localStorage.removeItem(CART_KEY);
 }
 
 export function createId() {
@@ -202,27 +202,6 @@ export function clearAdminPasswordHashOverride() {
   }
 }
 
-export function getCart() {
-  try {
-    const raw = localStorage.getItem(CART_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {
-    /* ignore */
-  }
-  return [];
-}
-
-export function saveCart(items) {
-  localStorage.setItem(CART_KEY, JSON.stringify(items));
-}
-
-export function clearCart() {
-  localStorage.removeItem(CART_KEY);
-}
-
 /* ── Server API (MySQL on cPanel) ── */
 
 let apiEnabled = null;
@@ -242,70 +221,105 @@ export async function isApiEnabled() {
   return apiEnabled;
 }
 
+async function requireDatabase() {
+  if (await isApiEnabled()) return true;
+  if (isProductionHost()) {
+    throw new Error('Store database is unavailable. Please try again in a moment.');
+  }
+  return false;
+}
+
 export async function loadProducts(seed = []) {
   if (await isApiEnabled()) {
     const list = await api.fetchProducts();
     return list.map(normalizeProduct);
   }
-  return getProducts(seed);
-}
-
-export async function persistProducts(products) {
-  if (await isApiEnabled()) {
-    await Promise.all(products.map(p => api.adminUpsertProduct(normalizeProduct(p))));
-    return products.map(normalizeProduct);
+  if (isProductionHost()) {
+    throw new Error('Store database is unavailable. Please try again in a moment.');
   }
-  saveProducts(products);
-  return products;
+  return getProductsLocal(seed);
 }
 
 export async function saveProduct(product) {
   const normalized = normalizeProduct(product);
-  if (await isApiEnabled()) {
+  if (await requireDatabase()) {
     return api.adminUpsertProduct(normalized);
   }
-  const products = getProducts();
+  const products = getProductsLocal();
   const idx = products.findIndex(p => p.id === normalized.id);
   if (idx >= 0) products[idx] = normalized;
   else products.unshift(normalized);
-  saveProducts(products);
+  saveProductsLocal(products);
   return normalized;
 }
 
 export async function removeProduct(id) {
-  if (await isApiEnabled()) {
+  if (await requireDatabase()) {
     await api.adminDeleteProduct(id);
     return;
   }
-  saveProducts(getProducts().filter(p => p.id !== id));
+  saveProductsLocal(getProductsLocal().filter(p => p.id !== id));
 }
 
 export async function loadOrders() {
-  if (await isApiEnabled()) {
+  if (await requireDatabase()) {
     return api.adminFetchOrders();
   }
-  return getOrders();
+  return getOrdersLocal();
 }
 
 export async function lookupOrder(orderId, email = '') {
-  if (await isApiEnabled()) {
+  if (await requireDatabase()) {
     return api.fetchOrder(orderId, email);
   }
-  return getOrderById(orderId);
+  return getOrderByIdLocal(orderId);
 }
 
 export async function placeOrder(order) {
-  if (await isApiEnabled()) {
-    const created = await api.createOrder(order);
-    setLastOrder(created);
-    return created;
+  if (await requireDatabase()) {
+    return api.createOrder(order);
   }
-  return addOrder(order);
+  return addOrderLocal(order);
 }
 
 export async function setOrderStatus(orderId, status) {
-  if (await isApiEnabled()) {
+  if (await requireDatabase()) {
     return api.adminUpdateOrderStatus(orderId, status);
   }
-  return updateOrderStatus(orderId, status);
+  return updateOrderStatusLocal(orderId, status);
+}
+
+export async function loadCart() {
+  if (await isApiEnabled()) {
+    try {
+      return await api.fetchCart();
+    } catch {
+      return [];
+    }
+  }
+  if (isProductionHost()) return [];
+  return getCartLocal();
+}
+
+/** @deprecated Use loadCart() — kept for sync init during migration */
+export function getCart() {
+  return getCartLocal();
+}
+
+export async function saveCart(items) {
+  if (await isApiEnabled()) {
+    await api.saveCart(items);
+    return;
+  }
+  if (!isProductionHost()) {
+    saveCartLocal(items);
+  }
+}
+
+export async function clearCart() {
+  if (await isApiEnabled()) {
+    await api.clearCart();
+    return;
+  }
+  clearCartLocal();
 }

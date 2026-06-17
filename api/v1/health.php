@@ -32,7 +32,7 @@ try {
 }
 
 $requiredTables = ['products', 'orders', 'order_items', 'admin_users'];
-$optionalTables = ['site_settings', 'login_attempts', 'schema_migrations'];
+$optionalTables = ['site_settings', 'login_attempts', 'schema_migrations', 'cart_sessions', 'cart_items'];
 
 $checks = [];
 $counts = [];

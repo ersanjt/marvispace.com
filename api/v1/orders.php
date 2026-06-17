@@ -51,6 +51,16 @@ if ($method === 'POST') {
         } catch (Throwable $mailErr) {
             error_log('MARVISPACE order mail: ' . $mailErr->getMessage());
         }
+
+        try {
+            require_once dirname(__DIR__) . '/lib/cart-repo.php';
+            if (!empty($_COOKIE[CART_COOKIE])) {
+                cart_clear($pdo, (string) $_COOKIE[CART_COOKIE]);
+            }
+        } catch (Throwable $cartErr) {
+            error_log('MARVISPACE cart clear: ' . $cartErr->getMessage());
+        }
+
         json_ok($created, 201);
     } catch (Throwable $e) {
         json_error($e->getMessage(), $e instanceof InvalidArgumentException ? 400 : 409);

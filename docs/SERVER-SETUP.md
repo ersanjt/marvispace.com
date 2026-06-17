@@ -73,8 +73,8 @@ php install/seed.php
 
 ```
 Browser → /api/v1/*.php → MySQL (marvispace_store)
-Cart    → localStorage (browser)
-Admin   → PHP session cookie
+Cart    → MySQL (cart_sessions + cart_items, cookie session)
+Admin   → PHP session cookie + admin_users table
 bootstrap.php and health.php load config in this order:
 1. `/home/marvispace/api_config.php` (CLI / install scripts)
 2. `public_html/api/config.local.php` (synced on each deploy — used by web PHP)
