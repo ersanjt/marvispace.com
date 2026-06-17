@@ -10,6 +10,7 @@ import {
   setOrderStatus,
 } from '../core/storage.js';
 import { mountAdminLogin, signOutAdmin } from '../core/admin-auth.js';
+import { createImageUploadUI } from '../modules/admin-upload.js';
 
 const loginScreen = document.getElementById('loginScreen');
 const adminApp = document.getElementById('adminApp');
@@ -117,6 +118,25 @@ function showToast(msg) {
   toastTimer = setTimeout(() => { toast.hidden = true; }, 2800);
 }
 
+const imageUpload = createImageUploadUI({
+  mainImageZone: document.getElementById('mainImageZone'),
+  mainImageFile: document.getElementById('mainImageFile'),
+  mainImageEmpty: document.getElementById('mainImageEmpty'),
+  imagePreview,
+  imagePreviewImg,
+  mainImageRemove: document.getElementById('mainImageRemove'),
+  mainImageStatus: document.getElementById('mainImageStatus'),
+  productImage: document.getElementById('productImage'),
+  productImageUrl: document.getElementById('productImageUrl'),
+  galleryZone: document.getElementById('galleryZone'),
+  galleryFiles: document.getElementById('galleryFiles'),
+  galleryGrid: document.getElementById('galleryGrid'),
+  galleryUploadStatus: document.getElementById('galleryUploadStatus'),
+  productGallery: document.getElementById('productGallery'),
+  productGalleryUrl: document.getElementById('productGalleryUrl'),
+  showToast,
+});
+
 async function showApp() {
   document.body.classList.add('is-logged-in');
   if (loginScreen) loginScreen.hidden = true;
@@ -160,7 +180,7 @@ function resetForm() {
   if (fields.inStock) fields.inStock.checked = true;
   if (fields.sizes) fields.sizes.value = DEFAULT_SIZES.join(',');
   if (formTitle) formTitle.textContent = 'Add product';
-  updateImagePreview();
+  imageUpload.reset();
 }
 
 function fillForm(product) {
@@ -171,19 +191,15 @@ function fillForm(product) {
   fields.category.value = product.category;
   fields.gender.value = product.gender;
   fields.inStock.checked = product.inStock;
-  fields.image.value = product.image;
-  fields.gallery.value = (product.images || []).join('\n');
   fields.sizes.value = product.sizes.join(',');
+  imageUpload.setMainImage(product.image || '');
+  imageUpload.setGallery(product.images || []);
   formTitle.textContent = `Edit ${product.label}`;
-  updateImagePreview();
   openModal();
 }
 
 function readForm() {
-  const images = fields.gallery.value
-    .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean);
+  const images = imageUpload.getGallery();
 
   const sizes = fields.sizes.value
     .split(',')
@@ -199,21 +215,10 @@ function readForm() {
     gender: fields.gender.value,
     inStock: fields.inStock.checked,
     image: fields.image.value.trim(),
-    images,
-    galleryCount: images.length || 0,
+    images: images.length ? images : (fields.image.value.trim() ? [fields.image.value.trim()] : []),
+    galleryCount: images.length || (fields.image.value.trim() ? 1 : 0),
     sizes: sizes.length ? sizes : [...DEFAULT_SIZES],
   });
-}
-
-function updateImagePreview() {
-  const url = fields.image?.value?.trim();
-  if (!url || !imagePreview || !imagePreviewImg) {
-    if (imagePreview) imagePreview.hidden = true;
-    return;
-  }
-  imagePreviewImg.src = url;
-  imagePreviewImg.onerror = () => { imagePreview.hidden = true; };
-  imagePreviewImg.onload = () => { imagePreview.hidden = false; };
 }
 
 function getFilteredProducts() {
@@ -397,13 +402,15 @@ productModal?.querySelectorAll('[data-close-modal]').forEach(el => {
   el.addEventListener('click', closeModal);
 });
 
-fields.image?.addEventListener('input', updateImagePreview);
-
 productSearch?.addEventListener('input', renderProducts);
 productFilter?.addEventListener('change', renderProducts);
 
 productForm?.addEventListener('submit', async e => {
   e.preventDefault();
+  if (!fields.image?.value?.trim()) {
+    showToast('Add a main product image');
+    return;
+  }
   const product = readForm();
   const index = products.findIndex(item => item.id === product.id);
 

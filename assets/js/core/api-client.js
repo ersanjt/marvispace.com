@@ -103,3 +103,27 @@ export async function adminUpdateOrderStatus(id, status) {
     body: { status },
   });
 }
+
+export async function adminUploadImage(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+
+  const res = await fetch(`${API_BASE}/admin/upload.php`, {
+    method: 'POST',
+    credentials: 'include',
+    body: fd,
+  });
+
+  let payload = {};
+  try {
+    payload = await res.json();
+  } catch {
+    /* ignore */
+  }
+
+  if (!res.ok || payload.ok === false) {
+    throw new Error(payload.error || `Upload failed (${res.status})`);
+  }
+
+  return payload.data;
+}

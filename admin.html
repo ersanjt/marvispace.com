@@ -337,17 +337,44 @@
             <span>Visible in store (in stock)</span>
           </label>
         </div>
-        <label class="field">
-          <span>Main image (URL)</span>
-          <input type="url" id="productImage" placeholder="https://..." required />
-        </label>
-        <div class="img-preview" id="imagePreview" hidden>
-          <img id="imagePreviewImg" alt="" />
+        <div class="field field-upload">
+          <span>Main image</span>
+          <div class="upload-zone" id="mainImageZone">
+            <input type="file" id="mainImageFile" accept="image/jpeg,image/png,image/webp,image/gif" hidden />
+            <div class="upload-zone-empty" id="mainImageEmpty">
+              <strong>Click or drop image</strong>
+              <small>JPG, PNG, WebP, GIF · max 5 MB</small>
+            </div>
+            <div class="upload-preview" id="imagePreview" hidden>
+              <img id="imagePreviewImg" alt="" />
+              <button type="button" class="upload-remove" id="mainImageRemove">Remove</button>
+            </div>
+            <p class="upload-status" id="mainImageStatus" hidden></p>
+          </div>
+          <input type="hidden" id="productImage" />
+          <details class="upload-url-fallback">
+            <summary>Or paste image URL</summary>
+            <input type="url" id="productImageUrl" placeholder="/assets/images/products/..." />
+          </details>
         </div>
-        <label class="field">
-          <span>Gallery images (one URL per line)</span>
-          <textarea id="productGallery" rows="3" placeholder="https://.../image-1.jpg"></textarea>
-        </label>
+
+        <div class="field field-upload">
+          <span>Gallery images</span>
+          <div class="upload-zone upload-zone--gallery" id="galleryZone">
+            <input type="file" id="galleryFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+            <div class="upload-zone-empty">
+              <strong>Add gallery photos</strong>
+              <small>Click or drop multiple images</small>
+            </div>
+            <p class="upload-status" id="galleryUploadStatus" hidden></p>
+          </div>
+          <div class="gallery-grid" id="galleryGrid" hidden></div>
+          <textarea id="productGallery" hidden></textarea>
+          <details class="upload-url-fallback">
+            <summary>Or paste gallery URLs (one per line)</summary>
+            <textarea id="productGalleryUrl" rows="3" placeholder="/assets/images/products/..."></textarea>
+          </details>
+        </div>
         <label class="field">
           <span>Available sizes (comma-separated)</span>
           <input type="text" id="productSizes" placeholder="XS,S,M,L,XL,XXL" />
