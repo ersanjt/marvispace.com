@@ -70,7 +70,7 @@ function changeQty(index, delta) {
 function fillSummaryList(container) {
   container.innerHTML = '';
   cartItems.forEach((item, index) => {
-    container.append(buildCartLineItem(item, index, changeQty));
+    container.append(buildCartLineItem(item, index, changeQty, { checkout: true }));
   });
 }
 
@@ -119,6 +119,7 @@ function updatePaymentState() {
   const ready = checkoutForm.checkValidity();
   paymentPlaceholder.hidden = ready;
   paymentOptions.classList.toggle('payment-methods--locked', !ready);
+  paymentOptions.hidden = false;
 
   paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
     const isCard = btn.dataset.payment === 'card';

@@ -42,9 +42,9 @@ function lineRow(label, valueEl) {
 
 /**
  * Yeezy-style cart line item:
- * [thumb 6rem] | name — price / size — value / qty — controls
+ * [thumb] | name — price / SIZE — value / QTY — + n −
  */
-export function buildCartLineItem(item, index, onChangeQty) {
+export function buildCartLineItem(item, index, onChangeQty, { checkout = false } = {}) {
   const line = document.createElement('article');
   line.className = 'cart-line';
 
@@ -70,7 +70,7 @@ export function buildCartLineItem(item, index, onChangeQty) {
   name.textContent = item.label;
   const price = document.createElement('span');
   price.className = 'cart-line-price';
-  price.textContent = fmtMoney(item.price);
+  price.textContent = fmtMoney(checkout ? item.price * item.qty : item.price);
   nameRow.append(name, price);
 
   const sizeVal = document.createElement('span');
@@ -94,8 +94,8 @@ export function buildCartLineItem(item, index, onChangeQty) {
 
   body.append(
     nameRow,
-    lineRow('Size', sizeVal),
-    lineRow('Qty', qtyControls),
+    lineRow(checkout ? 'Size' : 'Size', sizeVal),
+    lineRow(checkout ? 'Qty' : 'Qty', qtyControls),
   );
 
   inner.append(thumb, body);
