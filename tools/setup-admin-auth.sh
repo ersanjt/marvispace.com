@@ -2,7 +2,7 @@
 # Create or update MARVISPACE admin HTTP Basic Auth
 # Run on server as root:
 #   bash /home/marvispace/repositories/marvispace.com/tools/setup-admin-auth.sh
-#   bash tools/setup-admin-auth.sh myNewPassword
+#   bash tools/setup-admin-auth.sh 'MySecurePassword'
 
 set -euo pipefail
 
@@ -19,19 +19,30 @@ else
 fi
 
 if ! command -v htpasswd >/dev/null 2>&1; then
-  echo "ERROR: htpasswd not found. Install httpd-tools."
+  echo "ERROR: htpasswd not found. Install httpd-tools (yum install httpd-tools)."
   exit 1
 fi
 
 htpasswd -cb "$HTPASSWD" "$ADMIN_USER" "$PASS"
 chown "$USER:$USER" "$HTPASSWD"
-chmod 640 "$HTPASSWD"
+chmod 644 "$HTPASSWD"
 
-echo "Admin auth file: $HTPASSWD"
+# cPanel/Apache often runs as nobody — allow read if group exists
+if getent group nobody >/dev/null 2>&1; then
+  chgrp nobody "$HTPASSWD" 2>/dev/null || true
+  chmod 640 "$HTPASSWD" 2>/dev/null || chmod 644 "$HTPASSWD"
+fi
+
+if [[ ! -r "$HTPASSWD" ]]; then
+  echo "ERROR: $HTPASSWD is not readable"
+  exit 1
+fi
+
+echo "OK: Admin auth file ready at $HTPASSWD"
 echo "Username: $ADMIN_USER"
 if [[ "$GENERATED" -eq 1 ]]; then
   echo "Generated password: $PASS"
-  echo "Save this password — it will not be shown again."
+  echo "SAVE THIS PASSWORD — shown once only."
 else
-  echo "Password updated."
+  echo "Password updated successfully."
 fi

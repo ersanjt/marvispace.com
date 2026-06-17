@@ -62,13 +62,15 @@
   RewriteRule ^privacy-right-center/?$ privacy-right-center.html [L,NC]
 </IfModule>
 
-# Admin area — server-side password (create /home/marvispace/.htpasswd on server)
-<If "%{REQUEST_URI} =~ m#^/admin(?:\.html)?$#">
-  AuthType Basic
-  AuthName "MARVISPACE Admin"
-  AuthUserFile /home/marvispace/.htpasswd
-  Require valid-user
-</If>
+# Admin — HTTP Basic Auth (requires /home/marvispace/.htpasswd from deploy.sh)
+<Files "admin.html">
+  <IfModule mod_auth_basic.c>
+    AuthType Basic
+    AuthName "MARVISPACE Admin"
+    AuthUserFile /home/marvispace/.htpasswd
+    Require valid-user
+  </IfModule>
+</Files>
 
 # Security headers
 <IfModule mod_headers.c>

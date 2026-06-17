@@ -93,7 +93,24 @@ git config --global --add safe.directory /home/marvispace/repositories/marvispac
 chown -R marvispace:marvispace /home/marvispace/repositories/marvispace.com
 ```
 
-### Admin password (HTTP Basic Auth)
+### Admin shows 500 Internal Server Error
+
+The password file is missing or Apache cannot read it. On the server run:
+
+```bash
+bash /home/marvispace/repositories/marvispace.com/tools/setup-admin-auth.sh 'YourSecurePassword'
+bash /home/marvispace/repositories/marvispace.com/deploy.sh
+```
+
+Verify:
+
+```bash
+ls -la /home/marvispace/.htpasswd
+```
+
+You should see a non-empty file. Then open `/admin` — browser will ask for username `admin` and your password.
+
+---
 
 `/admin` is protected by Apache. On first deploy, `deploy.sh` creates `/home/marvispace/.htpasswd` if missing.
 
