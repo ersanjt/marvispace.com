@@ -89,6 +89,7 @@ bash deploy.sh
 | `site_settings` | Favicon and site config |
 | `cart_sessions` | Shopping cart (browser cookie → session row) |
 | `cart_items` | Cart line items |
+| `newsletter_subscribers` | Newsletter opt-in emails |
 | `login_attempts` | Brute-force protection |
 | `schema_migrations` | Schema version tracking |
 
@@ -114,6 +115,7 @@ Files in `install/migrations/`:
 - `003_admin_and_settings.sql`
 - `004_products_constraints.sql`
 - `005_cart.sql`
+- `006_newsletter.sql`
 
 ---
 

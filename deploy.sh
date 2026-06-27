@@ -38,6 +38,9 @@ else
   git pull origin main
 fi
 
+echo "==> Applying database migrations..."
+php install/migrate.php
+
 chown -R "$USER:$USER" "$REPO"
 
 echo "==> Syncing to public_html..."

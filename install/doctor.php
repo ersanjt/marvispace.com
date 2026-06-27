@@ -68,7 +68,16 @@ try {
 }
 
 echo "\n==> Tables\n";
-$tables = ['products', 'orders', 'order_items', 'admin_users', 'schema_migrations', 'cart_sessions', 'cart_items'];
+$tables = [
+    'products',
+    'orders',
+    'order_items',
+    'admin_users',
+    'schema_migrations',
+    'cart_sessions',
+    'cart_items',
+    'newsletter_subscribers',
+];
 foreach ($tables as $table) {
     try {
         $count = (int) $pdo->query("SELECT COUNT(*) FROM {$table}")->fetchColumn();

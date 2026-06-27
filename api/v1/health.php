@@ -31,8 +31,16 @@ try {
     ]);
 }
 
-$requiredTables = ['products', 'orders', 'order_items', 'admin_users'];
-$optionalTables = ['site_settings', 'login_attempts', 'schema_migrations', 'cart_sessions', 'cart_items'];
+$requiredTables = [
+    'products',
+    'orders',
+    'order_items',
+    'admin_users',
+    'cart_sessions',
+    'cart_items',
+    'newsletter_subscribers',
+];
+$optionalTables = ['site_settings', 'login_attempts', 'schema_migrations'];
 
 $checks = [];
 $counts = [];
@@ -56,7 +64,10 @@ try {
     /* not migrated yet */
 }
 
-$databaseOk = $checks['products'] && $checks['orders'] && $checks['admin_users'];
+$databaseOk = true;
+foreach ($requiredTables as $table) {
+    $databaseOk = $databaseOk && !empty($checks[$table]);
+}
 
 $mailCfg = $config['mail'] ?? [];
 $smtpPass = (string) (($mailCfg['smtp']['pass'] ?? ''));
