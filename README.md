@@ -45,7 +45,7 @@ index.html              Storefront
 admin.html              Admin panel
 api/                    PHP REST API
 assets/                 CSS, JS, images
-install/                Migrations, seed, server scripts
+install/                Migrations, seed (products.json), server scripts
 docs/                   Deployment & database guides
 ```
 

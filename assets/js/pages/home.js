@@ -87,6 +87,7 @@ let gridMode       = 'dense'; // dense = 6 cols | sparse = 3 cols
 let activeImageIdx = 0;
 let wheelLock      = false;
 let products       = [];
+let swipe          = null; // touch swipe tracking { x, y, t, id }
 
 /* ════════════════════════════════════
    CDN image helpers
@@ -220,9 +221,14 @@ cartBtn.addEventListener('click', openCart);
 cartClose.addEventListener('click', closeCart);
 cartOverlay.addEventListener('click', closeCart);
 
-checkoutBtn?.addEventListener('click', () => {
+checkoutBtn?.addEventListener('click', async () => {
   if (!cartItems.length) return;
-  persistCart();
+  try {
+    await saveCart(cartItems);
+  } catch {
+    alert('Could not save cart. Please try again.');
+    return;
+  }
   window.location.href = '/checkout';
 });
 
@@ -279,6 +285,11 @@ function updateCols() {
 function syncSpacer(open) {
   navSpacer.classList.toggle('preview-open', open);
   siteNav.classList.toggle('preview-open', open);
+  if (open) {
+    navSpacer.style.height = '';
+  } else {
+    navSpacer.style.height = `${siteNav.offsetHeight}px`;
+  }
 }
 
 /* ════════════════════════════════════
@@ -788,12 +799,15 @@ pinchWrap.addEventListener('pointerdown', e => {
 });
 pinchWrap.addEventListener('pointermove', e => {
   if (!pinchPtrs.has(e.pointerId)) return;
-  if (pinchPtrs.size === 1) {
+  // Pan only while zoomed in; otherwise let the swipe handler manage the gesture.
+  if (pinchPtrs.size === 1 && pinchState.sc > 1.05) {
     const p = pinchPtrs.get(e.pointerId);
     pinchState.x += e.clientX - p.x;
     pinchState.y += e.clientY - p.y;
     pinchPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
     applyPinch();
+  } else if (pinchPtrs.size === 1) {
+    pinchPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   }
 });
 pinchWrap.addEventListener('pointerup', e => {
@@ -805,15 +819,66 @@ pinchWrap.addEventListener('pointercancel', e => {
 });
 
 /* ════════════════════════════════════
+   Touch swipe — horizontal = gallery, vertical = product
+   ════════════════════════════════════ */
+const SWIPE_DIST  = 45;   // min travel (px) to count as a swipe
+const SWIPE_RATIO = 1.25; // axis dominance needed to lock direction
+
+pinchWrap.addEventListener('pointerdown', e => {
+  if (!isOpen || szOpen || e.pointerType === 'mouse') { swipe = null; return; }
+  // Ignore multi-touch (pinch) and zoomed state.
+  if (pinchPtrs.size > 1 || pinchState.sc > 1.05) { swipe = null; return; }
+  swipe = { x: e.clientX, y: e.clientY, t: Date.now(), id: e.pointerId };
+});
+
+pinchWrap.addEventListener('pointermove', e => {
+  if (!swipe) return;
+  if (pinchPtrs.size > 1 || pinchState.sc > 1.05) swipe = null;
+});
+
+pinchWrap.addEventListener('pointerup', e => {
+  if (!swipe || swipe.id !== e.pointerId) { swipe = null; return; }
+  const dx = e.clientX - swipe.x;
+  const dy = e.clientY - swipe.y;
+  swipe = null;
+
+  if (!isOpen || szOpen || pinchState.sc > 1.05) return;
+
+  const adx = Math.abs(dx);
+  const ady = Math.abs(dy);
+  if (adx < SWIPE_DIST && ady < SWIPE_DIST) return;
+
+  if (adx > ady * SWIPE_RATIO) {
+    // Horizontal swipe → browse the product gallery.
+    stepGallery(dx < 0 ? 1 : -1);
+  } else if (ady > adx * SWIPE_RATIO) {
+    // Vertical swipe → next / previous product (swipe up = next).
+    stepPreview(dy < 0 ? 1 : -1);
+  }
+});
+
+/* ════════════════════════════════════
    Resize
    ════════════════════════════════════ */
-window.addEventListener('resize', updateCols);
+window.addEventListener('resize', () => {
+  updateCols();
+  if (!isOpen) syncSpacer(false);
+});
 
 /* ════════════════════════════════════
    Init
    ════════════════════════════════════ */
 syncSpacer(false);
 syncGridMode();
+
+window.addEventListener('load', () => {
+  if (!isOpen) syncSpacer(false);
+});
+if (document.fonts?.ready) {
+  document.fonts.ready.then(() => {
+    if (!isOpen) syncSpacer(false);
+  });
+}
 
 (async () => {
   try {

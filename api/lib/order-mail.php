@@ -12,7 +12,7 @@ function order_mail_customer_name(array $customer): string
 function order_mail_format_address(array $customer): string
 {
     $lines = [];
-    $street = trim(($customer['address'] ?? '') . ($customer['address2'] ? ', ' . $customer['address2'] : ''));
+    $street = trim(($customer['address'] ?? '') . (!empty($customer['address2']) ? ', ' . $customer['address2'] : ''));
     if ($street !== '') {
         $lines[] = $street;
     }
@@ -74,7 +74,7 @@ function order_mail_customer_confirmation(array $order): bool
 {
     $customer = $order['customer'] ?? [];
     $email = trim((string) ($customer['email'] ?? ''));
-    if ($email === '') {
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
 
@@ -160,16 +160,22 @@ function order_send_purchase_emails(PDO $pdo, array $order): array
         'admin' => order_mail_admin_notification($order),
     ];
 
+    $orderId = (string) ($order['id'] ?? 'unknown');
+
     if ($result['customer']) {
-        order_mark_email_sent($pdo, (string) ($order['id'] ?? ''), true, false);
+        order_mark_email_sent($pdo, $orderId, true, false);
     } else {
-        error_log('MARVISPACE: customer order email failed for ' . ($order['id'] ?? 'unknown'));
+        $detail = mail_last_error();
+        error_log('MARVISPACE: customer order email failed for ' . $orderId
+            . ($detail !== '' ? ' — ' . $detail : ''));
     }
 
     if ($result['admin']) {
-        order_mark_email_sent($pdo, (string) ($order['id'] ?? ''), false, true);
+        order_mark_email_sent($pdo, $orderId, false, true);
     } else {
-        error_log('MARVISPACE: admin order email failed for ' . ($order['id'] ?? 'unknown'));
+        $detail = mail_last_error();
+        error_log('MARVISPACE: admin order email failed for ' . $orderId
+            . ($detail !== '' ? ' — ' . $detail : ''));
     }
 
     return $result;

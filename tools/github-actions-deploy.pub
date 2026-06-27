@@ -1,5 +1,0 @@
-# GitHub Actions deploy key (public only)
-# Private key is stored in GitHub repo secrets (SSH_PRIVATE_KEY).
-# Do not commit the private key.
-
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyvcWvbdGad/9tpHpOXhqerE0z39ZnA9jJFdP9aVIXJ github-actions-marvispace-deploy

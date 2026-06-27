@@ -722,6 +722,13 @@ navItems.forEach(btn => {
   });
 });
 
+window.addEventListener('hashchange', () => {
+  const hashTab = window.location.hash.replace(/^#/, '');
+  if (hashTab && VIEW_META[hashTab]) {
+    switchTab(hashTab);
+  }
+});
+
 document.querySelectorAll('[data-goto]').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.goto));
 });

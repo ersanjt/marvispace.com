@@ -42,6 +42,10 @@ export async function fetchProducts() {
   return request('/products.php');
 }
 
+export async function subscribeNewsletter(email) {
+  return request('/newsletter.php', { method: 'POST', body: { email } });
+}
+
 export async function fetchProduct(id) {
   return request(`/products.php?id=${encodeURIComponent(id)}`);
 }

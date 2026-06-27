@@ -16,7 +16,6 @@
   RewriteRule ^admin\.js$ /assets/js/pages/admin.js [R=301,L,NC]
   RewriteRule ^storage\.js$ /assets/js/core/storage.js [R=301,L,NC]
   RewriteRule ^cart-ui\.js$ /assets/js/modules/cart-ui.js [R=301,L,NC]
-  RewriteRule ^products\.js$ /assets/js/data/products.js [R=301,L,NC]
   RewriteRule ^images/(.*)$ /assets/images/$1 [R=301,L,NC]
 
   # Redirect legacy .html URLs to clean paths (only when the browser requested .html)
@@ -66,6 +65,7 @@
   RewriteRule ^api/v1/health/?$ api/v1/health.php [L,QSA]
   RewriteRule ^api/v1/settings/?$ api/v1/settings.php [L,QSA]
   RewriteRule ^api/v1/products/?$ api/v1/products.php [L,QSA]
+  RewriteRule ^api/v1/newsletter/?$ api/v1/newsletter.php [L,QSA]
   RewriteRule ^api/v1/orders/?$ api/v1/orders.php [L,QSA]
   RewriteRule ^api/v1/admin/login/?$ api/v1/admin/login.php [L,QSA]
   RewriteRule ^api/v1/admin/reset-password/?$ api/v1/admin/reset-password.php [L,QSA]

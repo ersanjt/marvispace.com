@@ -64,32 +64,58 @@ function order_create(PDO $pdo, array $order): array
 
     $pdo->beginTransaction();
     try {
-        $items = $order['items'] ?? [];
-        if (!$items) {
-            throw new RuntimeException('Order has no items');
+        $rawItems = $order['items'] ?? [];
+        if (!$rawItems) {
+            throw new InvalidArgumentException('Order has no items');
         }
 
-        foreach ($items as $item) {
-            $pid = $item['id'] ?? '';
+        $normalizedItems = [];
+        $computedTotal = 0.0;
+
+        foreach ($rawItems as $item) {
+            $pid = (string) ($item['id'] ?? '');
             $qty = (int) ($item['qty'] ?? 0);
-            if ($qty < 1) {
+            $size = (string) ($item['size'] ?? '');
+
+            if ($pid === '' || $qty < 1) {
                 continue;
             }
 
-            $stmt = $pdo->prepare('SELECT stock, in_stock FROM products WHERE id = ? FOR UPDATE');
+            $stmt = $pdo->prepare(
+                'SELECT id, label, image, price, stock, in_stock FROM products WHERE id = ? FOR UPDATE'
+            );
             $stmt->execute([$pid]);
             $product = $stmt->fetch();
             if (!$product) {
-                throw new RuntimeException('Product not found: ' . $pid);
+                throw new InvalidArgumentException('Product not available');
+            }
+            if (!(int) $product['in_stock']) {
+                throw new InvalidArgumentException('Product is out of stock: ' . $product['label']);
             }
             if ((int) $product['stock'] < $qty) {
-                throw new RuntimeException('Insufficient stock for ' . $pid);
+                throw new InvalidArgumentException('Insufficient stock for ' . $product['label']);
             }
+
+            $price = (float) $product['price'];
+            $computedTotal += $price * $qty;
 
             $newStock = (int) $product['stock'] - $qty;
             $inStock = $newStock > 0 ? 1 : 0;
             $upd = $pdo->prepare('UPDATE products SET stock = ?, in_stock = ? WHERE id = ?');
             $upd->execute([$newStock, $inStock, $pid]);
+
+            $normalizedItems[] = [
+                'id' => $pid,
+                'label' => (string) $product['label'],
+                'size' => $size,
+                'price' => $price,
+                'qty' => $qty,
+                'image' => (string) $product['image'],
+            ];
+        }
+
+        if (!$normalizedItems) {
+            throw new InvalidArgumentException('Order has no valid items');
         }
 
         $customer = order_customer_from_input($order['customer'] ?? []);
@@ -113,7 +139,7 @@ function order_create(PDO $pdo, array $order): array
             $stmt->execute([
                 $order['id'],
                 $status,
-                (float) ($order['total'] ?? 0),
+                $computedTotal,
                 'USD',
                 $customer['email'],
                 $customer['firstName'],
@@ -137,7 +163,7 @@ function order_create(PDO $pdo, array $order): array
             $stmt->execute([
                 $order['id'],
                 $status,
-                (float) ($order['total'] ?? 0),
+                $computedTotal,
                 $customerJson,
             ]);
         }
@@ -146,15 +172,15 @@ function order_create(PDO $pdo, array $order): array
             'INSERT INTO order_items (order_id, product_id, label, size, price, qty, image)
              VALUES (?, ?, ?, ?, ?, ?, ?)'
         );
-        foreach ($items as $item) {
+        foreach ($normalizedItems as $item) {
             $itemStmt->execute([
                 $order['id'],
-                $item['id'] ?? '',
-                $item['label'] ?? '',
-                $item['size'] ?? '',
-                (float) ($item['price'] ?? 0),
-                (int) ($item['qty'] ?? 0),
-                $item['image'] ?? '',
+                $item['id'],
+                $item['label'],
+                $item['size'],
+                $item['price'],
+                $item['qty'],
+                $item['image'],
             ]);
         }
 

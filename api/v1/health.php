@@ -58,6 +58,9 @@ try {
 
 $databaseOk = $checks['products'] && $checks['orders'] && $checks['admin_users'];
 
+$mailCfg = $config['mail'] ?? [];
+$smtpPass = (string) (($mailCfg['smtp']['pass'] ?? ''));
+
 json_ok([
     'database' => $databaseOk,
     'version' => '2',
@@ -65,4 +68,8 @@ json_ok([
     'tables' => $checks,
     'counts' => $counts,
     'config' => basename((string) app_config_source()),
+    'mail' => [
+        'smtp_configured' => $smtpPass !== '',
+        'admin_notify' => trim((string) ($mailCfg['admin_notify'] ?? '')) !== '',
+    ],
 ]);

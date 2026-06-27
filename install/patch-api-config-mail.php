@@ -24,12 +24,36 @@ if (!is_file($configPath)) {
     exit(1);
 }
 
+$config = require $configPath;
+
+function app_config(): array
+{
+    global $config;
+    return $config;
+}
+
 require_once dirname(__DIR__) . '/api/lib/mail.php';
 
-$config = require $configPath;
 $adminEmail = getenv('MARVISPACE_ADMIN_EMAIL') ?: '';
 $smtpPass = getenv('MARVISPACE_SMTP_PASS') ?: (string) ($config['mail']['smtp']['pass'] ?? '');
 $smtpUser = getenv('MARVISPACE_SMTP_USER') ?: (string) ($config['mail']['smtp']['user'] ?? '');
+
+if ($adminEmail === '') {
+    $adminEmail = trim((string) ($config['mail']['admin_notify'] ?? ''));
+}
+
+if ($adminEmail === '' && !empty($config['db'])) {
+    try {
+        require_once dirname(__DIR__) . '/api/lib/db.php';
+        $pdo = db_connect($config['db']);
+        $row = $pdo->query('SELECT email FROM admin_users ORDER BY id ASC LIMIT 1')->fetch();
+        if ($row && !empty($row['email'])) {
+            $adminEmail = (string) $row['email'];
+        }
+    } catch (Throwable $e) {
+        /* ignore */
+    }
+}
 
 $recommended = mail_recommended_smtp();
 $smtpHost = getenv('MARVISPACE_SMTP_HOST') ?: '';
@@ -54,6 +78,15 @@ if (!mail_host_resolves($smtpHost)) {
     }
     if (!getenv('MARVISPACE_SMTP_SECURE')) {
         $smtpSecure = 'tls';
+    }
+} elseif ($smtpHost === 'localhost' && !getenv('MARVISPACE_SMTP_HOST') && mail_host_resolves('mail.marvispace.com')) {
+    fwrite(STDERR, "NOTE: mail.marvispace.com resolves — switching SMTP host from localhost to mail.marvispace.com.\n");
+    $smtpHost = 'mail.marvispace.com';
+    if (!getenv('MARVISPACE_SMTP_PORT')) {
+        $smtpPort = 465;
+    }
+    if (!getenv('MARVISPACE_SMTP_SECURE')) {
+        $smtpSecure = 'ssl';
     }
 }
 
@@ -107,4 +140,12 @@ echo '    SMTP auth:     ' . ($config['mail']['smtp']['pass'] !== '' ? 'configur
 
 if (!mail_host_resolves('mail.marvispace.com')) {
     echo "\n    Tip: add DNS A record mail.marvispace.com → server IP, or keep localhost for cPanel.\n";
+}
+
+if ($config['mail']['smtp']['pass'] === '') {
+    echo "\n    WARNING: SMTP password not set. Order emails will fail.\n";
+    echo "    MARVISPACE_SMTP_PASS='orders-mailbox-password' php install/patch-api-config-mail.php\n";
+} else {
+    echo "\n    Next: bash deploy.sh   (sync mail settings to public_html)\n";
+    echo "    Test:  php install/test-mail.php --probe && php install/test-mail.php\n";
 }

@@ -10,10 +10,11 @@ const ORDERS_KEY = 'marvispace_orders';
 const CART_KEY = 'marvispace_cart';
 const AUTH_KEY = 'marvispace_admin_auth';
 const ADMIN_PWD_OVERRIDE_KEY = 'marvispace_admin_pwd_hash';
+const ORDER_CONFIRM_KEY = 'marvispace_order_confirm';
 
 const LEGACY_KEYS = {
-  orders: ['yzy_orders', 'marvispace_orders_v1'],
-  products: ['yzy_products', 'marvispace_products_v2'],
+  orders: ['marvispace_orders_v1'],
+  products: ['marvispace_products_v2'],
 };
 
 export const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -157,12 +158,7 @@ export function createId() {
 
 export function isAdminAuthed() {
   try {
-    if (sessionStorage.getItem(AUTH_KEY) === '1') return true;
-    if (sessionStorage.getItem('yzy_admin_auth') === '1') {
-      sessionStorage.setItem(AUTH_KEY, '1');
-      sessionStorage.removeItem('yzy_admin_auth');
-      return true;
-    }
+    return sessionStorage.getItem(AUTH_KEY) === '1';
   } catch {
     /* ignore */
   }
@@ -275,6 +271,31 @@ export async function lookupOrder(orderId, email = '') {
   return getOrderByIdLocal(orderId);
 }
 
+/** Store order email in session (avoids putting PII in the URL). */
+export function setOrderConfirmContext(orderId, email) {
+  try {
+    sessionStorage.setItem(ORDER_CONFIRM_KEY, JSON.stringify({ orderId, email }));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Read and clear stored confirmation context when order id matches. */
+export function consumeOrderConfirmContext(orderId) {
+  try {
+    const raw = sessionStorage.getItem(ORDER_CONFIRM_KEY);
+    if (!raw) return '';
+    const ctx = JSON.parse(raw);
+    if (ctx?.orderId === orderId) {
+      sessionStorage.removeItem(ORDER_CONFIRM_KEY);
+      return String(ctx.email || '');
+    }
+  } catch {
+    /* ignore */
+  }
+  return '';
+}
+
 export async function placeOrder(order) {
   if (await requireDatabase()) {
     return api.createOrder(order);
@@ -291,18 +312,11 @@ export async function setOrderStatus(orderId, status) {
 
 export async function loadCart() {
   if (await isApiEnabled()) {
-    try {
-      return await api.fetchCart();
-    } catch {
-      return [];
-    }
+    return await api.fetchCart();
   }
-  if (isProductionHost()) return [];
-  return getCartLocal();
-}
-
-/** @deprecated Use loadCart() — kept for sync init during migration */
-export function getCart() {
+  if (isProductionHost()) {
+    throw new Error('Store database is unavailable. Please try again in a moment.');
+  }
   return getCartLocal();
 }
 

@@ -1,6 +1,6 @@
 # Deploy marvispace.com on cPanel (safe / isolated)
 
-> **Project structure:** see `docs/STRUCTURE.md` — runtime assets live under `assets/`.  
+> **Project layout:** see `README.md` — runtime assets live under `assets/`.  
 > `tools/` and `docs/` are excluded from production deploy.
 
 This project is **only** for account `marvispace`.

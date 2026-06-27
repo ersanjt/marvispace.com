@@ -1,4 +1,4 @@
-import { lookupOrder } from '../core/storage.js';
+import { consumeOrderConfirmContext, lookupOrder } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { SITE } from '../config/site.js';
@@ -13,10 +13,16 @@ const orderEmailEl = document.getElementById('confirmEmail');
 const itemsEl = document.getElementById('confirmItems');
 const totalsEl = document.getElementById('confirmTotals');
 
-function renderOrder(order) {
+function renderOrder(order, { missingEmail = false } = {}) {
   if (!order) {
     emptyEl.hidden = false;
     contentEl.hidden = true;
+    const msg = emptyEl.querySelector('p');
+    if (msg) {
+      msg.textContent = missingEmail
+        ? 'We need your order email to show details here. Use order lookup or check your inbox for the confirmation email.'
+        : 'We could not find a recent order on this device. Check your email or contact support.';
+    }
     return;
   }
 
@@ -46,9 +52,14 @@ function renderOrder(order) {
 }
 
 (async () => {
-  const email = params.get('email') || '';
+  const email = (orderId ? consumeOrderConfirmContext(orderId) : '') || params.get('email') || '';
   let order = null;
   if (orderId) {
+    if (!email) {
+      renderOrder(null, { missingEmail: true });
+      mountDeveloperCredit();
+      return;
+    }
     try {
       order = await lookupOrder(orderId, email);
     } catch {

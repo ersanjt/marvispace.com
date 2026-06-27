@@ -1,3 +1,0 @@
--- MARVISPACE v2 schema reference (fresh install — use install/migrate.php on server)
--- @author Ersan JT <https://github.com/ersanjt>
--- Run: php install/migrate.php

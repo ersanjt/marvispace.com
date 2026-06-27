@@ -5,6 +5,7 @@ import {
   loadProducts,
   placeOrder,
   saveCart,
+  setOrderConfirmContext,
 } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
@@ -194,7 +195,8 @@ checkoutForm.addEventListener('submit', async e => {
     const created = await placeOrder(order);
     await clearCart();
     cartItems = [];
-    window.location.href = `/order-confirmation?id=${encodeURIComponent(created.id)}&email=${encodeURIComponent(order.customer.email || '')}`;
+    setOrderConfirmContext(created.id, order.customer.email || '');
+    window.location.href = `/order-confirmation?id=${encodeURIComponent(created.id)}`;
   } catch (err) {
     placeOrderBtn.disabled = false;
     alert(err.message || 'Could not place order. Please try again.');
@@ -202,7 +204,13 @@ checkoutForm.addEventListener('submit', async e => {
 });
 
 (async () => {
-  cartItems = await loadCart();
+  try {
+    cartItems = await loadCart();
+  } catch (err) {
+    alert(err.message || 'Could not load cart. Please try again.');
+    window.location.replace('/');
+    return;
+  }
   if (!cartItems.length) {
     window.location.replace('/');
     return;

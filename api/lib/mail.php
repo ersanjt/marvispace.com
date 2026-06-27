@@ -43,17 +43,23 @@ function mail_config(): array
     $mail = $config['mail'] ?? [];
     $site = $config['site'] ?? [];
     $smtp = $mail['smtp'] ?? [];
+    $recommended = mail_recommended_smtp();
+
+    $adminNotify = trim((string) ($mail['admin_notify'] ?? ''));
+    if ($adminNotify === '' || !filter_var($adminNotify, FILTER_VALIDATE_EMAIL)) {
+        $adminNotify = trim((string) ($mail['support'] ?? 'support@marvispace.com'));
+    }
 
     return [
         'from' => (string) ($mail['from'] ?? 'orders@marvispace.com'),
         'from_name' => (string) ($mail['from_name'] ?? 'MARVISPACE'),
-        'admin_notify' => (string) ($mail['admin_notify'] ?? 'admin@marvispace.com'),
+        'admin_notify' => $adminNotify,
         'site_url' => rtrim((string) ($site['url'] ?? 'https://marvispace.com'), '/'),
         'support' => (string) ($mail['support'] ?? 'support@marvispace.com'),
         'smtp' => [
-            'host' => (string) ($smtp['host'] ?? mail_recommended_smtp()['host']),
-            'port' => (int) ($smtp['port'] ?? mail_recommended_smtp()['port']),
-            'secure' => (string) ($smtp['secure'] ?? mail_recommended_smtp()['secure']),
+            'host' => (string) ($smtp['host'] ?? $recommended['host']),
+            'port' => (int) ($smtp['port'] ?? $recommended['port']),
+            'secure' => (string) ($smtp['secure'] ?? $recommended['secure']),
             'user' => (string) ($smtp['user'] ?? ($mail['from'] ?? 'orders@marvispace.com')),
             'pass' => (string) ($smtp['pass'] ?? ''),
         ],
@@ -69,11 +75,13 @@ function mail_format_address(string $email, string $name = ''): string
     return sprintf('%s <%s>', mb_encode_mimeheader($name, 'UTF-8'), $email);
 }
 
-function mail_build_headers(string $from, string $fromName, string $replyTo, string $messageId): array
+function mail_build_headers(string $to, string $from, string $fromName, string $replyTo, string $messageId): array
 {
     $headers = [
         'MIME-Version: 1.0',
         'Content-Type: text/html; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+        'To: ' . $to,
         'From: ' . mail_format_address($from, $fromName),
         'Date: ' . gmdate('D, d M Y H:i:s') . ' +0000',
         'Message-ID: ' . $messageId,
@@ -85,6 +93,38 @@ function mail_build_headers(string $from, string $fromName, string $replyTo, str
     }
 
     return $headers;
+}
+
+/** Alternate SMTP endpoint when primary host fails (cPanel localhost ↔ mail.domain). */
+function mail_smtp_alternate(array $current): ?array
+{
+    $host = strtolower((string) ($current['host'] ?? ''));
+
+    if ($host === 'localhost' || $host === '127.0.0.1') {
+        if (mail_host_resolves('mail.marvispace.com')) {
+            return array_merge($current, [
+                'host' => 'mail.marvispace.com',
+                'port' => 465,
+                'secure' => 'ssl',
+            ]);
+        }
+        return null;
+    }
+
+    if (str_contains($host, 'marvispace.com')) {
+        return array_merge($current, [
+            'host' => 'localhost',
+            'port' => 587,
+            'secure' => 'tls',
+        ]);
+    }
+
+    $recommended = mail_recommended_smtp();
+    if ($host !== strtolower($recommended['host'])) {
+        return array_merge($current, $recommended);
+    }
+
+    return null;
 }
 
 function mail_send_html(string $to, string $subject, string $html, array $opts = []): bool
@@ -100,18 +140,31 @@ function mail_send_html(string $to, string $subject, string $html, array $opts =
     $replyTo = (string) ($opts['reply_to'] ?? $cfg['support']);
     $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
     $messageId = '<' . bin2hex(random_bytes(16)) . '@marvispace.com>';
-    $headers = mail_build_headers($from, $fromName, $replyTo, $messageId);
+    $headers = mail_build_headers($to, $from, $fromName, $replyTo, $messageId);
 
     if (!empty($cfg['smtp']['pass'])) {
         mail_set_last_error('');
-        return mail_send_smtp($to, $encodedSubject, $html, $headers, $from, $cfg['smtp']);
+        if (mail_send_smtp($to, $encodedSubject, $html, $headers, $from, $cfg['smtp'])) {
+            return true;
+        }
+
+        $alt = mail_smtp_alternate($cfg['smtp']);
+        if ($alt !== null) {
+            error_log('MARVISPACE mail: retrying via ' . $alt['host'] . ':' . $alt['port']);
+            mail_set_last_error('');
+            if (mail_send_smtp($to, $encodedSubject, $html, $headers, $from, $alt)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     mail_set_last_error('');
     $params = '-f' . escapeshellarg($from);
     $ok = @mail($to, $encodedSubject, $html, implode("\r\n", $headers), $params);
     if (!$ok) {
-        mail_set_last_error('PHP mail() returned false');
+        mail_set_last_error('PHP mail() returned false — set SMTP password in api_config.php');
     }
     return $ok;
 }
@@ -156,7 +209,11 @@ function mail_probe_smtp(?array $smtp = null): array
 
         if ($secure === 'tls') {
             mail_smtp_cmd($fp, 'STARTTLS', [220]);
-            if (!stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            $crypto = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+            if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
+                $crypto |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+            }
+            if (!stream_socket_enable_crypto($fp, true, $crypto)) {
                 throw new RuntimeException('STARTTLS failed');
             }
             mail_smtp_cmd($fp, 'EHLO marvispace.com', [250]);
@@ -209,7 +266,11 @@ function mail_send_smtp(
 
         if ($secure === 'tls') {
             mail_smtp_cmd($fp, 'STARTTLS', [220]);
-            if (!stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            $crypto = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+            if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
+                $crypto |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+            }
+            if (!stream_socket_enable_crypto($fp, true, $crypto)) {
                 throw new RuntimeException('STARTTLS failed');
             }
             mail_smtp_cmd($fp, 'EHLO marvispace.com', [250]);
@@ -221,13 +282,12 @@ function mail_send_smtp(
         mail_smtp_cmd($fp, 'RCPT TO:<' . $to . '>', [250, 251]);
         mail_smtp_cmd($fp, 'DATA', [354]);
 
-        $body = implode("\r\n", $headers)
+        $payload = implode("\r\n", $headers)
             . "\r\nSubject: {$encodedSubject}\r\n"
             . "\r\n"
-            . mail_smtp_dot_stuff($html)
-            . "\r\n.";
+            . mail_smtp_dot_stuff($html);
 
-        fwrite($fp, $body . "\r\n");
+        fwrite($fp, $payload . "\r\n.\r\n");
         mail_smtp_expect($fp, [250]);
         mail_smtp_cmd($fp, 'QUIT', [221]);
         fclose($fp);

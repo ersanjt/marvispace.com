@@ -47,6 +47,21 @@ function auth_login_rate_limited(PDO $pdo, string $email): bool
     }
 }
 
+function auth_recovery_rate_limited(PDO $pdo): bool
+{
+    try {
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) FROM login_attempts
+             WHERE email = ? AND ip_address = ? AND success = 0
+             AND attempted_at > (NOW() - INTERVAL 15 MINUTE)'
+        );
+        $stmt->execute(['__recovery__', auth_client_ip()]);
+        return (int) $stmt->fetchColumn() >= 5;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
 function admin_login(PDO $pdo, string $email, string $password): bool
 {
     $email = strtolower(trim($email));
@@ -140,6 +155,10 @@ function admin_reset_password_result(PDO $pdo, array $config, string $email, str
         return ['ok' => false, 'error' => 'Password must be at least 8 characters.', 'status' => 400];
     }
 
+    if (auth_recovery_rate_limited($pdo)) {
+        return ['ok' => false, 'error' => 'Too many recovery attempts. Try again later.', 'status' => 429];
+    }
+
     if ($recoveryHash === '') {
         return [
             'ok' => false,
@@ -149,6 +168,7 @@ function admin_reset_password_result(PDO $pdo, array $config, string $email, str
     }
 
     if (!password_verify($recoveryCode, $recoveryHash)) {
+        auth_log_login_attempt($pdo, '__recovery__', false);
         return ['ok' => false, 'error' => 'Invalid recovery code.', 'status' => 401];
     }
 

@@ -97,6 +97,19 @@ php install/patch-api-config-mail.php
 
 Enable **SPF** and **DKIM** in cPanel → Email Deliverability.
 
+After patching mail settings, always sync to the web root:
+
+```bash
+bash deploy.sh
+php install/doctor.php
+```
+
+Resend emails for an existing order:
+
+```bash
+php install/resend-order-email.php ORDER_ID
+```
+
 ---
 
 ```

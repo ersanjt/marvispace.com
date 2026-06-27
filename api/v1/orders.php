@@ -12,14 +12,18 @@ if ($method === 'GET') {
         json_error('Order id required', 400);
     }
 
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        json_error('Order email required', 400);
+    }
+
     $order = order_get($pdo, $id);
     if (!$order) {
         json_error('Order not found', 404);
     }
 
     $orderEmail = strtolower((string) ($order['customer']['email'] ?? ''));
-    if ($email !== '' && $orderEmail !== '' && $email !== $orderEmail) {
-        json_error('Email does not match this order', 403);
+    if ($orderEmail === '' || $orderEmail !== $email) {
+        json_error('Order not found', 404);
     }
 
     json_ok($order);
@@ -47,7 +51,14 @@ if ($method === 'POST') {
         $created = order_create($pdo, $order);
         try {
             require_once dirname(__DIR__) . '/lib/order-mail.php';
-            order_send_purchase_emails($pdo, $created);
+            $mailResult = order_send_purchase_emails($pdo, $created);
+            if (!$mailResult['customer'] || !$mailResult['admin']) {
+                $detail = mail_last_error();
+                error_log('MARVISPACE order mail partial failure for ' . ($created['id'] ?? '')
+                    . ' customer=' . ($mailResult['customer'] ? 'ok' : 'fail')
+                    . ' admin=' . ($mailResult['admin'] ? 'ok' : 'fail')
+                    . ($detail !== '' ? ' — ' . $detail : ''));
+            }
         } catch (Throwable $mailErr) {
             error_log('MARVISPACE order mail: ' . $mailErr->getMessage());
         }

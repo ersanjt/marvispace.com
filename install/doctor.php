@@ -84,6 +84,7 @@ passthru('git log -1 --oneline 2>/dev/null');
 
 echo "\n==> Web config (public_html)\n";
 $webConfig = '/home/marvispace/public_html/api/config.local.php';
+$webCfg = null;
 if (is_readable($webConfig)) {
     echo "    OK  {$webConfig}\n";
     try {
@@ -100,8 +101,51 @@ if (is_readable($webConfig)) {
     echo "    Run: bash deploy.sh\n";
 }
 
+echo "\n==> Mail (order notifications)\n";
+function doctor_mail_line(string $label, array $cfg): void
+{
+    $mail = $cfg['mail'] ?? [];
+    $smtp = $mail['smtp'] ?? [];
+    $pass = (string) ($smtp['pass'] ?? '');
+    echo "    {$label}\n";
+    echo '      From:         ' . ($mail['from'] ?? '(missing)') . "\n";
+    echo '      Admin notify: ' . (($mail['admin_notify'] ?? '') !== '' ? $mail['admin_notify'] : '(not set — falls back to support)') . "\n";
+    echo '      SMTP:         ' . ($smtp['host'] ?? '?') . ':' . ($smtp['port'] ?? '?') . ' (' . ($smtp['secure'] ?? '?') . ")\n";
+    echo '      SMTP pass:    ' . ($pass !== '' ? 'set' : 'MISSING') . "\n";
+}
+
+doctor_mail_line('API config', $config);
+if (isset($webCfg) && is_array($webCfg)) {
+    doctor_mail_line('Web config', $webCfg);
+    $apiPass = (string) (($config['mail']['smtp']['pass'] ?? ''));
+    $webPass = (string) (($webCfg['mail']['smtp']['pass'] ?? ''));
+    if ($apiPass !== '' && $webPass === '') {
+        echo "    WARNING: API has SMTP password but web config does not. Run: bash deploy.sh\n";
+    }
+}
+
+if (is_file($repoRoot . '/api/lib/mail.php')) {
+    function app_config(): array
+    {
+        global $config;
+        return $config;
+    }
+    require_once $repoRoot . '/api/lib/mail.php';
+    $probe = mail_probe_smtp();
+    if ($probe['ok']) {
+        echo "    SMTP probe:   OK (" . implode(', ', $probe['steps']) . ")\n";
+    } elseif (($config['mail']['smtp']['pass'] ?? '') === '') {
+        echo "    SMTP probe:   skipped (no password)\n";
+        echo "    Fix: MARVISPACE_SMTP_PASS='...' php install/patch-api-config-mail.php\n";
+    } else {
+        echo "    SMTP probe:   FAILED — " . ($probe['error'] ?? 'unknown') . "\n";
+        echo "    Try: php install/test-mail.php --probe\n";
+    }
+}
+
 echo "\n==> Next steps\n";
 echo "    php install/migrate.php\n";
 echo "    php install/seed.php\n";
 echo "    bash deploy.sh\n";
+echo "    php install/test-mail.php --probe && php install/test-mail.php\n";
 echo "    curl -s https://marvispace.com/api/v1/health.php\n";

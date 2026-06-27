@@ -53,6 +53,8 @@ rsync -av --delete \
   --exclude .user.ini \
   --exclude php.ini \
   --exclude .well-known \
+  --exclude 'assets/images/products/upload_*' \
+  --exclude 'assets/images/site/' \
   "$REPO/" "$WEB/"
 
 chown -R "$USER:$USER" "$WEB"
@@ -71,6 +73,13 @@ if [[ -f "$CONFIG_SRC" ]]; then
   chown "$USER:$USER" "$CONFIG_DST"
   chmod 640 "$CONFIG_DST"
   echo "==> Synced API config → public_html/api/config.local.php (host 127.0.0.1)"
+
+  SMTP_PASS=$(php -r '$c=require "'"$CONFIG_DST"'"; echo (string)($c["mail"]["smtp"]["pass"]??"");')
+  if [[ -z "$SMTP_PASS" ]]; then
+    echo ""
+    echo "    WARNING: SMTP password missing in web config — order emails will fail."
+    echo "    Fix: MARVISPACE_SMTP_PASS='...' php install/patch-api-config-mail.php && bash deploy.sh"
+  fi
 fi
 
 # Keep a root-level shortcut in sync with the repo script

@@ -60,6 +60,10 @@ export async function verifyAdminCredentials(email, password) {
     }
   }
 
+  if (isProductionHost()) {
+    return false;
+  }
+
   if (!verifyAdminEmail(email)) return false;
   const hash = await sha256(password);
   return hash === activePasswordHash();
@@ -202,7 +206,25 @@ export function mountAdminLogin({ onSuccess }) {
       } catch {
         /* not logged in */
       }
-    } else if (isAdminAuthed()) {
+      setLoggedIn(false);
+      showLoginView();
+      if (emailInput && !emailInput.value) {
+        emailInput.value = ADMIN_EMAIL;
+      }
+      return;
+    }
+
+    if (isProductionHost()) {
+      setLoggedIn(false);
+      showLoginView();
+      if (loginError) {
+        loginError.hidden = false;
+        loginError.textContent = 'Server API unavailable. Admin login requires database connection.';
+      }
+      return;
+    }
+
+    if (isAdminAuthed()) {
       setLoggedIn(true);
       onSuccess?.();
       return;
@@ -231,6 +253,14 @@ export function mountAdminLogin({ onSuccess }) {
     e.preventDefault();
     const email = emailInput?.value || '';
     const pwd = passwordInput?.value || '';
+
+    if (isProductionHost() && !(await isApiEnabled())) {
+      if (loginError) {
+        loginError.hidden = false;
+        loginError.textContent = 'Server API unavailable. Cannot sign in.';
+      }
+      return;
+    }
 
     if (!(await isApiEnabled()) && !verifyAdminEmail(email)) {
       if (loginError) {

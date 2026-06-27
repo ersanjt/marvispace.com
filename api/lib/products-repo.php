@@ -36,6 +36,14 @@ function products_list(PDO $pdo): array
     return array_map('product_row_to_array', $rows);
 }
 
+/** Storefront catalog — only purchasable products */
+function products_list_public(PDO $pdo): array
+{
+    $stmt = $pdo->query('SELECT * FROM products WHERE in_stock = 1 ORDER BY label ASC');
+    $rows = $stmt->fetchAll();
+    return array_map('product_row_to_array', $rows);
+}
+
 function product_get(PDO $pdo, string $id): ?array
 {
     $stmt = $pdo->prepare('SELECT * FROM products WHERE id = ? LIMIT 1');

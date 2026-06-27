@@ -17,9 +17,7 @@
     "url": "https://github.com/ersanjt/marvispace.com/issues"
   },
   "scripts": {
-    "sitemap": "node tools/generate-sitemap.mjs",
-    "scrape:ottimo": "node tools/scrape-ottimo.mjs",
-    "translate:products": "node tools/translate-products.mjs"
+    "sitemap": "node tools/generate-sitemap.mjs"
   },
   "engines": {
     "node": ">=18"
