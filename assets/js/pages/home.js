@@ -448,9 +448,7 @@ function renderSizes() {
       selectedSize = sz.us;
       sizeOOS = oos;
       szPriceStack.dataset.alt = 'false';
-      if (window.matchMedia('(min-width: 769px)').matches) {
-        confirmSizeAdd();
-      }
+      confirmSizeAdd();
     });
 
     szGrid.append(chip);
