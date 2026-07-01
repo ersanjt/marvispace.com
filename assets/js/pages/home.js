@@ -409,7 +409,6 @@ function renderSizes() {
   szGrid.innerHTML = '';
   selectedSize = null;
   sizeOOS = false;
-  szClear.disabled = true;
   szNameStack.dataset.alt = 'false';
   szPriceStack.dataset.alt = 'false';
 
@@ -443,12 +442,15 @@ function renderSizes() {
     chip.append(inner);
 
     chip.addEventListener('click', () => {
+      if (oos) return;
       szGrid.querySelectorAll('.sz-chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
       selectedSize = sz.us;
       sizeOOS = oos;
-      szClear.disabled = false;
-      szPriceStack.dataset.alt = oos ? 'true' : 'false';
+      szPriceStack.dataset.alt = 'false';
+      if (window.matchMedia('(min-width: 769px)').matches) {
+        confirmSizeAdd();
+      }
     });
 
     szGrid.append(chip);
@@ -468,6 +470,24 @@ function openSizes() {
 function closeSizes() {
   szOpen = false;
   preview.classList.remove('sz-open');
+}
+
+function confirmSizeAdd() {
+  if (!selectedSize || sizeOOS) return;
+  const item = visible[activeIdx];
+  if (!item) return;
+  szNameStack.dataset.alt = 'true';
+  const existing = cartItems.find(ci => ci.id === item.id && ci.size === selectedSize);
+  if (existing) existing.qty += 1;
+  else cartItems.push({ id: item.id, label: item.label, price: item.price, size: selectedSize, image: item.image, qty: 1 });
+  renderCart();
+  persistCart();
+  setTimeout(() => {
+    szNameStack.dataset.alt = 'false';
+    closeSizes();
+    closePreview(false);
+    window.location.href = '/checkout';
+  }, 800);
 }
 
 /* ════════════════════════════════════
@@ -710,21 +730,7 @@ pAddEl.addEventListener('click', () => {
 });
 
 szAdd.addEventListener('click', () => {
-  if (!selectedSize || sizeOOS) return;
-  const item = visible[activeIdx];
-  if (!item) return;
-  szNameStack.dataset.alt = 'true';
-  const existing = cartItems.find(ci => ci.id === item.id && ci.size === selectedSize);
-  if (existing) existing.qty += 1;
-  else cartItems.push({ id: item.id, label: item.label, price: item.price, size: selectedSize, image: item.image, qty: 1 });
-  renderCart();
-  persistCart();
-  setTimeout(() => {
-    szNameStack.dataset.alt = 'false';
-    closeSizes();
-    closePreview(false);
-    window.location.href = '/checkout';
-  }, 800);
+  confirmSizeAdd();
 });
 
 szClear.addEventListener('click', () => {
@@ -733,7 +739,6 @@ szClear.addEventListener('click', () => {
   sizeOOS = false;
   szGrid.querySelectorAll('.sz-chip').forEach(c => c.classList.remove('selected'));
   szPriceStack.dataset.alt = 'false';
-  szClear.disabled = true;
 });
 
 szHelp.addEventListener('click', () => {
