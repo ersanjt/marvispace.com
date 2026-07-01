@@ -619,14 +619,14 @@ function setGalleryImage(idx, animate = true) {
 }
 
 function stepGallery(delta) {
-  if (!isOpen || szOpen) return;
+  if (!isOpen) return;
   setGalleryImage(activeImageIdx + delta);
 }
 
 /* ════════════════════════════════════
    Preview content
    ════════════════════════════════════ */
-function loadPreviewContent(idx) {
+function loadPreviewContent(idx, { keepSizes = false } = {}) {
   const item = visible[idx];
   if (!item) return;
 
@@ -643,7 +643,7 @@ function loadPreviewContent(idx) {
   euMode = false;
   pDesc.textContent = `${item.label}\n100% PREMIUM MATERIALS\nSHIPS 3-5 BUSINESS DAYS`;
   pDesc.classList.remove('show');
-  closeSizes();
+  if (!keepSizes) closeSizes();
   renderSizes();
   buildDots(gallery.length, 0);
   updateGalleryImage(gallery[0], false);
@@ -713,7 +713,7 @@ function stepPreview(d) {
   const next = (activeIdx + d + visible.length) % visible.length;
   activeIdx = next;
   gridBtns.forEach((b,i) => b.classList.toggle('active', i===next));
-  loadPreviewContent(next);
+  loadPreviewContent(next, { keepSizes: szOpen });
   const z = zoomGrid(gridBtns[next], true);
   flyInInverse(z, false);
   requestAnimationFrame(() => settleFlyIn(true));
@@ -765,8 +765,11 @@ pNext.addEventListener('click', () => stepGallery(1));
    ════════════════════════════════════ */
 document.addEventListener('keydown', e => {
   if (!isOpen) return;
-  if (e.key === 'Escape') closePreview();
-  if (szOpen) return;
+  if (e.key === 'Escape') {
+    if (szOpen) { closeSizes(); return; }
+    closePreview();
+    return;
+  }
   if (e.key === 'ArrowLeft') stepGallery(-1);
   if (e.key === 'ArrowRight') stepGallery(1);
 });
@@ -775,7 +778,7 @@ document.addEventListener('keydown', e => {
    Wheel — switch products
    ════════════════════════════════════ */
 preview.addEventListener('wheel', e => {
-  if (!isOpen || szOpen || wheelLock) return;
+  if (!isOpen || wheelLock) return;
   if (e.ctrlKey) return;
   if (Math.abs(e.deltaY) < 8) return;
 
@@ -828,7 +831,7 @@ const SWIPE_DIST  = 45;   // min travel (px) to count as a swipe
 const SWIPE_RATIO = 1.25; // axis dominance needed to lock direction
 
 pinchWrap.addEventListener('pointerdown', e => {
-  if (!isOpen || szOpen || e.pointerType === 'mouse') { swipe = null; return; }
+  if (!isOpen) { swipe = null; return; }
   // Ignore multi-touch (pinch) and zoomed state.
   if (pinchPtrs.size > 1 || pinchState.sc > 1.05) { swipe = null; return; }
   swipe = { x: e.clientX, y: e.clientY, t: Date.now(), id: e.pointerId };
@@ -845,7 +848,7 @@ pinchWrap.addEventListener('pointerup', e => {
   const dy = e.clientY - swipe.y;
   swipe = null;
 
-  if (!isOpen || szOpen || pinchState.sc > 1.05) return;
+  if (!isOpen || pinchState.sc > 1.05) return;
 
   const adx = Math.abs(dx);
   const ady = Math.abs(dy);
