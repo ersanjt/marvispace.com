@@ -116,10 +116,28 @@ Files in `install/migrations/`:
 - `004_products_constraints.sql`
 - `005_cart.sql`
 - `006_newsletter.sql`
+- `007_paynet_payment.sql` — Paynet payment columns + `payment_transactions`
 
 ---
 
-## Health check
+## iyzico Paynet (card payments)
+
+1. Request API keys from [iyzico Paynet](https://www.iyzico.com/paynet/api) / `destek@paynet.com.tr`
+2. Add to `/home/marvispace/api_config.php`:
+
+```php
+'paynet' => [
+  'secret_key' => 'sck_…',
+  'publishable_key' => 'pbk_…', // optional if set in admin
+],
+```
+
+3. Admin → **Settings** → enable Paynet, set sandbox/live, domain, currency
+4. Callback URL (auto): `https://marvispace.com/api/v1/payments/paynet/callback`
+
+Flow: checkout → `tds_initial` (3DS) → bank → callback → `tds_charge` → order paid + stock decremented.
+
+Docs: [Paynet 3D API](https://doc.paynet.com.tr/english/api-integration/payment)
 
 ```bash
 curl -s https://marvispace.com/api/v1/health.php

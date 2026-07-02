@@ -43,6 +43,12 @@ if ($method === 'POST') {
         json_error($e->getMessage(), 400);
     }
 
+    require_once dirname(__DIR__) . '/lib/paynet-repo.php';
+    $paymentMethod = trim((string) ($order['customer']['payment'] ?? ''));
+    if ($paymentMethod === 'card' && paynet_is_ready($pdo)) {
+        json_error('Card payments must use Paynet checkout. Use /api/v1/payments/paynet/initialize', 400);
+    }
+
     if (empty($order['id'])) {
         $order['id'] = 'ord_' . base_convert((string) (int) (microtime(true) * 1000), 10, 36);
     }

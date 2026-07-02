@@ -446,6 +446,44 @@ button, input, select, textarea {
   cursor: not-allowed;
 }
 
+.card-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.card-form label span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.card-form input {
+  width: 100%;
+}
+
+.paynet-3ds-host {
+  margin-top: 16px;
+}
+
+.payment-alert {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid #f0c36d;
+  background: #fff8e8;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.payment-alert--error {
+  border-color: #e57373;
+  background: #fff0f0;
+}
+
 /* ── Checkout summary tweaks (Yeezy wallet column) ── */
 .checkout-summary-col .cart-line-thumb {
   flex: 0 0 5rem;

@@ -303,6 +303,20 @@ export async function placeOrder(order) {
   return addOrderLocal(order);
 }
 
+export async function loadSiteSettings() {
+  if (await isApiEnabled()) {
+    return api.fetchSiteSettings();
+  }
+  return { currency: 'USD', paynet: { enabled: false } };
+}
+
+export async function startPaynetPayment({ order, card }) {
+  if (!(await requireDatabase())) {
+    throw new Error('Paynet payments require the server database.');
+  }
+  return api.initializePaynetPayment({ order, card });
+}
+
 export async function setOrderStatus(orderId, status) {
   if (await requireDatabase()) {
     return api.adminUpdateOrderStatus(orderId, status);

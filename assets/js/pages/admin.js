@@ -15,6 +15,7 @@ import {
   adminFetchSettings,
   adminFetchUsers,
   adminMe,
+  adminSavePaynetSettings,
 } from '../core/api-client.js';
 import { mountAdminLogin, signOutAdmin } from '../core/admin-auth.js';
 import { createFaviconUploadUI } from '../modules/admin-favicon.js';
@@ -62,6 +63,8 @@ const userPasswordConfirmInput = document.getElementById('userPasswordConfirm');
 
 const settingsApiNotice = document.getElementById('settingsApiNotice');
 const settingsContent = document.getElementById('settingsContent');
+const paynetSettingsForm = document.getElementById('paynetSettingsForm');
+const paynetStatusLine = document.getElementById('paynetStatusLine');
 const resetFaviconBtn = document.getElementById('resetFaviconBtn');
 
 const statTotal = document.getElementById('statTotal');
@@ -102,7 +105,7 @@ const VIEW_META = {
   products: { title: 'Products', subtitle: 'Catalog and inventory management' },
   orders: { title: 'Orders', subtitle: 'Order tracking and status' },
   users: { title: 'Users', subtitle: 'Admin accounts and access' },
-  settings: { title: 'Settings', subtitle: 'Site branding and appearance' },
+  settings: { title: 'Settings', subtitle: 'Branding, favicon, and Paynet payments' },
 };
 
 let products = [];
@@ -388,6 +391,33 @@ function renderSettings() {
 
   const favicon = siteSettings?.favicon;
   getFaviconUpload().showPreview(favicon?.url || '/favicon.svg');
+
+  const paynet = siteSettings?.paynet;
+  if (paynet) {
+    const enabledEl = document.getElementById('paynetEnabled');
+    const modeEl = document.getElementById('paynetMode');
+    const currencyEl = document.getElementById('paynetCurrency');
+    const domainEl = document.getElementById('paynetDomain');
+    const pubEl = document.getElementById('paynetPublishableKey');
+    const instalmentEl = document.getElementById('paynetInstalment');
+
+    if (enabledEl) enabledEl.checked = !!paynet.enabled;
+    if (modeEl) modeEl.value = paynet.mode === 'live' ? 'live' : 'sandbox';
+    if (currencyEl) currencyEl.value = paynet.currency || 'TRY';
+    if (domainEl) domainEl.value = paynet.domain || 'marvispace.com';
+    if (pubEl) pubEl.value = paynet.publishableKey || '';
+    if (instalmentEl) instalmentEl.checked = !!paynet.instalment;
+
+    if (paynetStatusLine) {
+      const parts = [];
+      if (paynet.secretConfigured) parts.push('Secret key configured on server');
+      else parts.push('Secret key missing — add paynet.secret_key to api_config.php');
+      if (paynet.ready) parts.push('Checkout ready');
+      else if (paynet.enabled) parts.push('Enabled but not ready');
+      else parts.push('Disabled');
+      paynetStatusLine.textContent = parts.join(' · ');
+    }
+  }
 }
 
 function resetForm() {
@@ -504,7 +534,16 @@ function orderStatusLabel(status) {
   if (status === 'processing') return { cls: 'low', label: 'Processing' };
   if (status === 'shipped') return { cls: 'on', label: 'Shipped' };
   if (status === 'cancelled') return { cls: 'off', label: 'Cancelled' };
+  if (status === 'awaiting_payment') return { cls: 'low', label: 'Awaiting payment' };
   return { cls: 'off', label: 'Pending' };
+}
+
+function paymentStatusLabel(value) {
+  if (value === 'paid') return 'Paid';
+  if (value === 'pending') return 'Pending';
+  if (value === 'failed') return 'Failed';
+  if (value === 'unpaid') return 'Unpaid';
+  return value || '—';
 }
 
 function customerName(customer) {
@@ -576,6 +615,10 @@ function openOrderModal(order) {
         </div>
         ${detailRow('Total', money(order.total), { ltr: true })}
         ${detailRow('Payment', paymentLabel(customer.payment))}
+        ${detailRow('Payment status', paymentStatusLabel(order.paymentStatus))}
+        ${order.gatewayTransactionId ? detailRow('Transaction ID', order.gatewayTransactionId, { ltr: true }) : ''}
+        ${order.paidAt ? detailRow('Paid at', fmtDate(order.paidAt)) : ''}
+        ${order.paymentError ? detailRow('Payment error', order.paymentError) : ''}
         ${detailRow('Email sent', order.emailSentAt ? fmtDate(order.emailSentAt) : 'Not sent yet')}
       </section>
 
@@ -901,5 +944,29 @@ document.addEventListener('keydown', e => {
 });
 
 logoutBtn?.addEventListener('click', signOutAdmin);
+
+paynetSettingsForm?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const saveBtn = document.getElementById('savePaynetBtn');
+  if (saveBtn) saveBtn.disabled = true;
+  try {
+    const payload = {
+      enabled: document.getElementById('paynetEnabled')?.checked || false,
+      mode: document.getElementById('paynetMode')?.value || 'sandbox',
+      currency: document.getElementById('paynetCurrency')?.value || 'TRY',
+      domain: document.getElementById('paynetDomain')?.value?.trim() || 'marvispace.com',
+      publishableKey: document.getElementById('paynetPublishableKey')?.value?.trim() || '',
+      instalment: document.getElementById('paynetInstalment')?.checked || false,
+    };
+    const updated = await adminSavePaynetSettings(payload);
+    siteSettings = { ...(siteSettings || {}), ...updated };
+    renderSettings();
+    showToast('Payment settings saved');
+  } catch (err) {
+    showToast(err.message || 'Could not save payment settings');
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
+  }
+});
 
 mountAdminLogin({ onSuccess: showApp });

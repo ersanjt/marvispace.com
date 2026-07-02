@@ -364,6 +364,49 @@
                   <button type="button" class="btn btn-ghost" id="resetFaviconBtn">Reset to default</button>
                 </div>
               </div>
+              <div class="settings-block" id="paynetSettingsBlock">
+                <h3 class="settings-title">iyzico Paynet</h3>
+                <p class="settings-lead">Card payments via <a href="https://www.iyzico.com/paynet/api" target="_blank" rel="noopener noreferrer">iyzico Paynet API</a> (3D Secure). Store the <strong>Secret Key</strong> only in server config (<code>api_config.php</code>).</p>
+                <form class="settings-form" id="paynetSettingsForm">
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="paynetEnabled" name="enabled" />
+                    <span>Enable Paynet card checkout</span>
+                  </label>
+                  <div class="field-row">
+                    <label class="field">
+                      <span>Environment</span>
+                      <select id="paynetMode" name="mode">
+                        <option value="sandbox">Sandbox (test)</option>
+                        <option value="live">Live</option>
+                      </select>
+                    </label>
+                    <label class="field">
+                      <span>Store currency</span>
+                      <select id="paynetCurrency" name="currency">
+                        <option value="TRY">TRY — Turkish Lira</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label class="field">
+                    <span>Integration domain</span>
+                    <input type="text" id="paynetDomain" name="domain" placeholder="marvispace.com" autocomplete="off" />
+                  </label>
+                  <label class="field">
+                    <span>Publishable key (optional)</span>
+                    <input type="text" id="paynetPublishableKey" name="publishableKey" placeholder="pbk_…" autocomplete="off" />
+                  </label>
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="paynetInstalment" name="instalment" />
+                    <span>Allow instalments</span>
+                  </label>
+                  <p class="settings-status" id="paynetStatusLine"></p>
+                  <div class="settings-actions">
+                    <button type="submit" class="btn btn-primary" id="savePaynetBtn">Save payment settings</button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </section>

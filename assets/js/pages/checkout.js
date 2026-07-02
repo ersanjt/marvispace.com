@@ -3,11 +3,13 @@ import {
   clearCart,
   loadCart,
   loadProducts,
+  loadSiteSettings,
   placeOrder,
   saveCart,
   setOrderConfirmContext,
+  startPaynetPayment,
 } from '../core/storage.js';
-import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
+import { buildCartLineItem, renderTotalsBlock, setStoreCurrency } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 
 const summaryItems = document.getElementById('summaryItems');
@@ -29,10 +31,20 @@ const checkoutCartCount = document.getElementById('checkoutCartCount');
 const phoneCodeEl = document.getElementById('phoneCode');
 const phoneCodeLabel = document.getElementById('phoneCodeLabel');
 const phoneCodeBtn = document.getElementById('phoneCodeBtn');
+const cardForm = document.getElementById('cardForm');
+const cardHolder = document.getElementById('cardHolder');
+const cardPan = document.getElementById('cardPan');
+const cardMonth = document.getElementById('cardMonth');
+const cardYear = document.getElementById('cardYear');
+const cardCvc = document.getElementById('cardCvc');
+const paynet3dsHost = document.getElementById('paynet3dsHost');
+const paymentBlock = document.getElementById('paymentBlock');
 
 let cartItems = [];
 let products = [];
 let selectedPayment = '';
+let paynetEnabled = false;
+let paymentAlertEl = null;
 
 function persistCart() {
   void saveCart(cartItems).catch(() => {});
@@ -96,6 +108,18 @@ function renderSummary() {
   renderTotalsBlock(summaryTotalsMobile, totals);
 }
 
+function showPaymentAlert(message, isError = false) {
+  if (!paymentBlock) return;
+  if (!paymentAlertEl) {
+    paymentAlertEl = document.createElement('p');
+    paymentAlertEl.className = 'payment-alert';
+    paymentBlock.insertBefore(paymentAlertEl, paymentBlock.firstChild.nextSibling);
+  }
+  paymentAlertEl.textContent = message;
+  paymentAlertEl.classList.toggle('payment-alert--error', isError);
+  paymentAlertEl.hidden = !message;
+}
+
 function clearPaymentSelection() {
   selectedPayment = '';
   paymentMethodInput.value = '';
@@ -103,6 +127,7 @@ function clearPaymentSelection() {
     btn.classList.remove('is-selected');
   });
   checkoutActions.hidden = true;
+  if (cardForm) cardForm.hidden = true;
 }
 
 function selectPayment(method) {
@@ -112,6 +137,19 @@ function selectPayment(method) {
     btn.classList.toggle('is-selected', btn.dataset.payment === method);
   });
   checkoutActions.hidden = false;
+  if (cardForm) {
+    cardForm.hidden = !(method === 'card' && paynetEnabled);
+  }
+}
+
+function cardDetailsValid() {
+  if (!paynetEnabled || selectedPayment !== 'card') return true;
+  const holder = cardHolder?.value.trim() || '';
+  const pan = (cardPan?.value || '').replace(/\D+/g, '');
+  const month = Number(cardMonth?.value || 0);
+  const year = Number(cardYear?.value || 0);
+  const cvc = cardCvc?.value.trim() || '';
+  return holder.length > 1 && pan.length >= 12 && month >= 1 && month <= 12 && year >= 1 && cvc.length >= 3;
 }
 
 function updatePaymentState() {
@@ -126,6 +164,9 @@ function updatePaymentState() {
   });
 
   if (!ready) clearPaymentSelection();
+  if (placeOrderBtn) {
+    placeOrderBtn.disabled = !ready || !selectedPayment || (selectedPayment === 'card' && paynetEnabled && !cardDetailsValid());
+  }
 }
 
 function updateTaxNote() {
@@ -136,36 +177,8 @@ function syncPhoneCodeLabel() {
   phoneCodeLabel.textContent = phoneCodeEl.value;
 }
 
-phoneCodeEl.addEventListener('change', syncPhoneCodeLabel);
-phoneCodeBtn.addEventListener('click', () => phoneCodeEl.focus());
-
-paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.disabled || paymentOptions.classList.contains('payment-methods--locked')) return;
-    selectPayment(btn.dataset.payment);
-  });
-});
-
-document.querySelectorAll('[data-discount-toggle]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const form = btn.nextElementSibling;
-    if (!form?.hasAttribute('data-discount-form')) return;
-    const open = form.hidden;
-    form.hidden = !open;
-    btn.setAttribute('aria-expanded', String(open));
-  });
-});
-
-checkoutForm.addEventListener('input', updatePaymentState);
-checkoutForm.addEventListener('change', updatePaymentState);
-countryEl.addEventListener('change', updateTaxNote);
-
-checkoutForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  if (!cartItems.length || !selectedPayment) return;
-
-  const formData = new FormData(checkoutForm);
-  const order = {
+function buildOrderPayload(formData) {
+  return {
     id: `ord_${Date.now().toString(36)}`,
     createdAt: new Date().toISOString(),
     status: 'pending',
@@ -188,10 +201,86 @@ checkoutForm.addEventListener('submit', async e => {
       billingSame: formData.get('billingSame') === 'on',
     },
   };
+}
+
+function launchPaynet3ds(htmlContent, postUrl) {
+  if (!paynet3dsHost) return;
+  paynet3dsHost.hidden = false;
+  paynet3dsHost.innerHTML = '';
+
+  if (htmlContent) {
+    paynet3dsHost.innerHTML = htmlContent;
+    const form = paynet3dsHost.querySelector('form');
+    if (form) form.submit();
+    return;
+  }
+
+  if (postUrl) {
+    window.location.href = postUrl;
+  }
+}
+
+phoneCodeEl.addEventListener('change', syncPhoneCodeLabel);
+phoneCodeBtn.addEventListener('click', () => phoneCodeEl.focus());
+
+[cardHolder, cardPan, cardMonth, cardYear, cardCvc].forEach(el => {
+  el?.addEventListener('input', updatePaymentState);
+});
+
+paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.disabled || paymentOptions.classList.contains('payment-methods--locked')) return;
+    selectPayment(btn.dataset.payment);
+    updatePaymentState();
+  });
+});
+
+document.querySelectorAll('[data-discount-toggle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const form = btn.nextElementSibling;
+    if (!form?.hasAttribute('data-discount-form')) return;
+    const open = form.hidden;
+    form.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+  });
+});
+
+checkoutForm.addEventListener('input', updatePaymentState);
+checkoutForm.addEventListener('change', updatePaymentState);
+countryEl.addEventListener('change', updateTaxNote);
+
+checkoutForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!cartItems.length || !selectedPayment) return;
+  if (selectedPayment === 'card' && paynetEnabled && !cardDetailsValid()) {
+    showPaymentAlert('Enter valid card details to continue.', true);
+    return;
+  }
+
+  const formData = new FormData(checkoutForm);
+  const order = buildOrderPayload(formData);
 
   placeOrderBtn.disabled = true;
+  showPaymentAlert('');
 
   try {
+    if (selectedPayment === 'card' && paynetEnabled) {
+      showPaymentAlert('Redirecting to 3D Secure verification…');
+      const result = await startPaynetPayment({
+        order,
+        card: {
+          holder: cardHolder.value.trim(),
+          pan: cardPan.value.replace(/\D+/g, ''),
+          month: Number(cardMonth.value),
+          year: Number(cardYear.value),
+          cvc: cardCvc.value.trim(),
+        },
+      });
+      setOrderConfirmContext(result.orderId, result.email || order.customer.email || '');
+      launchPaynet3ds(result.htmlContent, result.postUrl);
+      return;
+    }
+
     const created = await placeOrder(order);
     await clearCart();
     cartItems = [];
@@ -199,11 +288,16 @@ checkoutForm.addEventListener('submit', async e => {
     window.location.href = `/order-confirmation?id=${encodeURIComponent(created.id)}`;
   } catch (err) {
     placeOrderBtn.disabled = false;
-    alert(err.message || 'Could not place order. Please try again.');
+    showPaymentAlert(err.message || 'Could not place order. Please try again.', true);
   }
 });
 
 (async () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'failed') {
+    showPaymentAlert('Payment was not completed. Please review your card details and try again.', true);
+  }
+
   try {
     cartItems = await loadCart();
   } catch (err) {
@@ -215,6 +309,15 @@ checkoutForm.addEventListener('submit', async e => {
     window.location.replace('/');
     return;
   }
+
+  try {
+    const settings = await loadSiteSettings();
+    paynetEnabled = !!settings?.paynet?.enabled;
+    setStoreCurrency(settings?.currency || 'TRY');
+  } catch {
+    paynetEnabled = false;
+  }
+
   products = await loadProducts([]);
   populateCountries();
   renderSummary();

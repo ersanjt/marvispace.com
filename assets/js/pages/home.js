@@ -427,8 +427,8 @@ function renderSizes() {
     const row = Math.floor(chipIndex / 7);
     const delayIndex = chipIndex;
     chipIndex += 1;
-    chip.style.setProperty('--csx', `${(3 - col) * 60}px`);
-    chip.style.setProperty('--csy', `${row > 0 ? -44 : 0}px`);
+    chip.style.setProperty('--csx', `${(3 - col) * 70}px`);
+    chip.style.setProperty('--csy', `${row > 0 ? '-2.5rem' : '-1rem'}`);
 
     const inner = document.createElement('div');
     inner.className = 'sz-chip-inner';
@@ -464,6 +464,9 @@ function renderSizes() {
 function openSizes() {
   szOpen = true;
   preview.classList.add('sz-open');
+  requestAnimationFrame(() => {
+    setTimeout(() => renderSizes(), 120);
+  });
 }
 function closeSizes() {
   szOpen = false;
@@ -728,6 +731,7 @@ pAddEl.addEventListener('click', () => {
 });
 
 szAdd.addEventListener('click', () => {
+  if (!selectedSize || sizeOOS) return;
   confirmSizeAdd();
 });
 

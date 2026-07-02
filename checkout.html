@@ -164,7 +164,7 @@
                   </span>
                   <span class="payment-method-copy">
                     <strong>Credit / Debit Card</strong>
-                    <small>Visa, Mastercard, Amex, Discover</small>
+                    <small>iyzico Paynet — 3D Secure</small>
                   </span>
                 </button>
                 <button type="button" class="payment-method-btn" data-payment="usdc" disabled>
@@ -186,6 +186,32 @@
                   </span>
                 </button>
               </div>
+              <div class="card-form" id="cardForm" hidden>
+                <label>
+                  <span>Cardholder name</span>
+                  <input type="text" id="cardHolder" name="cardHolder" autocomplete="cc-name" inputmode="text" />
+                </label>
+                <label>
+                  <span>Card number</span>
+                  <input type="text" id="cardPan" name="cardPan" autocomplete="cc-number" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000" />
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>Expiry month</span>
+                    <input type="text" id="cardMonth" name="cardMonth" autocomplete="cc-exp-month" inputmode="numeric" maxlength="2" placeholder="MM" />
+                  </label>
+                  <label>
+                    <span>Expiry year</span>
+                    <input type="text" id="cardYear" name="cardYear" autocomplete="cc-exp-year" inputmode="numeric" maxlength="4" placeholder="YYYY" />
+                  </label>
+                  <label>
+                    <span>Security code</span>
+                    <input type="text" id="cardCvc" name="cardCvc" autocomplete="cc-csc" inputmode="numeric" maxlength="4" placeholder="CVC" />
+                  </label>
+                </div>
+                <p class="form-note">Payments are processed securely via <a href="https://www.iyzico.com/paynet/api" target="_blank" rel="noopener noreferrer">iyzico Paynet</a> with 3D Secure verification.</p>
+              </div>
+              <div id="paynet3dsHost" class="paynet-3ds-host" hidden aria-live="polite"></div>
               <input type="hidden" name="payment" id="paymentMethod" value="" />
             </fieldset>
 

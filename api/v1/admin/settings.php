@@ -2,12 +2,16 @@
 declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
 require_once dirname(__DIR__, 2) . '/lib/settings-repo.php';
+require_once dirname(__DIR__, 2) . '/lib/paynet-repo.php';
 
 admin_require($pdo);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if ($method === 'GET') {
-    json_ok(settings_admin_get($pdo));
+    json_ok(array_merge(
+        settings_admin_get($pdo),
+        paynet_settings_admin($pdo)
+    ));
 }
 
 if ($method === 'POST') {
@@ -37,7 +41,18 @@ if ($method === 'POST') {
 
     $body = read_json_body();
     if (!empty($body['resetFavicon'])) {
-        json_ok(['favicon' => favicon_reset($pdo)]);
+        json_ok(array_merge(
+            ['favicon' => favicon_reset($pdo)],
+            paynet_settings_admin($pdo)
+        ));
+    }
+
+    if (!empty($body['paynet']) && is_array($body['paynet'])) {
+        $saved = paynet_settings_save($pdo, $body['paynet']);
+        json_ok(array_merge(
+            settings_admin_get($pdo),
+            $saved
+        ));
     }
 
     json_error('No file uploaded', 400);

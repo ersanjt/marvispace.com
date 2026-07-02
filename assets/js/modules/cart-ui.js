@@ -15,8 +15,18 @@ export function cartImageUrl(src, w = 200) {
   return `${CDN}/width=${w},height=${w},${CDN_PARAMS}/${src}`;
 }
 
+let storeCurrency = 'USD';
+
+export function setStoreCurrency(code) {
+  if (code) storeCurrency = String(code).toUpperCase();
+}
+
 export function fmtMoney(value) {
-  return `$${Number(value).toFixed(2)}`;
+  const n = Number(value).toFixed(2);
+  if (storeCurrency === 'TRY') return `₺${n}`;
+  if (storeCurrency === 'EUR') return `€${n}`;
+  if (storeCurrency === 'GBP') return `£${n}`;
+  return `$${n}`;
 }
 
 function qtyBtn(symbol, label) {

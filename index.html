@@ -199,26 +199,29 @@
               <div class="img-square" id="imgSquare"></div>
             </div>
           </div>
+          <div class="preview-dots" id="previewDots" role="tablist" aria-label="Product images"></div>
         </div>
       </div>
-
-      <div class="preview-dots" id="previewDots" role="tablist" aria-label="Product images"></div>
 
       <div class="preview-meta" id="previewMeta">
         <span class="p-name" id="pName"></span>
         <span class="p-price" id="pPrice"></span>
         <button class="p-add" id="pAdd" type="button" aria-label="Add to cart">+</button>
       </div>
-    </div>
 
-    <!-- size selector -->
-    <div class="size-panel" id="sizePanel">
-      <div class="size-panel-inner" id="sizePanelInner">
+      <!-- size selector — expands downward below product meta -->
+      <div class="size-panel" id="sizePanel">
+        <div class="size-panel-inner" id="sizePanelInner">
 
         <div class="sz-head">
           <div class="sz-head-row">
             <button class="sz-help" id="szHelp" type="button" aria-label="Size guide">
-              <span class="sz-help-mark" aria-hidden="true">?</span>
+              <svg width="11" height="15" viewBox="0 0 11 15" fill="none" aria-hidden="true">
+                <path d="M5.5 8L5.5 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M1.5 4.5C1.5 2 4 1 5.5 1C7 1 9.5 2 9.5 4.5C9.5 7 6 8 5.5 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M5.5 13.5C5.36 13.5 5.25 13.39 5.25 13.25C5.25 13.11 5.36 13 5.5 13" stroke="currentColor" stroke-width="2"/>
+                <path d="M5.5 13.5C5.64 13.5 5.75 13.39 5.75 13.25C5.75 13.11 5.64 13 5.5 13" stroke="currentColor" stroke-width="2"/>
+              </svg>
             </button>
             <div class="sz-title-track">
               <div class="sz-stack" id="szNameStack">
@@ -226,16 +229,18 @@
                 <div class="sz-slot"><span>ADDING</span></div>
               </div>
             </div>
-            <button class="sz-clear" id="szClear" type="button" aria-label="Close size selector">
-              <span class="sz-clear-mark" aria-hidden="true">×</span>
-            </button>
-          </div>
-
-          <div class="sz-price-track">
-            <div class="sz-stack" id="szPriceStack">
-              <div class="sz-slot"><span id="szPriceTxt"></span></div>
-              <div class="sz-slot"><span>RESTOCKS IN 4 WEEKS</span></div>
+            <div class="sz-price-track">
+              <div class="sz-stack" id="szPriceStack">
+                <div class="sz-slot"><span id="szPriceTxt"></span></div>
+                <div class="sz-slot"><span>RESTOCKS IN 4 WEEKS</span></div>
+              </div>
             </div>
+            <button class="sz-clear" id="szClear" type="button" aria-label="Close size selector">
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true">
+                <line x1="14" y1="14" x2="34" y2="34"/>
+                <line x1="14" y1="34" x2="34" y2="14"/>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -253,6 +258,7 @@
 
         <p class="p-desc" id="pDesc"></p>
 
+        </div>
       </div>
     </div>
 

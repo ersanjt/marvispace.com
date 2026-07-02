@@ -151,6 +151,13 @@ export async function fetchSiteSettings() {
   return request('/settings.php');
 }
 
+export async function initializePaynetPayment({ order, card }) {
+  return request('/payments/paynet-initialize.php', {
+    method: 'POST',
+    body: { order, card },
+  });
+}
+
 export async function adminFetchSettings() {
   return request('/admin/settings.php');
 }
@@ -183,6 +190,13 @@ export async function adminResetFavicon() {
   return request('/admin/settings.php', {
     method: 'POST',
     body: { resetFavicon: true },
+  });
+}
+
+export async function adminSavePaynetSettings(paynet) {
+  return request('/admin/settings.php', {
+    method: 'POST',
+    body: { paynet },
   });
 }
 

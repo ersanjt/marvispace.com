@@ -37,6 +37,17 @@ function order_row_to_array(PDO $pdo, array $row): array
             : null;
     }
 
+    if (order_has_payment_columns($pdo)) {
+        $order['paymentStatus'] = $row['payment_status'] ?? 'unpaid';
+        $order['paymentGateway'] = $row['payment_gateway'] ?? '';
+        $order['gatewayReference'] = $row['gateway_reference'] ?? '';
+        $order['gatewayTransactionId'] = $row['gateway_transaction_id'] ?? '';
+        $order['paidAt'] = !empty($row['paid_at'])
+            ? gmdate('c', strtotime($row['paid_at']))
+            : null;
+        $order['paymentError'] = $row['payment_error'] ?? null;
+    }
+
     return $order;
 }
 
@@ -58,104 +69,184 @@ function order_get(PDO $pdo, string $id): ?array
     return $row ? order_row_to_array($pdo, $row) : null;
 }
 
+function order_has_payment_columns(PDO $pdo): bool
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    $stmt = $pdo->query("SHOW COLUMNS FROM orders LIKE 'payment_status'");
+    $cache = (bool) $stmt->fetch();
+    return $cache;
+}
+
+function order_get_by_gateway_session(PDO $pdo, string $sessionId): ?array
+{
+    if ($sessionId === '' || !order_has_payment_columns($pdo)) {
+        return null;
+    }
+    $stmt = $pdo->prepare('SELECT * FROM orders WHERE gateway_session_id = ? LIMIT 1');
+    $stmt->execute([$sessionId]);
+    $row = $stmt->fetch();
+    return $row ? order_row_to_array($pdo, $row) : null;
+}
+
+/**
+ * @return array{items: list<array<string, mixed>>, total: float}
+ */
+function order_normalize_items(PDO $pdo, array $rawItems, bool $decrementStock = true): array
+{
+    if (!$rawItems) {
+        throw new InvalidArgumentException('Order has no items');
+    }
+
+    $normalizedItems = [];
+    $computedTotal = 0.0;
+
+    foreach ($rawItems as $item) {
+        $pid = (string) ($item['id'] ?? '');
+        $qty = (int) ($item['qty'] ?? 0);
+        $size = (string) ($item['size'] ?? '');
+
+        if ($pid === '' || $qty < 1) {
+            continue;
+        }
+
+        $stmt = $pdo->prepare(
+            'SELECT id, label, image, price, stock, in_stock FROM products WHERE id = ? FOR UPDATE'
+        );
+        $stmt->execute([$pid]);
+        $product = $stmt->fetch();
+        if (!$product) {
+            throw new InvalidArgumentException('Product not available');
+        }
+        if (!(int) $product['in_stock']) {
+            throw new InvalidArgumentException('Product is out of stock: ' . $product['label']);
+        }
+        if ((int) $product['stock'] < $qty) {
+            throw new InvalidArgumentException('Insufficient stock for ' . $product['label']);
+        }
+
+        $price = (float) $product['price'];
+        $computedTotal += $price * $qty;
+
+        if ($decrementStock) {
+            $newStock = (int) $product['stock'] - $qty;
+            $inStock = $newStock > 0 ? 1 : 0;
+            $upd = $pdo->prepare('UPDATE products SET stock = ?, in_stock = ? WHERE id = ?');
+            $upd->execute([$newStock, $inStock, $pid]);
+        }
+
+        $normalizedItems[] = [
+            'id' => $pid,
+            'label' => (string) $product['label'],
+            'size' => $size,
+            'price' => $price,
+            'qty' => $qty,
+            'image' => (string) $product['image'],
+        ];
+    }
+
+    if (!$normalizedItems) {
+        throw new InvalidArgumentException('Order has no valid items');
+    }
+
+    return ['items' => $normalizedItems, 'total' => $computedTotal];
+}
+
+function order_store_currency(PDO $pdo): string
+{
+    if (!function_exists('setting_get')) {
+        require_once __DIR__ . '/settings-repo.php';
+    }
+    return strtoupper(setting_get($pdo, 'store_currency', 'TRY'));
+}
+
 function order_create(PDO $pdo, array $order): array
 {
     order_validate_customer($order['customer'] ?? []);
 
     $pdo->beginTransaction();
     try {
-        $rawItems = $order['items'] ?? [];
-        if (!$rawItems) {
-            throw new InvalidArgumentException('Order has no items');
-        }
-
-        $normalizedItems = [];
-        $computedTotal = 0.0;
-
-        foreach ($rawItems as $item) {
-            $pid = (string) ($item['id'] ?? '');
-            $qty = (int) ($item['qty'] ?? 0);
-            $size = (string) ($item['size'] ?? '');
-
-            if ($pid === '' || $qty < 1) {
-                continue;
-            }
-
-            $stmt = $pdo->prepare(
-                'SELECT id, label, image, price, stock, in_stock FROM products WHERE id = ? FOR UPDATE'
-            );
-            $stmt->execute([$pid]);
-            $product = $stmt->fetch();
-            if (!$product) {
-                throw new InvalidArgumentException('Product not available');
-            }
-            if (!(int) $product['in_stock']) {
-                throw new InvalidArgumentException('Product is out of stock: ' . $product['label']);
-            }
-            if ((int) $product['stock'] < $qty) {
-                throw new InvalidArgumentException('Insufficient stock for ' . $product['label']);
-            }
-
-            $price = (float) $product['price'];
-            $computedTotal += $price * $qty;
-
-            $newStock = (int) $product['stock'] - $qty;
-            $inStock = $newStock > 0 ? 1 : 0;
-            $upd = $pdo->prepare('UPDATE products SET stock = ?, in_stock = ? WHERE id = ?');
-            $upd->execute([$newStock, $inStock, $pid]);
-
-            $normalizedItems[] = [
-                'id' => $pid,
-                'label' => (string) $product['label'],
-                'size' => $size,
-                'price' => $price,
-                'qty' => $qty,
-                'image' => (string) $product['image'],
-            ];
-        }
-
-        if (!$normalizedItems) {
-            throw new InvalidArgumentException('Order has no valid items');
-        }
+        $bundle = order_normalize_items($pdo, $order['items'] ?? [], true);
+        $normalizedItems = $bundle['items'];
+        $computedTotal = $bundle['total'];
 
         $customer = order_customer_from_input($order['customer'] ?? []);
         $customerJson = order_customer_to_legacy_json($customer);
         $status = (string) ($order['status'] ?? 'pending');
-        $allowed = ['pending', 'processing', 'completed', 'shipped', 'cancelled'];
+        $allowed = ['pending', 'processing', 'completed', 'shipped', 'cancelled', 'awaiting_payment'];
         if (!in_array($status, $allowed, true)) {
             $status = 'pending';
         }
 
+        $currency = order_store_currency($pdo);
+
         if (order_has_professional_columns($pdo)) {
-            $stmt = $pdo->prepare(
-                'INSERT INTO orders (
-                    id, status, total, currency,
-                    customer_email, customer_first_name, customer_last_name, customer_phone,
-                    shipping_address1, shipping_address2, shipping_city, shipping_state,
-                    shipping_zip, shipping_country, payment_method, tax_id, customer_subscribed,
-                    customer
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-            );
-            $stmt->execute([
-                $order['id'],
-                $status,
-                $computedTotal,
-                'USD',
-                $customer['email'],
-                $customer['firstName'],
-                $customer['lastName'],
-                $customer['phone'],
-                $customer['address'],
-                $customer['address2'],
-                $customer['city'],
-                $customer['state'],
-                $customer['zip'],
-                $customer['country'],
-                $customer['payment'],
-                $customer['taxId'],
-                $customer['subscribe'] ? 1 : 0,
-                $customerJson,
-            ]);
+            $paymentCols = order_has_payment_columns($pdo);
+            if ($paymentCols) {
+                $stmt = $pdo->prepare(
+                    'INSERT INTO orders (
+                        id, status, total, currency,
+                        customer_email, customer_first_name, customer_last_name, customer_phone,
+                        shipping_address1, shipping_address2, shipping_city, shipping_state,
+                        shipping_zip, shipping_country, payment_method, payment_status, payment_gateway,
+                        tax_id, customer_subscribed, customer
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                );
+                $stmt->execute([
+                    $order['id'],
+                    $status,
+                    $computedTotal,
+                    $currency,
+                    $customer['email'],
+                    $customer['firstName'],
+                    $customer['lastName'],
+                    $customer['phone'],
+                    $customer['address'],
+                    $customer['address2'],
+                    $customer['city'],
+                    $customer['state'],
+                    $customer['zip'],
+                    $customer['country'],
+                    $customer['payment'],
+                    $status === 'awaiting_payment' ? 'pending' : 'unpaid',
+                    $customer['payment'] === 'card' ? 'paynet' : '',
+                    $customer['taxId'],
+                    $customer['subscribe'] ? 1 : 0,
+                    $customerJson,
+                ]);
+            } else {
+                $stmt = $pdo->prepare(
+                    'INSERT INTO orders (
+                        id, status, total, currency,
+                        customer_email, customer_first_name, customer_last_name, customer_phone,
+                        shipping_address1, shipping_address2, shipping_city, shipping_state,
+                        shipping_zip, shipping_country, payment_method, tax_id, customer_subscribed,
+                        customer
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                );
+                $stmt->execute([
+                    $order['id'],
+                    $status,
+                    $computedTotal,
+                    $currency,
+                    $customer['email'],
+                    $customer['firstName'],
+                    $customer['lastName'],
+                    $customer['phone'],
+                    $customer['address'],
+                    $customer['address2'],
+                    $customer['city'],
+                    $customer['state'],
+                    $customer['zip'],
+                    $customer['country'],
+                    $customer['payment'],
+                    $customer['taxId'],
+                    $customer['subscribe'] ? 1 : 0,
+                    $customerJson,
+                ]);
+            }
         } else {
             $stmt = $pdo->prepare(
                 'INSERT INTO orders (id, status, total, customer) VALUES (?, ?, ?, ?)'
@@ -192,9 +283,173 @@ function order_create(PDO $pdo, array $order): array
     }
 }
 
+function order_create_pending(PDO $pdo, array $order): array
+{
+    $order['status'] = 'awaiting_payment';
+    order_validate_customer($order['customer'] ?? []);
+
+    $pdo->beginTransaction();
+    try {
+        $bundle = order_normalize_items($pdo, $order['items'] ?? [], false);
+        $normalizedItems = $bundle['items'];
+        $computedTotal = $bundle['total'];
+
+        $customer = order_customer_from_input($order['customer'] ?? []);
+        $customerJson = order_customer_to_legacy_json($customer);
+        $currency = order_store_currency($pdo);
+
+        if (!order_has_professional_columns($pdo)) {
+            throw new RuntimeException('Payment gateway requires professional order schema');
+        }
+
+        if (order_has_payment_columns($pdo)) {
+            $stmt = $pdo->prepare(
+                'INSERT INTO orders (
+                    id, status, total, currency,
+                    customer_email, customer_first_name, customer_last_name, customer_phone,
+                    shipping_address1, shipping_address2, shipping_city, shipping_state,
+                    shipping_zip, shipping_country, payment_method, payment_status, payment_gateway,
+                    gateway_reference, tax_id, customer_subscribed, customer
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            );
+            $stmt->execute([
+                $order['id'],
+                'awaiting_payment',
+                $computedTotal,
+                $currency,
+                $customer['email'],
+                $customer['firstName'],
+                $customer['lastName'],
+                $customer['phone'],
+                $customer['address'],
+                $customer['address2'],
+                $customer['city'],
+                $customer['state'],
+                $customer['zip'],
+                $customer['country'],
+                $customer['payment'],
+                'pending',
+                'paynet',
+                $order['id'],
+                $customer['taxId'],
+                $customer['subscribe'] ? 1 : 0,
+                $customerJson,
+            ]);
+        } else {
+            throw new RuntimeException('Payment gateway requires payment columns migration');
+        }
+
+        $itemStmt = $pdo->prepare(
+            'INSERT INTO order_items (order_id, product_id, label, size, price, qty, image)
+             VALUES (?, ?, ?, ?, ?, ?, ?)'
+        );
+        foreach ($normalizedItems as $item) {
+            $itemStmt->execute([
+                $order['id'],
+                $item['id'],
+                $item['label'],
+                $item['size'],
+                $item['price'],
+                $item['qty'],
+                $item['image'],
+            ]);
+        }
+
+        $pdo->commit();
+        return order_get($pdo, $order['id']) ?? $order;
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+}
+
+function order_update_gateway_session(PDO $pdo, string $orderId, string $sessionId, string $tokenId): void
+{
+    if (!order_has_payment_columns($pdo)) {
+        return;
+    }
+    $stmt = $pdo->prepare(
+        'UPDATE orders SET gateway_session_id = ?, gateway_token_id = ? WHERE id = ?'
+    );
+    $stmt->execute([$sessionId, $tokenId, $orderId]);
+}
+
+function order_finalize_payment(PDO $pdo, string $orderId, array $gateway): ?array
+{
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ? FOR UPDATE');
+        $stmt->execute([$orderId]);
+        $row = $stmt->fetch();
+        if (!$row) {
+            $pdo->rollBack();
+            return null;
+        }
+
+        if (order_has_payment_columns($pdo) && ($row['payment_status'] ?? '') === 'paid') {
+            $pdo->commit();
+            return order_get($pdo, $orderId);
+        }
+
+        $itemStmt = $pdo->prepare('SELECT product_id, qty FROM order_items WHERE order_id = ?');
+        $itemStmt->execute([$orderId]);
+        foreach ($itemStmt->fetchAll() as $item) {
+            $pid = (string) $item['product_id'];
+            $qty = (int) $item['qty'];
+            $pStmt = $pdo->prepare('SELECT stock, in_stock FROM products WHERE id = ? FOR UPDATE');
+            $pStmt->execute([$pid]);
+            $product = $pStmt->fetch();
+            if (!$product || (int) $product['stock'] < $qty) {
+                throw new InvalidArgumentException('Insufficient stock to complete payment');
+            }
+            $newStock = (int) $product['stock'] - $qty;
+            $upd = $pdo->prepare('UPDATE products SET stock = ?, in_stock = ? WHERE id = ?');
+            $upd->execute([$newStock, $newStock > 0 ? 1 : 0, $pid]);
+        }
+
+        if (order_has_payment_columns($pdo)) {
+            $updOrder = $pdo->prepare(
+                'UPDATE orders SET status = ?, payment_status = ?, payment_gateway = ?,
+                 gateway_transaction_id = ?, gateway_session_id = ?, gateway_token_id = ?,
+                 paid_at = CURRENT_TIMESTAMP, payment_error = NULL
+                 WHERE id = ?'
+            );
+            $updOrder->execute([
+                'pending',
+                'paid',
+                'paynet',
+                (string) ($gateway['xact_id'] ?? $gateway['transaction_id'] ?? ''),
+                (string) ($gateway['session_id'] ?? ''),
+                (string) ($gateway['token_id'] ?? ''),
+                $orderId,
+            ]);
+        } else {
+            $updOrder = $pdo->prepare('UPDATE orders SET status = ? WHERE id = ?');
+            $updOrder->execute(['pending', $orderId]);
+        }
+
+        $pdo->commit();
+        return order_get($pdo, $orderId);
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+}
+
+function order_fail_payment(PDO $pdo, string $orderId, string $message): void
+{
+    if (!order_has_payment_columns($pdo)) {
+        return;
+    }
+    $stmt = $pdo->prepare(
+        'UPDATE orders SET payment_status = ?, status = ?, payment_error = ? WHERE id = ?'
+    );
+    $stmt->execute(['failed', 'cancelled', $message, $orderId]);
+}
+
 function order_update_status(PDO $pdo, string $id, string $status): ?array
 {
-    $allowed = ['pending', 'processing', 'completed', 'shipped', 'cancelled'];
+    $allowed = ['pending', 'processing', 'completed', 'shipped', 'cancelled', 'awaiting_payment'];
     if (!in_array($status, $allowed, true)) {
         return null;
     }
