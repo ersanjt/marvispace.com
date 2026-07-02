@@ -1,6 +1,7 @@
 import { COUNTRIES } from '../data/countries.js';
 import {
   clearCart,
+  isProductionHost,
   loadCart,
   loadProducts,
   loadSiteSettings,
@@ -12,10 +13,10 @@ import {
 import { buildCartLineItem, renderTotalsBlock, setStoreCurrency } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 
+const checkoutPage = document.getElementById('checkoutPage');
+const checkoutLoadingMsg = document.getElementById('checkoutLoadingMsg');
 const summaryItems = document.getElementById('summaryItems');
 const summaryItemsMobile = document.getElementById('summaryItemsMobile');
-const summaryEmpty = document.getElementById('summaryEmpty');
-const summaryEmptyMobile = document.getElementById('summaryEmptyMobile');
 const summaryTotals = document.getElementById('summaryTotals');
 const summaryTotalsMobile = document.getElementById('summaryTotalsMobile');
 const summaryMobile = document.getElementById('summaryMobile');
@@ -26,11 +27,13 @@ const paymentMethodInput = document.getElementById('paymentMethod');
 const checkoutActions = document.getElementById('checkoutActions');
 const placeOrderBtn = document.getElementById('placeOrderBtn');
 const countryEl = document.getElementById('country');
+const stateEl = document.getElementById('state');
 const taxNote = document.getElementById('taxNote');
 const checkoutCartCount = document.getElementById('checkoutCartCount');
 const phoneCodeEl = document.getElementById('phoneCode');
 const phoneCodeLabel = document.getElementById('phoneCodeLabel');
 const phoneCodeBtn = document.getElementById('phoneCodeBtn');
+const phoneEl = document.getElementById('phone');
 const cardForm = document.getElementById('cardForm');
 const cardHolder = document.getElementById('cardHolder');
 const cardPan = document.getElementById('cardPan');
@@ -39,6 +42,8 @@ const cardYear = document.getElementById('cardYear');
 const cardCvc = document.getElementById('cardCvc');
 const paynet3dsHost = document.getElementById('paynet3dsHost');
 const paymentBlock = document.getElementById('paymentBlock');
+
+const STATE_REQUIRED_COUNTRIES = new Set(['US', 'CA', 'AU']);
 
 let cartItems = [];
 let products = [];
@@ -56,6 +61,12 @@ function cartQtyTotal() {
 
 function subtotal() {
   return cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
+}
+
+function setCheckoutReady(ready) {
+  document.body.classList.toggle('checkout-loading', !ready);
+  if (checkoutPage) checkoutPage.hidden = !ready;
+  if (checkoutLoadingMsg) checkoutLoadingMsg.hidden = ready;
 }
 
 function populateCountries() {
@@ -90,11 +101,9 @@ function renderSummary() {
   const totals = { subtotal: subtotal(), taxes: 0 };
 
   checkoutCartCount.textContent = String(cartQtyTotal());
-  summaryEmpty.hidden = !empty;
-  summaryEmptyMobile.hidden = !empty;
   summaryTotals.hidden = empty;
   summaryTotalsMobile.hidden = empty;
-  summaryMobile.hidden = empty;
+  if (summaryMobile) summaryMobile.hidden = empty;
 
   if (empty) {
     summaryItems.innerHTML = '';
@@ -113,7 +122,7 @@ function showPaymentAlert(message, isError = false) {
   if (!paymentAlertEl) {
     paymentAlertEl = document.createElement('p');
     paymentAlertEl.className = 'payment-alert';
-    paymentBlock.insertBefore(paymentAlertEl, paymentBlock.firstChild.nextSibling);
+    paymentBlock.insertBefore(paymentAlertEl, paymentPlaceholder);
   }
   paymentAlertEl.textContent = message;
   paymentAlertEl.classList.toggle('payment-alert--error', isError);
@@ -149,23 +158,61 @@ function cardDetailsValid() {
   const month = Number(cardMonth?.value || 0);
   const year = Number(cardYear?.value || 0);
   const cvc = cardCvc?.value.trim() || '';
-  return holder.length > 1 && pan.length >= 12 && month >= 1 && month <= 12 && year >= 1 && cvc.length >= 3;
+  const yearFull = year < 100 ? 2000 + year : year;
+  const now = new Date();
+  const notExpired = yearFull > now.getFullYear()
+    || (yearFull === now.getFullYear() && month >= now.getMonth() + 1);
+  return holder.length > 1
+    && pan.length >= 12
+    && month >= 1
+    && month <= 12
+    && notExpired
+    && cvc.length >= 3;
+}
+
+function phoneValid() {
+  const digits = (phoneEl?.value || '').replace(/\D/g, '');
+  return digits.length >= 6;
+}
+
+function formReady() {
+  if (!checkoutForm?.checkValidity()) return false;
+  if (!phoneValid()) return false;
+  if (STATE_REQUIRED_COUNTRIES.has(countryEl.value) && !stateEl?.value.trim()) return false;
+  return true;
+}
+
+function updateStateRequired() {
+  if (!stateEl) return;
+  const required = STATE_REQUIRED_COUNTRIES.has(countryEl.value);
+  stateEl.required = required;
+  stateEl.setAttribute('aria-required', String(required));
 }
 
 function updatePaymentState() {
-  const ready = checkoutForm.checkValidity();
+  updateStateRequired();
+  const ready = formReady();
+  const cardBtn = paymentOptions.querySelector('[data-payment="card"]');
+
   paymentPlaceholder.hidden = ready;
   paymentOptions.classList.toggle('payment-methods--locked', !ready);
   paymentOptions.hidden = false;
 
-  paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
-    const isCard = btn.dataset.payment === 'card';
-    btn.disabled = !ready || !isCard;
-  });
+  if (cardBtn) {
+    cardBtn.disabled = !ready;
+    cardBtn.hidden = isProductionHost() && !paynetEnabled;
+  }
 
-  if (!ready) clearPaymentSelection();
+  if (!ready) {
+    clearPaymentSelection();
+  } else if (paynetEnabled && !selectedPayment && cardBtn && !cardBtn.hidden) {
+    selectPayment('card');
+  }
+
   if (placeOrderBtn) {
-    placeOrderBtn.disabled = !ready || !selectedPayment || (selectedPayment === 'card' && paynetEnabled && !cardDetailsValid());
+    placeOrderBtn.disabled = !ready
+      || !selectedPayment
+      || (selectedPayment === 'card' && paynetEnabled && !cardDetailsValid());
   }
 }
 
@@ -175,6 +222,22 @@ function updateTaxNote() {
 
 function syncPhoneCodeLabel() {
   phoneCodeLabel.textContent = phoneCodeEl.value;
+  phoneCodeBtn?.setAttribute('aria-expanded', 'false');
+}
+
+function openPhoneCodePicker() {
+  if (typeof phoneCodeEl.showPicker === 'function') {
+    phoneCodeEl.showPicker();
+  } else {
+    phoneCodeEl.focus();
+    phoneCodeEl.click();
+  }
+  phoneCodeBtn?.setAttribute('aria-expanded', 'true');
+}
+
+function formatCardPan(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 19);
+  return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
 }
 
 function buildOrderPayload(formData) {
@@ -194,7 +257,7 @@ function buildOrderPayload(formData) {
       country: formData.get('country'),
       state: formData.get('state'),
       zip: formData.get('zip'),
-      phone: `${formData.get('phoneCode')}${formData.get('phone')}`,
+      phone: `${formData.get('phoneCode')}${String(formData.get('phone')).replace(/\D/g, '')}`,
       taxId: formData.get('taxId'),
       subscribe: formData.get('subscribe') === 'on',
       payment: formData.get('payment'),
@@ -221,15 +284,24 @@ function launchPaynet3ds(htmlContent, postUrl) {
 }
 
 phoneCodeEl.addEventListener('change', syncPhoneCodeLabel);
-phoneCodeBtn.addEventListener('click', () => phoneCodeEl.focus());
+phoneCodeBtn.addEventListener('click', openPhoneCodePicker);
+phoneCodeEl.addEventListener('blur', () => phoneCodeBtn?.setAttribute('aria-expanded', 'false'));
 
-[cardHolder, cardPan, cardMonth, cardYear, cardCvc].forEach(el => {
+cardPan?.addEventListener('input', () => {
+  const formatted = formatCardPan(cardPan.value);
+  if (cardPan.value !== formatted) cardPan.value = formatted;
+  updatePaymentState();
+});
+
+[cardHolder, cardMonth, cardYear, cardCvc].forEach(el => {
   el?.addEventListener('input', updatePaymentState);
 });
 
+phoneEl?.addEventListener('input', updatePaymentState);
+
 paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (btn.disabled || paymentOptions.classList.contains('payment-methods--locked')) return;
+    if (btn.disabled || btn.hidden || paymentOptions.classList.contains('payment-methods--locked')) return;
     selectPayment(btn.dataset.payment);
     updatePaymentState();
   });
@@ -245,15 +317,30 @@ document.querySelectorAll('[data-discount-toggle]').forEach(btn => {
   });
 });
 
+document.querySelectorAll('[data-discount-form] button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    showPaymentAlert('Discount codes are not available yet.', false);
+  });
+});
+
 checkoutForm.addEventListener('input', updatePaymentState);
 checkoutForm.addEventListener('change', updatePaymentState);
-countryEl.addEventListener('change', updateTaxNote);
+countryEl.addEventListener('change', () => {
+  updateTaxNote();
+  updatePaymentState();
+});
 
 checkoutForm.addEventListener('submit', async e => {
   e.preventDefault();
-  if (!cartItems.length || !selectedPayment) return;
+  if (!cartItems.length || !selectedPayment || !formReady()) return;
+
   if (selectedPayment === 'card' && paynetEnabled && !cardDetailsValid()) {
     showPaymentAlert('Enter valid card details to continue.', true);
+    return;
+  }
+
+  if (selectedPayment === 'card' && isProductionHost() && !paynetEnabled) {
+    showPaymentAlert('Card payments are temporarily unavailable. Please try again later.', true);
     return;
   }
 
@@ -293,18 +380,27 @@ checkoutForm.addEventListener('submit', async e => {
 });
 
 (async () => {
+  setCheckoutReady(false);
+
   const params = new URLSearchParams(window.location.search);
+  let pendingAlert = null;
   if (params.get('payment') === 'failed') {
-    showPaymentAlert('Payment was not completed. Please review your card details and try again.', true);
+    pendingAlert = {
+      message: 'Payment was not completed. Please review your card details and try again.',
+      isError: true,
+    };
   }
 
   try {
     cartItems = await loadCart();
   } catch (err) {
-    alert(err.message || 'Could not load cart. Please try again.');
-    window.location.replace('/');
+    if (checkoutLoadingMsg) {
+      checkoutLoadingMsg.textContent = err.message || 'Could not load cart.';
+    }
+    setTimeout(() => window.location.replace('/'), 1800);
     return;
   }
+
   if (!cartItems.length) {
     window.location.replace('/');
     return;
@@ -313,17 +409,29 @@ checkoutForm.addEventListener('submit', async e => {
   try {
     const settings = await loadSiteSettings();
     paynetEnabled = !!settings?.paynet?.enabled;
-    setStoreCurrency(settings?.currency || 'TRY');
+    setStoreCurrency(settings?.currency || 'USD');
   } catch {
     paynetEnabled = false;
+  }
+
+  if (isProductionHost() && !paynetEnabled && !pendingAlert) {
+    pendingAlert = {
+      message: 'Card payments are temporarily unavailable. Please try again later.',
+      isError: true,
+    };
   }
 
   products = await loadProducts([]);
   populateCountries();
   renderSummary();
-  updatePaymentState();
   updateTaxNote();
   syncPhoneCodeLabel();
+  setCheckoutReady(true);
+  updatePaymentState();
+
+  if (pendingAlert) {
+    showPaymentAlert(pendingAlert.message, pendingAlert.isError);
+  }
 })();
 
 mountDeveloperCredit();

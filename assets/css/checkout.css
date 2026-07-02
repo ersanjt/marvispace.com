@@ -14,6 +14,28 @@ body {
   background: #fff;
 }
 
+body.checkout-loading {
+  overflow: hidden;
+}
+
+.checkout-loading-msg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 48px 24px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  text-align: center;
+}
+
+.checkout-loading-msg[hidden] {
+  display: none;
+}
+
 a { color: inherit; text-decoration: none; }
 
 button, input, select, textarea {
@@ -256,6 +278,12 @@ button, input, select, textarea {
   text-transform: uppercase;
 }
 
+.form-block input:focus,
+.form-block select:focus {
+  outline: 2px solid #000;
+  outline-offset: 0;
+}
+
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -266,7 +294,12 @@ button, input, select, textarea {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 8px;
+  align-items: stretch;
+}
+
+.phone-code-wrap {
   position: relative;
+  flex-shrink: 0;
 }
 
 .phone-code-btn {
@@ -274,6 +307,7 @@ button, input, select, textarea {
   align-items: center;
   gap: 6px;
   height: 42px;
+  min-width: 88px;
   padding: 0 10px;
   border: 1px solid #000;
   background: #fff;
@@ -289,12 +323,19 @@ button, input, select, textarea {
 
 .phone-code-select {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 88px;
-  height: 42px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
   opacity: 0;
   cursor: pointer;
+  appearance: none;
+  border: 0;
+  background: transparent;
+}
+
+.phone-row input[type="tel"] {
+  min-width: 0;
 }
 
 .checkbox-row {
@@ -302,6 +343,14 @@ button, input, select, textarea {
   align-items: center;
   gap: 10px !important;
   font-size: 9px !important;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: #000;
+  flex-shrink: 0;
 }
 
 .form-note {
@@ -387,6 +436,10 @@ button, input, select, textarea {
 .payment-method-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+}
+
+.payment-method-btn[hidden] {
+  display: none;
 }
 
 .payment-method-btn.is-selected {
@@ -505,6 +558,11 @@ button, input, select, textarea {
 
 /* ── Mobile: summary on top, single column ── */
 @media (max-width: 1024px) {
+  .checkout-nav {
+    padding: 12px 16px;
+    padding-top: max(12px, env(safe-area-inset-top, 0px));
+  }
+
   .checkout-layout {
     flex-direction: column;
   }

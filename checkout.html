@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="/assets/css/cart-ui.css" />
   <link rel="stylesheet" href="/assets/css/checkout.css" />
 </head>
-<body>
+<body class="checkout-loading">
 
   <div class="checkout-shell" id="checkout">
     <header class="checkout-nav">
@@ -34,14 +34,15 @@
       </div>
     </header>
 
-    <main class="checkout-page">
+    <p class="checkout-loading-msg" id="checkoutLoadingMsg" aria-live="polite">Loading your cart…</p>
+
+    <main class="checkout-page" id="checkoutPage" hidden>
       <div class="checkout-layout">
 
         <section class="checkout-form-col">
-          <div class="summary-mobile" id="summaryMobile">
+            <div class="summary-mobile" id="summaryMobile">
             <h2 class="cart-summary-heading">Order Summary</h2>
             <div class="cart-lines" id="summaryItemsMobile"></div>
-            <p class="cart-empty-msg" id="summaryEmptyMobile" hidden>Your cart is empty</p>
             <div id="summaryTotalsMobile" hidden></div>
             <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false">MARVISPACE code</button>
             <div class="cart-discount-form" data-discount-form hidden>
@@ -128,18 +129,20 @@
               <label>
                 <span>Phone Number</span>
                 <div class="phone-row">
-                  <button type="button" class="phone-code-btn" id="phoneCodeBtn" aria-haspopup="listbox" aria-expanded="false">
-                    <span id="phoneCodeLabel">+90</span>
-                    <span class="phone-code-caret" aria-hidden="true">▼</span>
-                  </button>
-                  <select id="phoneCode" name="phoneCode" class="phone-code-select" aria-label="Country code" tabindex="-1">
-                    <option value="+90">+90</option>
-                    <option value="+1">+1</option>
-                    <option value="+44">+44</option>
-                    <option value="+49">+49</option>
-                    <option value="+33">+33</option>
-                  </select>
-                  <input type="tel" id="phone" name="phone" required autocomplete="tel-national" placeholder="123 456 7890" />
+                  <div class="phone-code-wrap">
+                    <button type="button" class="phone-code-btn" id="phoneCodeBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="phoneCode">
+                      <span id="phoneCodeLabel">+90</span>
+                      <span class="phone-code-caret" aria-hidden="true">▼</span>
+                    </button>
+                    <select id="phoneCode" name="phoneCode" class="phone-code-select" aria-label="Country code" tabindex="-1">
+                      <option value="+90">+90</option>
+                      <option value="+1">+1</option>
+                      <option value="+44">+44</option>
+                      <option value="+49">+49</option>
+                      <option value="+33">+33</option>
+                    </select>
+                  </div>
+                  <input type="tel" id="phone" name="phone" required autocomplete="tel-national" inputmode="tel" placeholder="123 456 7890" minlength="6" />
                 </div>
               </label>
               <label>
@@ -167,7 +170,7 @@
                     <small>iyzico Paynet — 3D Secure</small>
                   </span>
                 </button>
-                <button type="button" class="payment-method-btn" data-payment="usdc" disabled>
+                <button type="button" class="payment-method-btn" data-payment="usdc" disabled hidden>
                   <span class="payment-method-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                   </span>
@@ -176,7 +179,7 @@
                     <small>Pay with USDC on Solana</small>
                   </span>
                 </button>
-                <button type="button" class="payment-method-btn" data-payment="crypto" disabled>
+                <button type="button" class="payment-method-btn" data-payment="crypto" disabled hidden>
                   <span class="payment-method-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                   </span>
@@ -234,7 +237,6 @@
           <div class="summary-panel">
             <h2 class="cart-summary-heading">Order Summary</h2>
             <div class="cart-lines" id="summaryItems"></div>
-            <p class="cart-empty-msg" id="summaryEmpty" hidden>Your cart is empty</p>
             <div id="summaryTotals" hidden></div>
             <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false">MARVISPACE code</button>
             <div class="cart-discount-form" data-discount-form hidden>
