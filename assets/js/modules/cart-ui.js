@@ -85,7 +85,7 @@ export function buildCartLineItem(item, index, onChangeQty, { checkout = false }
 
   const sizeVal = document.createElement('span');
   sizeVal.className = 'cart-line-value';
-  sizeVal.textContent = item.size;
+  sizeVal.textContent = item.size ? String(item.size).toUpperCase() : '—';
 
   const qtyControls = document.createElement('div');
   qtyControls.className = 'cart-qty-controls';
