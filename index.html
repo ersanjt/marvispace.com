@@ -109,14 +109,10 @@
         <button class="f-btn" data-filter="mens">MENS</button>
         <button class="f-btn" data-filter="womens">WOMENS</button>
       </div>
-      <div class="filter-row">
-        <button class="f-btn" data-filter="jackets">JACKETS</button>
-        <button class="f-btn" data-filter="coats">COATS</button>
-        <button class="f-btn" data-filter="shirts">SHIRTS</button>
-      </div>
-      <div class="filter-row">
+      <div class="filter-row filter-row-sub">
+        <button class="f-btn" data-filter="footwear">FOOTWEAR</button>
         <button class="f-btn" data-filter="accessories">ACCESSORIES</button>
-        <button class="f-btn" data-filter="bottoms">BOTTOMS</button>
+        <button class="f-btn" data-filter="slides">SLIDES</button>
       </div>
     </nav>
 
@@ -177,14 +173,14 @@
   <div class="preview" id="preview" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Product detail">
 
     <button class="p-nav p-prev" id="pPrev" aria-label="Previous product">
-      <svg class="p-nav-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="32" height="32" viewBox="0 0 24 24">
+      <svg class="p-nav-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
         <g transform="rotate(-90 12 12)">
           <path fill="currentColor" d="M11.29 8.71L6.7 13.3a.996.996 0 1 0 1.41 1.41L12 10.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 8.71a.996.996 0 0 0-1.41 0"></path>
         </g>
       </svg>
     </button>
     <button class="p-nav p-next" id="pNext" aria-label="Next product">
-      <svg class="p-nav-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="32" height="32" viewBox="0 0 24 24">
+      <svg class="p-nav-icon" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
         <g transform="rotate(90 12 12)">
           <path fill="currentColor" d="M11.29 8.71L6.7 13.3a.996.996 0 1 0 1.41 1.41L12 10.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 8.71a.996.996 0 0 0-1.41 0"></path>
         </g>
@@ -217,12 +213,7 @@
         <div class="sz-head">
           <div class="sz-head-row">
             <button class="sz-help" id="szHelp" type="button" aria-label="Size guide">
-              <svg width="11" height="15" viewBox="0 0 11 15" fill="none" aria-hidden="true">
-                <path d="M5.5 8L5.5 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M1.5 4.5C1.5 2 4 1 5.5 1C7 1 9.5 2 9.5 4.5C9.5 7 6 8 5.5 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M5.5 13.5C5.36 13.5 5.25 13.39 5.25 13.25C5.25 13.11 5.36 13 5.5 13" stroke="currentColor" stroke-width="2"/>
-                <path d="M5.5 13.5C5.64 13.5 5.75 13.39 5.75 13.25C5.75 13.11 5.64 13 5.5 13" stroke="currentColor" stroke-width="2"/>
-              </svg>
+              <span class="sz-help-mark" aria-hidden="true">?</span>
             </button>
             <div class="sz-title-track">
               <div class="sz-stack" id="szNameStack">
@@ -237,10 +228,7 @@
               </div>
             </div>
             <button class="sz-clear" id="szClear" type="button" aria-label="Close size selector">
-              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" aria-hidden="true">
-                <line x1="14" y1="14" x2="34" y2="34"/>
-                <line x1="14" y1="34" x2="34" y2="14"/>
-              </svg>
+              <span class="sz-clear-mark" aria-hidden="true">×</span>
             </button>
           </div>
         </div>

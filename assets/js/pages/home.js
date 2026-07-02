@@ -55,12 +55,22 @@ const WIDTHS = [16, 375, 560, 1024];
 const SIZES  = '(max-width: 767px) 375px, 560px';
 const ZOOM_DUR = 300;
 const WHEEL_COOLDOWN = 450;
-const GALLERY_FADE = 180;
+const GALLERY_FADE = 500;
 
 const SIZES_TABLE = [
   { us:'XS', eu:'34' },{ us:'S',  eu:'36' },{ us:'M',  eu:'38' },
   { us:'L',  eu:'40' },{ us:'XL', eu:'42' },{ us:'XXL',eu:'44' },
 ];
+
+const CODE_PREFIX = {
+  jackets: 'JK',
+  coats: 'CT',
+  shirts: 'SH',
+  accessories: 'AC',
+  bottoms: 'BT',
+};
+
+let productCodes = {};
 
 /* ════════════════════════════════════
    State
@@ -80,14 +90,33 @@ let euMode         = false;
 let descVisible    = false;
 let cartItems      = [];
 
-function persistCart() {
-  void saveCart(cartItems).catch(() => {});
+function buildProductCodes(list) {
+  const counters = {};
+  const map = {};
+  list.forEach((p) => {
+    const prefix = CODE_PREFIX[p.category] || 'PR';
+    counters[prefix] = (counters[prefix] || 0) + 1;
+    map[p.id] = `${prefix}-${String(counters[prefix]).padStart(2, '0')}`;
+  });
+  return map;
+}
+
+function productCode(item) {
+  return productCodes[item.id] || item.code || item.label;
+}
+
+function productDisplayName(item) {
+  return productCode(item);
 }
 let gridMode       = 'dense'; // dense = 6 cols | sparse = 3 cols
 let activeImageIdx = 0;
 let wheelLock      = false;
 let products       = [];
 let swipe          = null; // touch swipe tracking { x, y, t, id }
+
+function persistCart() {
+  void saveCart(cartItems).catch(() => {});
+}
 
 /* ════════════════════════════════════
    CDN image helpers
@@ -154,8 +183,32 @@ function getGallery(item) {
   return [url];
 }
 
-function mkPictureFromUrl(imageUrl, label, eager) {
-  return mkPicture({ image: imageUrl, label }, eager);
+/** Preview gallery — matches Yeezy img markup (object-contain, --scale, 500ms fade) */
+function mkPreviewPicture(imageUrl, item, eager = true) {
+  const pic = document.createElement('picture');
+  const img = document.createElement('img');
+  img.decoding = 'async';
+  img.loading = eager ? 'eager' : 'lazy';
+  if (eager) img.fetchPriority = 'high';
+  img.alt = productDisplayName(item);
+  img.className = 'preview-img';
+  img.draggable = false;
+  img.style.setProperty('--scale', '1');
+
+  if (isLocalImage(imageUrl)) {
+    img.src = imageUrl;
+  } else {
+    img.src = cdnUrl(imageUrl, 560);
+    img.srcset = srcset(imageUrl);
+    img.sizes = SIZES;
+  }
+
+  pic.append(img);
+  return pic;
+}
+
+function mkPictureFromUrl(imageUrl, item, eager = true) {
+  return mkPreviewPicture(imageUrl, item, eager);
 }
 
 /* ════════════════════════════════════
@@ -300,17 +353,22 @@ function filtered(key) {
   if (key === 'new') list = products.slice(0, 18);
   else if (key === 'mens') list = products.filter(p => p.gender === 'mens');
   else if (key === 'womens') list = products.filter(p => p.gender === 'womens');
-  else if (key === 'jackets') list = products.filter(p => p.category === 'jackets');
-  else if (key === 'coats') list = products.filter(p => p.category === 'coats');
-  else if (key === 'shirts') list = products.filter(p => p.category === 'shirts');
+  else if (key === 'footwear') list = products.filter(p => ['jackets', 'coats'].includes(p.category));
   else if (key === 'accessories') list = products.filter(p => p.category === 'accessories');
-  else if (key === 'bottoms') list = products.filter(p => p.category === 'bottoms');
+  else if (key === 'slides') list = products.filter(p => ['shirts', 'bottoms'].includes(p.category));
   return list.filter(p => p.inStock !== false);
 }
 
 function applyFilter(key) {
   activeFilter = key;
   filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === key));
+  if (key === 'new' && gridMode !== 'sparse') {
+    gridMode = 'sparse';
+    syncGridMode();
+  } else if (key !== 'new' && gridMode !== 'dense') {
+    gridMode = 'dense';
+    syncGridMode();
+  }
   visible = filtered(key);
   renderGrid(visible);
   injectProductSchema(visible);
@@ -373,7 +431,7 @@ function renderGrid(items) {
     const btn = document.createElement('button');
     btn.className = 'product-btn';
     btn.type = 'button';
-    btn.setAttribute('aria-label', `${item.label} — $${item.price}`);
+    btn.setAttribute('aria-label', `${productDisplayName(item)} — $${item.price}`);
     btn.title = `${item.label} — $${item.price}`;
     btn.dataset.id = item.id;
     btn.dataset.i = String(i);
@@ -386,7 +444,7 @@ function renderGrid(items) {
     meta.className = 'prod-meta';
     const lbl = document.createElement('span');
     lbl.className = 'prod-label';
-    lbl.textContent = item.label;
+    lbl.textContent = productDisplayName(item);
     const price = document.createElement('span');
     price.className = 'prod-price';
     price.textContent = fmt(item.price);
@@ -560,12 +618,16 @@ function resetPinch() {
   pinchWrap.style.setProperty('--pz-s','1');
   pinchWrap.style.setProperty('--pz-x','0px');
   pinchWrap.style.setProperty('--pz-y','0px');
+  const previewImg = imgSquare.querySelector('.preview-img');
+  if (previewImg) previewImg.style.setProperty('--scale', '1');
   menuBtn.dataset.zoom = '0';
 }
 function applyPinch() {
   pinchWrap.style.setProperty('--pz-s', String(pinchState.sc));
   pinchWrap.style.setProperty('--pz-x', `${pinchState.x}px`);
   pinchWrap.style.setProperty('--pz-y', `${pinchState.y}px`);
+  const previewImg = imgSquare.querySelector('.preview-img');
+  if (previewImg) previewImg.style.setProperty('--scale', String(pinchState.sc));
   menuBtn.dataset.zoom = pinchState.sc > 1.05 ? '1' : '0';
 }
 
@@ -597,17 +659,24 @@ function updateGalleryImage(imageUrl, animate = true) {
 
   const render = () => {
     imgSquare.innerHTML = '';
-    imgSquare.append(mkPictureFromUrl(imageUrl, item.label, true));
-    if (animate) requestAnimationFrame(() => { imgSquare.style.opacity = '1'; });
+    imgSquare.append(mkPreviewPicture(imageUrl, item, true));
+    const img = imgSquare.querySelector('.preview-img');
+    if (img) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { img.style.opacity = '1'; });
+      });
+    }
   };
 
   if (!animate) {
-    imgSquare.style.opacity = '1';
     render();
+    const img = imgSquare.querySelector('.preview-img');
+    if (img) img.style.opacity = '1';
     return;
   }
 
-  imgSquare.style.opacity = '0';
+  const current = imgSquare.querySelector('.preview-img');
+  if (current) current.style.opacity = '0';
   setTimeout(render, GALLERY_FADE);
 }
 
@@ -636,7 +705,7 @@ function loadPreviewContent(idx, { keepSizes = false } = {}) {
   activeImageIdx = 0;
   const gallery = getGallery(item);
 
-  pNameEl.textContent = item.label;
+  pNameEl.textContent = productDisplayName(item);
   pPriceEl.textContent = fmt(item.price);
   szNameTxt.textContent = 'SELECT SIZE';
   szPriceTxt.textContent = fmt(item.price);
@@ -893,6 +962,7 @@ if (document.fonts?.ready) {
 (async () => {
   try {
     products = await loadProducts([]);
+    productCodes = buildProductCodes(products);
     cartItems = await loadCart();
     renderCart();
     applyFilter('new');
