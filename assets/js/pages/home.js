@@ -108,7 +108,7 @@ function productCode(item) {
 function productDisplayName(item) {
   return productCode(item);
 }
-let gridMode       = 'dense'; // dense = 6 cols | sparse = 3 cols
+let gridMode       = 'dense'; // dense = 6 cols (default) | sparse = 3 cols
 let activeImageIdx = 0;
 let wheelLock      = false;
 let products       = [];
@@ -309,8 +309,6 @@ function cols(w) {
 
 function syncGridMode() {
   menuBtn.dataset.grid = gridMode;
-  grid.classList.toggle('grid-sparse', gridMode === 'sparse');
-  document.body.classList.toggle('grid-sparse', gridMode === 'sparse');
   menuBtn.setAttribute(
     'aria-label',
     gridMode === 'sparse' ? 'Show more products per row' : 'Show fewer products per row'
@@ -355,20 +353,13 @@ function filtered(key) {
   else if (key === 'womens') list = products.filter(p => p.gender === 'womens');
   else if (key === 'footwear') list = products.filter(p => ['jackets', 'coats'].includes(p.category));
   else if (key === 'accessories') list = products.filter(p => p.category === 'accessories');
-  else if (key === 'slides') list = products.filter(p => ['shirts', 'bottoms'].includes(p.category));
+  else if (key === 'sale') list = products.filter(p => ['shirts', 'bottoms'].includes(p.category));
   return list.filter(p => p.inStock !== false);
 }
 
 function applyFilter(key) {
   activeFilter = key;
   filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === key));
-  if (key === 'new' && gridMode !== 'sparse') {
-    gridMode = 'sparse';
-    syncGridMode();
-  } else if (key !== 'new' && gridMode !== 'dense') {
-    gridMode = 'dense';
-    syncGridMode();
-  }
   visible = filtered(key);
   renderGrid(visible);
   injectProductSchema(visible);
@@ -520,15 +511,23 @@ function renderSizes() {
 }
 
 function openSizes() {
+  if (szOpen) return;
+  settleFlyIn(true);
+  resetPinch();
   szOpen = true;
   preview.classList.add('sz-open');
+  sizePanel.setAttribute('aria-hidden', 'false');
   requestAnimationFrame(() => {
-    setTimeout(() => renderSizes(), 120);
+    requestAnimationFrame(() => renderSizes());
   });
 }
+
 function closeSizes() {
+  if (!szOpen) return;
   szOpen = false;
   preview.classList.remove('sz-open');
+  sizePanel.setAttribute('aria-hidden', 'true');
+  szGrid.querySelectorAll('.sz-chip').forEach(c => c.classList.remove('in', 'selected'));
 }
 
 function confirmSizeAdd() {
@@ -560,14 +559,18 @@ function zoomGrid(btn, animate = true) {
   const ox = br.left + br.width/2 - gr.left;
   const oy = br.top  + br.height/2 - gr.top;
 
+  const isMobile = window.innerWidth <= 768;
   const sc = Math.min(
-    (window.innerWidth * 0.52) / br.width,
-    (window.innerHeight * 0.48) / br.height,
-    3.8
+    (window.innerWidth * (isMobile ? 0.72 : 0.52)) / br.width,
+    (window.innerHeight * (isMobile ? 0.42 : 0.48)) / br.height,
+    isMobile ? 2.2 : 3.8
   );
 
-  const tx = window.innerWidth/2 - (br.left + br.width/2);
-  const ty = window.innerHeight*0.38 - (br.top + br.height/2);
+  const tx = window.innerWidth / 2 - (br.left + br.width / 2);
+  const targetY = window.innerWidth <= 768
+    ? window.innerHeight * 0.44
+    : window.innerHeight * 0.38;
+  const ty = targetY - (br.top + br.height / 2);
 
   grid.style.transformOrigin = `${ox}px ${oy}px`;
   if (!animate) grid.style.setProperty('--dur', '0ms');
