@@ -43,6 +43,65 @@ function settings_admin_get(PDO $pdo): array
 {
     return [
         'favicon' => favicon_public($pdo),
+        'notifications' => notifications_admin_get($pdo),
+    ];
+}
+
+function notifications_admin_get(PDO $pdo): array
+{
+    return mail_notify_settings($pdo);
+}
+
+function notifications_save(PDO $pdo, array $input): array
+{
+    if (array_key_exists('adminEmail', $input)) {
+        $email = strtolower(trim((string) $input['adminEmail']));
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException('Enter a valid notification email');
+        }
+        setting_set($pdo, 'notify_admin_email', $email);
+    }
+
+    if (array_key_exists('notifyOrders', $input)) {
+        setting_set($pdo, 'notify_orders', !empty($input['notifyOrders']) ? '1' : '0');
+    }
+
+    if (array_key_exists('notifyNewsletter', $input)) {
+        setting_set($pdo, 'notify_newsletter', !empty($input['notifyNewsletter']) ? '1' : '0');
+    }
+
+    return notifications_admin_get($pdo);
+}
+
+function mail_notify_settings(PDO $pdo): array
+{
+    $cfg = mail_config();
+    $email = strtolower(trim(setting_get($pdo, 'notify_admin_email', '')));
+
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $email = trim((string) ($cfg['admin_notify'] ?? ''));
+    }
+
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        try {
+            $row = $pdo->query('SELECT email FROM admin_users ORDER BY id ASC LIMIT 1')->fetch(PDO::FETCH_ASSOC);
+            if ($row && !empty($row['email']) && filter_var($row['email'], FILTER_VALIDATE_EMAIL)) {
+                $email = strtolower((string) $row['email']);
+            }
+        } catch (Throwable $e) {
+            /* ignore */
+        }
+    }
+
+    $smtpPass = (string) ($cfg['smtp']['pass'] ?? '');
+
+    return [
+        'adminEmail' => $email,
+        'notifyOrders' => setting_get($pdo, 'notify_orders', '1') === '1',
+        'notifyNewsletter' => setting_get($pdo, 'notify_newsletter', '1') === '1',
+        'smtpConfigured' => $smtpPass !== '',
+        'mailFrom' => (string) ($cfg['from'] ?? ''),
+        'configFallback' => trim(setting_get($pdo, 'notify_admin_email', '')) === '',
     ];
 }
 

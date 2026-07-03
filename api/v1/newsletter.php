@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once dirname(__DIR__) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/notification-mail.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method !== 'POST') {
@@ -18,16 +19,38 @@ if (strlen($email) > 255) {
     json_error('Email address is too long.', 400);
 }
 
+$source = trim((string) ($body['source'] ?? 'footer'));
+if ($source === '') {
+    $source = 'footer';
+}
+
+$isNew = false;
+try {
+    $check = $pdo->prepare('SELECT id FROM newsletter_subscribers WHERE email = ? LIMIT 1');
+    $check->execute([$email]);
+    $isNew = !$check->fetch();
+} catch (Throwable $e) {
+    error_log('MARVISPACE newsletter check: ' . $e->getMessage());
+}
+
 try {
     $stmt = $pdo->prepare(
         'INSERT INTO newsletter_subscribers (email, source)
          VALUES (?, ?)
          ON DUPLICATE KEY UPDATE email = email'
     );
-    $stmt->execute([$email, 'footer']);
+    $stmt->execute([$email, $source]);
 } catch (Throwable $e) {
     error_log('MARVISPACE newsletter: ' . $e->getMessage());
     json_error('Could not subscribe right now. Please try again later.', 500);
+}
+
+if ($isNew) {
+    try {
+        notification_mail_newsletter_signup($pdo, $email, $source);
+    } catch (Throwable $e) {
+        error_log('MARVISPACE newsletter admin notify: ' . $e->getMessage());
+    }
 }
 
 json_ok(['subscribed' => true], 201);

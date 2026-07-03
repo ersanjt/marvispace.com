@@ -34,11 +34,26 @@ function paynet_is_ready(PDO $pdo): bool
 /** @return array<string, mixed> */
 function payment_public_settings(PDO $pdo): array
 {
+    require_once __DIR__ . '/ziraat-repo.php';
+
     $paynet = paynet_settings($pdo);
+    $ziraat = ziraat_settings($pdo);
+    $ziraatReady = ziraat_is_ready($pdo);
+    $paynetReady = paynet_is_ready($pdo);
+
+    $currency = $ziraatReady ? $ziraat['currency'] : $paynet['currency'];
+
     return [
-        'currency' => $paynet['currency'],
+        'currency' => $currency,
+        'cardGateway' => $ziraatReady ? 'ziraat' : ($paynetReady ? 'paynet' : ''),
+        'ziraat' => [
+            'enabled' => $ziraatReady,
+            'mode' => $ziraat['mode'],
+            'instalment' => $ziraat['instalment'],
+            'currency' => $ziraat['currency'],
+        ],
         'paynet' => [
-            'enabled' => paynet_is_ready($pdo),
+            'enabled' => $paynetReady,
             'mode' => $paynet['mode'],
             'publishableKey' => $paynet['publishableKey'],
             'instalment' => $paynet['instalment'],

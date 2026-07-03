@@ -15,7 +15,10 @@ import {
   adminFetchSettings,
   adminFetchUsers,
   adminMe,
+  adminSaveNotificationSettings,
   adminSavePaynetSettings,
+  adminSaveZiraatSettings,
+  adminSendTestNotification,
 } from '../core/api-client.js';
 import { mountAdminLogin, signOutAdmin } from '../core/admin-auth.js';
 import { createFaviconUploadUI } from '../modules/admin-favicon.js';
@@ -65,7 +68,13 @@ const settingsApiNotice = document.getElementById('settingsApiNotice');
 const settingsContent = document.getElementById('settingsContent');
 const paynetSettingsForm = document.getElementById('paynetSettingsForm');
 const paynetStatusLine = document.getElementById('paynetStatusLine');
+const ziraatSettingsForm = document.getElementById('ziraatSettingsForm');
+const ziraatStatusLine = document.getElementById('ziraatStatusLine');
 const resetFaviconBtn = document.getElementById('resetFaviconBtn');
+const notificationSettingsForm = document.getElementById('notificationSettingsForm');
+const notifyStatusLine = document.getElementById('notifyStatusLine');
+const settingsTabs = [...document.querySelectorAll('[data-settings-tab]')];
+const settingsPanels = [...document.querySelectorAll('[data-settings-panel]')];
 
 const statTotal = document.getElementById('statTotal');
 const statInStock = document.getElementById('statInStock');
@@ -105,7 +114,7 @@ const VIEW_META = {
   products: { title: 'Products', subtitle: 'Catalog and inventory management' },
   orders: { title: 'Orders', subtitle: 'Order tracking and status' },
   users: { title: 'Users', subtitle: 'Admin accounts and access' },
-  settings: { title: 'Settings', subtitle: 'Branding, favicon, and Paynet payments' },
+  settings: { title: 'Settings', subtitle: 'Branding, payments, and email alerts' },
 };
 
 let products = [];
@@ -115,6 +124,7 @@ let siteSettings = null;
 let currentAdminEmail = '';
 let usersApiReady = false;
 let settingsApiReady = false;
+let activeSettingsTab = 'brand';
 let activeTab = 'dashboard';
 let toastTimer;
 
@@ -239,7 +249,14 @@ async function showApp() {
     /* ignore */
   }
   const hashTab = window.location.hash.replace(/^#/, '');
-  if (hashTab && VIEW_META[hashTab]) initialTab = hashTab;
+  if (hashTab.startsWith('settings')) {
+    initialTab = 'settings';
+    if (hashTab.startsWith('settings-')) {
+      activeSettingsTab = hashTab.slice('settings-'.length);
+    }
+  } else if (hashTab && VIEW_META[hashTab]) {
+    initialTab = hashTab;
+  }
   switchTab(initialTab);
 }
 
@@ -267,7 +284,13 @@ function switchTab(name) {
   if (name === 'orders') renderOrders();
   if (name === 'dashboard') renderDashboard();
   if (name === 'users') renderUsers();
-  if (name === 'settings') renderSettings();
+  if (name === 'settings') {
+    const hash = window.location.hash.replace(/^#/, '');
+    if (hash.startsWith('settings-')) {
+      activeSettingsTab = hash.replace('settings-', '');
+    }
+    renderSettings();
+  }
 }
 
 function openModal() {
@@ -380,6 +403,23 @@ function renderUsers() {
   });
 }
 
+function switchSettingsTab(name) {
+  if (!['brand', 'payments', 'notifications'].includes(name)) name = 'brand';
+  activeSettingsTab = name;
+
+  settingsTabs.forEach(btn => {
+    const on = btn.dataset.settingsTab === name;
+    btn.classList.toggle('is-active', on);
+    btn.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+
+  settingsPanels.forEach(panel => {
+    const on = panel.dataset.settingsPanel === name;
+    panel.classList.toggle('is-active', on);
+    panel.hidden = !on;
+  });
+}
+
 function renderSettings() {
   const apiOn = settingsApiReady;
 
@@ -388,6 +428,8 @@ function renderSettings() {
   if (resetFaviconBtn) resetFaviconBtn.hidden = !apiOn;
 
   if (!apiOn) return;
+
+  switchSettingsTab(activeSettingsTab);
 
   const favicon = siteSettings?.favicon;
   getFaviconUpload().showPreview(favicon?.url || '/favicon.svg');
@@ -416,6 +458,114 @@ function renderSettings() {
       else if (paynet.enabled) parts.push('Enabled but not ready');
       else parts.push('Disabled');
       paynetStatusLine.textContent = parts.join(' · ');
+    }
+  }
+
+  const ziraat = siteSettings?.ziraat;
+  if (ziraat) {
+    const enabledEl = document.getElementById('ziraatEnabled');
+    const modeEl = document.getElementById('ziraatMode');
+    const currencyEl = document.getElementById('ziraatCurrency');
+    const merchantEl = document.getElementById('ziraatMerchantId');
+    const instalmentEl = document.getElementById('ziraatInstalment');
+    const panelUrlEl = document.getElementById('ziraatPanelUrl');
+    const panelUserEl = document.getElementById('ziraatPanelUser');
+    const securityCodeEl = document.getElementById('ziraatSecurityCode');
+    const supportPhoneEl = document.getElementById('ziraatSupportPhone');
+    const storeKeyEl = document.getElementById('ziraatStoreKey');
+    const panelLink = document.getElementById('ziraatPanelLink');
+    const supportDisplay = document.getElementById('ziraatSupportDisplay');
+    const storeKeyStatus = document.getElementById('ziraatStoreKeyStatus');
+    const readyStatus = document.getElementById('ziraatReadyStatus');
+    const storeKeyHint = document.getElementById('ziraatStoreKeyHint');
+
+    if (enabledEl) enabledEl.checked = !!ziraat.enabled;
+    if (modeEl) modeEl.value = ziraat.mode === 'test' ? 'test' : 'live';
+    if (currencyEl) currencyEl.value = ziraat.currency || 'TRY';
+    if (merchantEl) merchantEl.value = ziraat.merchantId || '192868559';
+    if (instalmentEl) instalmentEl.checked = !!ziraat.instalment;
+    if (panelUrlEl) panelUrlEl.value = ziraat.panelUrl || 'https://sanalpos2.ziraatbank.com.tr';
+    if (panelUserEl) panelUserEl.value = ziraat.panelUser || 'marvisadmin';
+    if (securityCodeEl) securityCodeEl.value = ziraat.securityCode || 'OTLN';
+    if (supportPhoneEl) supportPhoneEl.value = ziraat.supportPhone || '0212 319 06 19';
+    if (storeKeyEl) storeKeyEl.value = '';
+
+    if (panelLink) {
+      const url = ziraat.panelUrl || 'https://sanalpos2.ziraatbank.com.tr';
+      panelLink.href = url;
+      panelLink.textContent = url.replace(/^https?:\/\//, '');
+    }
+    if (supportDisplay) {
+      supportDisplay.textContent = ziraat.supportPhone || '—';
+    }
+    if (storeKeyStatus) {
+      storeKeyStatus.textContent = ziraat.storeKeySet ? 'Configured' : 'Not set';
+      storeKeyStatus.classList.toggle('is-ok', !!ziraat.storeKeySet);
+      storeKeyStatus.classList.toggle('is-warn', !ziraat.storeKeySet);
+    }
+    if (readyStatus) {
+      readyStatus.textContent = ziraat.ready ? 'Ready' : 'Not ready';
+      readyStatus.classList.toggle('is-ok', !!ziraat.ready);
+      readyStatus.classList.toggle('is-warn', !ziraat.ready);
+    }
+    if (storeKeyHint) {
+      storeKeyHint.textContent = ziraat.storeKeySet
+        ? 'Store key is saved. Enter a new value only to replace it.'
+        : 'Create store key in Ziraat panel, then paste it here and save.';
+    }
+
+    if (ziraatStatusLine) {
+      const parts = [];
+      if (ziraat.storeKeySet) parts.push('Store key saved');
+      else parts.push('Add store key below');
+      if (ziraat.merchantId) parts.push(`Merchant ${ziraat.merchantId}`);
+      if (ziraat.securityCode) parts.push(`Code ${ziraat.securityCode}`);
+      if (ziraat.ready) parts.push('Checkout live');
+      else if (ziraat.enabled) parts.push('Enabled — missing store key');
+      else parts.push('Disabled');
+      ziraatStatusLine.textContent = parts.join(' · ');
+    }
+  }
+
+  const notify = siteSettings?.notifications;
+  if (notify) {
+    const emailEl = document.getElementById('notifyAdminEmail');
+    const ordersEl = document.getElementById('notifyOrders');
+    const newsletterEl = document.getElementById('notifyNewsletter');
+    const smtpEl = document.getElementById('notifySmtpStatus');
+    const fromEl = document.getElementById('notifyFromStatus');
+    const inboxEl = document.getElementById('notifyInboxStatus');
+
+    if (emailEl) emailEl.value = notify.adminEmail || '';
+    if (ordersEl) ordersEl.checked = notify.notifyOrders !== false;
+    if (newsletterEl) newsletterEl.checked = notify.notifyNewsletter !== false;
+
+    if (smtpEl) {
+      smtpEl.textContent = notify.smtpConfigured ? 'Configured' : 'Not set';
+      smtpEl.classList.toggle('is-ok', !!notify.smtpConfigured);
+      smtpEl.classList.toggle('is-warn', !notify.smtpConfigured);
+    }
+
+    if (fromEl) {
+      fromEl.textContent = notify.mailFrom || '—';
+      fromEl.classList.toggle('is-ok', !!notify.mailFrom);
+    }
+
+    if (inboxEl) {
+      inboxEl.textContent = notify.adminEmail || 'Not set';
+      inboxEl.classList.toggle('is-ok', !!notify.adminEmail);
+      inboxEl.classList.toggle('is-warn', !notify.adminEmail);
+    }
+
+    if (notifyStatusLine && !notifyStatusLine.dataset.pending) {
+      const hints = [];
+      if (!notify.smtpConfigured) {
+        hints.push('Add SMTP credentials in api_config.php to send emails');
+      }
+      if (!notify.adminEmail) {
+        hints.push('Set your notification email below');
+      }
+      notifyStatusLine.textContent = hints.join(' · ');
     }
   }
 }
@@ -767,7 +917,12 @@ navItems.forEach(btn => {
 
 window.addEventListener('hashchange', () => {
   const hashTab = window.location.hash.replace(/^#/, '');
-  if (hashTab && VIEW_META[hashTab]) {
+  if (hashTab.startsWith('settings')) {
+    if (hashTab.startsWith('settings-')) {
+      activeSettingsTab = hashTab.slice('settings-'.length);
+    }
+    switchTab('settings');
+  } else if (hashTab && VIEW_META[hashTab]) {
     switchTab(hashTab);
   }
 });
@@ -943,8 +1098,6 @@ document.addEventListener('keydown', e => {
   if (orderModal && !orderModal.hidden) closeOrderModal();
 });
 
-logoutBtn?.addEventListener('click', signOutAdmin);
-
 paynetSettingsForm?.addEventListener('submit', async e => {
   e.preventDefault();
   const saveBtn = document.getElementById('savePaynetBtn');
@@ -968,5 +1121,107 @@ paynetSettingsForm?.addEventListener('submit', async e => {
     if (saveBtn) saveBtn.disabled = false;
   }
 });
+
+ziraatSettingsForm?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const saveBtn = document.getElementById('saveZiraatBtn');
+  if (saveBtn) saveBtn.disabled = true;
+  try {
+    const payload = {
+      enabled: document.getElementById('ziraatEnabled')?.checked || false,
+      mode: document.getElementById('ziraatMode')?.value || 'live',
+      currency: document.getElementById('ziraatCurrency')?.value || 'TRY',
+      merchantId: document.getElementById('ziraatMerchantId')?.value?.trim() || '',
+      panelUrl: document.getElementById('ziraatPanelUrl')?.value?.trim() || '',
+      panelUser: document.getElementById('ziraatPanelUser')?.value?.trim() || '',
+      securityCode: document.getElementById('ziraatSecurityCode')?.value?.trim() || '',
+      supportPhone: document.getElementById('ziraatSupportPhone')?.value?.trim() || '',
+      storeKey: document.getElementById('ziraatStoreKey')?.value?.trim() || '',
+      instalment: document.getElementById('ziraatInstalment')?.checked || false,
+    };
+    const updated = await adminSaveZiraatSettings(payload);
+    siteSettings = { ...(siteSettings || {}), ...updated };
+    renderSettings();
+    showToast('Ziraat settings saved');
+  } catch (err) {
+    showToast(err.message || 'Could not save Ziraat settings');
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
+  }
+});
+
+settingsTabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.settingsTab;
+    if (!tab) return;
+    activeSettingsTab = tab;
+    try {
+      window.history.replaceState(null, '', `#settings-${tab}`);
+    } catch {
+      /* ignore */
+    }
+    switchSettingsTab(tab);
+  });
+});
+
+notificationSettingsForm?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const saveBtn = document.getElementById('saveNotifyBtn');
+  if (saveBtn) saveBtn.disabled = true;
+  if (notifyStatusLine) {
+    notifyStatusLine.dataset.pending = '1';
+    notifyStatusLine.textContent = 'Saving…';
+  }
+  try {
+    const payload = {
+      adminEmail: document.getElementById('notifyAdminEmail')?.value?.trim() || '',
+      notifyOrders: document.getElementById('notifyOrders')?.checked ?? true,
+      notifyNewsletter: document.getElementById('notifyNewsletter')?.checked ?? true,
+    };
+    const updated = await adminSaveNotificationSettings(payload);
+    siteSettings = { ...(siteSettings || {}), ...updated };
+    if (notifyStatusLine) {
+      delete notifyStatusLine.dataset.pending;
+      notifyStatusLine.textContent = 'Notification settings saved';
+    }
+    renderSettings();
+    showToast('Notification settings saved');
+  } catch (err) {
+    if (notifyStatusLine) {
+      delete notifyStatusLine.dataset.pending;
+      notifyStatusLine.textContent = err.message || 'Could not save';
+    }
+    showToast(err.message || 'Could not save notification settings');
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
+  }
+});
+
+document.getElementById('testNotifyBtn')?.addEventListener('click', async () => {
+  const testBtn = document.getElementById('testNotifyBtn');
+  if (testBtn) testBtn.disabled = true;
+  if (notifyStatusLine) {
+    notifyStatusLine.dataset.pending = '1';
+    notifyStatusLine.textContent = 'Sending test email…';
+  }
+  try {
+    await adminSendTestNotification();
+    if (notifyStatusLine) {
+      delete notifyStatusLine.dataset.pending;
+      notifyStatusLine.textContent = 'Test email sent — check your inbox';
+    }
+    showToast('Test email sent');
+  } catch (err) {
+    if (notifyStatusLine) {
+      delete notifyStatusLine.dataset.pending;
+      notifyStatusLine.textContent = err.message || 'Send failed';
+    }
+    showToast(err.message || 'Could not send test email');
+  } finally {
+    if (testBtn) testBtn.disabled = false;
+  }
+});
+
+logoutBtn?.addEventListener('click', signOutAdmin);
 
 mountAdminLogin({ onSuccess: showApp });

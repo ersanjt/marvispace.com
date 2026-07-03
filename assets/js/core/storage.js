@@ -200,21 +200,49 @@ export function clearAdminPasswordHashOverride() {
 
 /* ── Server API (MySQL on cPanel) ── */
 
+const API_FALSE_CACHE_MS = 15000;
+const HEALTH_RETRIES = 3;
+
 let apiEnabled = null;
+let apiCheckedAt = 0;
+let apiProbePromise = null;
 
 export function resetApiHealthCache() {
   apiEnabled = null;
+  apiCheckedAt = 0;
+  apiProbePromise = null;
+}
+
+async function probeApiHealth() {
+  for (let attempt = 0; attempt < HEALTH_RETRIES; attempt++) {
+    try {
+      const health = await api.healthCheck();
+      if (health?.database) return true;
+    } catch {
+      /* retry on transient network / cold-start failures */
+    }
+    if (attempt < HEALTH_RETRIES - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 350 * (attempt + 1)));
+    }
+  }
+  return false;
 }
 
 export async function isApiEnabled() {
-  if (apiEnabled !== null) return apiEnabled;
-  try {
-    const health = await api.healthCheck();
-    apiEnabled = !!health?.database;
-  } catch {
-    apiEnabled = false;
+  const now = Date.now();
+  if (apiEnabled === true) return true;
+  if (apiEnabled === false && now - apiCheckedAt < API_FALSE_CACHE_MS) return false;
+
+  if (!apiProbePromise) {
+    apiProbePromise = probeApiHealth().finally(() => {
+      apiProbePromise = null;
+    });
   }
-  return apiEnabled;
+
+  const enabled = await apiProbePromise;
+  apiEnabled = enabled;
+  apiCheckedAt = Date.now();
+  return enabled;
 }
 
 async function requireDatabase() {
@@ -307,7 +335,7 @@ export async function loadSiteSettings() {
   if (await isApiEnabled()) {
     return api.fetchSiteSettings();
   }
-  return { currency: 'USD', paynet: { enabled: false } };
+  return { currency: 'USD', cardGateway: '', ziraat: { enabled: false }, paynet: { enabled: false } };
 }
 
 export async function startPaynetPayment({ order, card }) {
@@ -315,6 +343,13 @@ export async function startPaynetPayment({ order, card }) {
     throw new Error('Paynet payments require the server database.');
   }
   return api.initializePaynetPayment({ order, card });
+}
+
+export async function startZiraatPayment({ order, card }) {
+  if (!(await requireDatabase())) {
+    throw new Error('Ziraat payments require the server database.');
+  }
+  return api.initializeZiraatPayment({ order, card });
 }
 
 export async function setOrderStatus(orderId, status) {

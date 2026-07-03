@@ -29,4 +29,13 @@ return [
     'secret_key' => 'CHANGE_ME_PAYNET_SECRET',
     'publishable_key' => '',
   ],
+  'ziraat' => [
+    // Store key from Ziraat panel: Yönetim → Güvenlik Anahtarı Değiştirme
+    'merchant_password' => 'CHANGE_ME_ZIRAAT_STORE_KEY',
+    // Optional fallback if not set in admin DB
+    'merchant_id' => '192868559',
+    // Override only if bank provides a different endpoint
+    // 'api_url' => 'https://sanalpos.ziraatbank.com.tr/v4/v3/VposThreeDPay.aspx',
+    // 'test_api_url' => 'https://sanalpos.innova.com.tr/ZIRAATBANK/VposWeb/v3/VposThreeDPay.aspx',
+  ],
 ];

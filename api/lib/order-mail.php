@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/mail.php';
+require_once __DIR__ . '/settings-repo.php';
 
 function order_mail_customer_name(array $customer): string
 {
@@ -109,10 +110,11 @@ function order_mail_customer_confirmation(array $order): bool
     return mail_send_html($email, $subject, $html);
 }
 
-function order_mail_admin_notification(array $order): bool
+function order_mail_admin_notification(array $order, ?array $notify = null): bool
 {
     $cfg = mail_config();
-    $adminEmail = trim($cfg['admin_notify']);
+    $notify = $notify ?? [];
+    $adminEmail = trim((string) ($notify['adminEmail'] ?? $notify['admin_notify'] ?? $cfg['admin_notify']));
     if ($adminEmail === '' || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
@@ -126,6 +128,7 @@ function order_mail_admin_notification(array $order): bool
     $address = nl2br(mail_escape(order_mail_format_address($customer)));
     $payment = mail_escape((string) ($customer['payment'] ?? '—'));
     $taxId = mail_escape((string) ($customer['taxId'] ?? '—'));
+    $subscribed = !empty($customer['subscribe']) ? 'Yes — marketing opt-in' : 'No';
 
     $body = '<p style="margin:0 0 18px;line-height:1.6;">A new order was placed on MARVISPACE.</p>'
         . '<p style="margin:0 0 8px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#666;">Order ID</p>'
@@ -135,7 +138,8 @@ function order_mail_admin_notification(array $order): bool
         . '<p style="margin:0 0 8px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#666;">Shipping</p>'
         . '<p style="margin:0 0 20px;line-height:1.6;">' . $address . '</p>'
         . '<p style="margin:0 0 8px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#666;">Payment / Tax ID</p>'
-        . '<p style="margin:0 0 20px;line-height:1.6;">' . $payment . ' · Tax ID: ' . $taxId . '</p>'
+        . '<p style="margin:0 0 12px;line-height:1.6;">' . $payment . ' · Tax ID: ' . $taxId . '</p>'
+        . '<p style="margin:0 0 20px;line-height:1.6;color:#666;font-size:13px;">Newsletter: ' . mail_escape($subscribed) . '</p>'
         . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;font-size:14px;">'
         . '<tr><th align="left" style="padding:10px 0;border-bottom:1px solid #111;">Item</th>'
         . '<th align="left" style="padding:10px 0;border-bottom:1px solid #111;">Size</th>'
@@ -155,10 +159,16 @@ function order_mail_admin_notification(array $order): bool
 
 function order_send_purchase_emails(PDO $pdo, array $order): array
 {
+    $notify = mail_notify_settings($pdo);
+
     $result = [
         'customer' => order_mail_customer_confirmation($order),
-        'admin' => order_mail_admin_notification($order),
+        'admin' => false,
     ];
+
+    if ($notify['notifyOrders']) {
+        $result['admin'] = order_mail_admin_notification($order, $notify);
+    }
 
     $orderId = (string) ($order['id'] ?? 'unknown');
 

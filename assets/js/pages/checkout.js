@@ -6,9 +6,11 @@ import {
   loadProducts,
   loadSiteSettings,
   placeOrder,
+  resetApiHealthCache,
   saveCart,
   setOrderConfirmContext,
   startPaynetPayment,
+  startZiraatPayment,
 } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock, setStoreCurrency } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
@@ -20,6 +22,8 @@ const summaryItemsMobile = document.getElementById('summaryItemsMobile');
 const summaryTotals = document.getElementById('summaryTotals');
 const summaryTotalsMobile = document.getElementById('summaryTotalsMobile');
 const summaryMobile = document.getElementById('summaryMobile');
+const summaryMobileTotal = document.getElementById('summaryMobileTotal');
+const summaryMobileCount = document.getElementById('summaryMobileCount');
 const checkoutForm = document.getElementById('checkoutForm');
 const paymentPlaceholder = document.getElementById('paymentPlaceholder');
 const paymentOptions = document.getElementById('paymentOptions');
@@ -28,7 +32,8 @@ const checkoutActions = document.getElementById('checkoutActions');
 const placeOrderBtn = document.getElementById('placeOrderBtn');
 const countryEl = document.getElementById('country');
 const stateEl = document.getElementById('state');
-const taxNote = document.getElementById('taxNote');
+const stateField = document.getElementById('stateField');
+const taxFields = document.getElementById('taxFields');
 const checkoutCartCount = document.getElementById('checkoutCartCount');
 const phoneCodeEl = document.getElementById('phoneCode');
 const phoneCodeLabel = document.getElementById('phoneCodeLabel');
@@ -42,13 +47,15 @@ const cardYear = document.getElementById('cardYear');
 const cardCvc = document.getElementById('cardCvc');
 const paynet3dsHost = document.getElementById('paynet3dsHost');
 const paymentBlock = document.getElementById('paymentBlock');
+const cardGatewayLabel = document.getElementById('cardGatewayLabel');
 
 const STATE_REQUIRED_COUNTRIES = new Set(['US', 'CA', 'AU']);
 
 let cartItems = [];
 let products = [];
 let selectedPayment = '';
-let paynetEnabled = false;
+let cardGateway = '';
+let cardPaymentsEnabled = false;
 let paymentAlertEl = null;
 
 function persistCart() {
@@ -105,6 +112,15 @@ function renderSummary() {
   summaryTotalsMobile.hidden = empty;
   if (summaryMobile) summaryMobile.hidden = empty;
 
+  const total = subtotal();
+  if (summaryMobileTotal) {
+    summaryMobileTotal.textContent = `$${total.toFixed(2)}`;
+  }
+  if (summaryMobileCount) {
+    const n = cartQtyTotal();
+    summaryMobileCount.textContent = n === 1 ? '1 item' : `${n} items`;
+  }
+
   if (empty) {
     summaryItems.innerHTML = '';
     summaryItemsMobile.innerHTML = '';
@@ -135,8 +151,8 @@ function clearPaymentSelection() {
   paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
     btn.classList.remove('is-selected');
   });
-  checkoutActions.hidden = true;
   if (cardForm) cardForm.hidden = true;
+  updatePlaceOrderLabel();
 }
 
 function selectPayment(method) {
@@ -145,14 +161,25 @@ function selectPayment(method) {
   paymentOptions.querySelectorAll('.payment-method-btn').forEach(btn => {
     btn.classList.toggle('is-selected', btn.dataset.payment === method);
   });
-  checkoutActions.hidden = false;
   if (cardForm) {
-    cardForm.hidden = !(method === 'card' && paynetEnabled);
+    cardForm.hidden = !(method === 'card' && cardPaymentsEnabled);
+  }
+  updatePlaceOrderLabel();
+}
+
+function updatePlaceOrderLabel() {
+  if (!placeOrderBtn) return;
+  if (!selectedPayment) {
+    placeOrderBtn.textContent = 'Select a payment method';
+  } else if (selectedPayment === 'card' && cardPaymentsEnabled && !cardDetailsValid()) {
+    placeOrderBtn.textContent = 'Enter card details';
+  } else {
+    placeOrderBtn.textContent = 'Place order';
   }
 }
 
 function cardDetailsValid() {
-  if (!paynetEnabled || selectedPayment !== 'card') return true;
+  if (!cardPaymentsEnabled || selectedPayment !== 'card') return true;
   const holder = cardHolder?.value.trim() || '';
   const pan = (cardPan?.value || '').replace(/\D+/g, '');
   const month = Number(cardMonth?.value || 0);
@@ -183,41 +210,49 @@ function formReady() {
 }
 
 function updateStateRequired() {
-  if (!stateEl) return;
   const required = STATE_REQUIRED_COUNTRIES.has(countryEl.value);
-  stateEl.required = required;
-  stateEl.setAttribute('aria-required', String(required));
+  if (stateEl) {
+    stateEl.required = required;
+    stateEl.setAttribute('aria-required', String(required));
+  }
+  if (stateField) stateField.hidden = !required;
+  const stateZipRow = stateField?.closest('.field-row');
+  if (stateZipRow) stateZipRow.classList.toggle('field-row--single', !required);
+}
+
+function updateTaxNote() {
+  if (taxFields) taxFields.hidden = countryEl.value !== 'TR';
 }
 
 function updatePaymentState() {
   updateStateRequired();
+  updateTaxNote();
   const ready = formReady();
   const cardBtn = paymentOptions.querySelector('[data-payment="card"]');
 
-  paymentPlaceholder.hidden = ready;
+  if (paymentPlaceholder) paymentPlaceholder.hidden = ready;
   paymentOptions.classList.toggle('payment-methods--locked', !ready);
-  paymentOptions.hidden = false;
 
   if (cardBtn) {
     cardBtn.disabled = !ready;
-    cardBtn.hidden = isProductionHost() && !paynetEnabled;
+    cardBtn.hidden = isProductionHost() && !cardPaymentsEnabled;
   }
 
   if (!ready) {
     clearPaymentSelection();
-  } else if (paynetEnabled && !selectedPayment && cardBtn && !cardBtn.hidden) {
+  } else if (cardPaymentsEnabled && !selectedPayment && cardBtn && !cardBtn.hidden) {
     selectPayment('card');
+  } else if (!cardPaymentsEnabled && !isProductionHost() && !selectedPayment) {
+    selectPayment('manual');
   }
 
   if (placeOrderBtn) {
     placeOrderBtn.disabled = !ready
       || !selectedPayment
-      || (selectedPayment === 'card' && paynetEnabled && !cardDetailsValid());
+      || (selectedPayment === 'card' && cardPaymentsEnabled && !cardDetailsValid());
   }
-}
 
-function updateTaxNote() {
-  taxNote.hidden = countryEl.value !== 'TR';
+  updatePlaceOrderLabel();
 }
 
 function syncPhoneCodeLabel() {
@@ -252,18 +287,37 @@ function buildOrderPayload(formData) {
       firstName: formData.get('firstName'),
       lastName: formData.get('lastName'),
       address: formData.get('address'),
-      address2: formData.get('address2'),
+      address2: formData.get('address2') || '',
       city: formData.get('city'),
       country: formData.get('country'),
-      state: formData.get('state'),
+      state: formData.get('state') || '',
       zip: formData.get('zip'),
       phone: `${formData.get('phoneCode')}${String(formData.get('phone')).replace(/\D/g, '')}`,
-      taxId: formData.get('taxId'),
+      taxId: formData.get('taxId') || '',
       subscribe: formData.get('subscribe') === 'on',
       payment: formData.get('payment'),
       billingSame: formData.get('billingSame') === 'on',
     },
   };
+}
+
+function launchGatewayForm(postUrl, fields) {
+  if (!paynet3dsHost) return;
+  paynet3dsHost.hidden = false;
+  paynet3dsHost.innerHTML = '';
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = postUrl;
+  Object.entries(fields).forEach(([name, value]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = String(value ?? '');
+    form.appendChild(input);
+  });
+  paynet3dsHost.appendChild(form);
+  form.submit();
 }
 
 function launchPaynet3ds(htmlContent, postUrl) {
@@ -325,21 +379,18 @@ document.querySelectorAll('[data-discount-form] button').forEach(btn => {
 
 checkoutForm.addEventListener('input', updatePaymentState);
 checkoutForm.addEventListener('change', updatePaymentState);
-countryEl.addEventListener('change', () => {
-  updateTaxNote();
-  updatePaymentState();
-});
+countryEl.addEventListener('change', updatePaymentState);
 
 checkoutForm.addEventListener('submit', async e => {
   e.preventDefault();
   if (!cartItems.length || !selectedPayment || !formReady()) return;
 
-  if (selectedPayment === 'card' && paynetEnabled && !cardDetailsValid()) {
+  if (selectedPayment === 'card' && cardPaymentsEnabled && !cardDetailsValid()) {
     showPaymentAlert('Enter valid card details to continue.', true);
     return;
   }
 
-  if (selectedPayment === 'card' && isProductionHost() && !paynetEnabled) {
+  if (selectedPayment === 'card' && isProductionHost() && !cardPaymentsEnabled) {
     showPaymentAlert('Card payments are temporarily unavailable. Please try again later.', true);
     return;
   }
@@ -351,7 +402,24 @@ checkoutForm.addEventListener('submit', async e => {
   showPaymentAlert('');
 
   try {
-    if (selectedPayment === 'card' && paynetEnabled) {
+    if (selectedPayment === 'card' && cardGateway === 'ziraat') {
+      showPaymentAlert('Redirecting to Ziraat 3D Secure…');
+      const result = await startZiraatPayment({
+        order,
+        card: {
+          holder: cardHolder.value.trim(),
+          pan: cardPan.value.replace(/\D+/g, ''),
+          month: Number(cardMonth.value),
+          year: Number(cardYear.value),
+          cvc: cardCvc.value.trim(),
+        },
+      });
+      setOrderConfirmContext(result.orderId, result.email || order.customer.email || '');
+      launchGatewayForm(result.postUrl, result.fields);
+      return;
+    }
+
+    if (selectedPayment === 'card' && cardGateway === 'paynet') {
       showPaymentAlert('Redirecting to 3D Secure verification…');
       const result = await startPaynetPayment({
         order,
@@ -375,6 +443,7 @@ checkoutForm.addEventListener('submit', async e => {
     window.location.href = `/order-confirmation?id=${encodeURIComponent(created.id)}`;
   } catch (err) {
     placeOrderBtn.disabled = false;
+    updatePaymentState();
     showPaymentAlert(err.message || 'Could not place order. Please try again.', true);
   }
 });
@@ -407,30 +476,59 @@ checkoutForm.addEventListener('submit', async e => {
   }
 
   try {
-    const settings = await loadSiteSettings();
-    paynetEnabled = !!settings?.paynet?.enabled;
-    setStoreCurrency(settings?.currency || 'USD');
-  } catch {
-    paynetEnabled = false;
-  }
+    try {
+      const settings = await loadSiteSettings();
+      cardGateway = settings?.cardGateway
+        || (settings?.ziraat?.enabled ? 'ziraat' : (settings?.paynet?.enabled ? 'paynet' : ''));
+      cardPaymentsEnabled = cardGateway !== '';
+      setStoreCurrency(settings?.currency || 'USD');
+      if (cardGatewayLabel) {
+        cardGatewayLabel.textContent = cardGateway === 'ziraat'
+          ? 'Ziraat Bank — 3D Secure'
+          : 'iyzico Paynet — 3D Secure';
+      }
+    } catch {
+      cardGateway = '';
+      cardPaymentsEnabled = false;
+    }
 
-  if (isProductionHost() && !paynetEnabled && !pendingAlert) {
-    pendingAlert = {
-      message: 'Card payments are temporarily unavailable. Please try again later.',
-      isError: true,
-    };
-  }
+    if (isProductionHost() && !cardPaymentsEnabled && !pendingAlert) {
+      pendingAlert = {
+        message: 'Card payments are temporarily unavailable. Please try again later.',
+        isError: true,
+      };
+    }
 
-  products = await loadProducts([]);
-  populateCountries();
-  renderSummary();
-  updateTaxNote();
-  syncPhoneCodeLabel();
-  setCheckoutReady(true);
-  updatePaymentState();
+    products = await loadProducts([]);
+    populateCountries();
+    renderSummary();
+    syncPhoneCodeLabel();
+    setCheckoutReady(true);
+    updatePaymentState();
 
-  if (pendingAlert) {
-    showPaymentAlert(pendingAlert.message, pendingAlert.isError);
+    if (pendingAlert) {
+      showPaymentAlert(pendingAlert.message, pendingAlert.isError);
+    }
+  } catch (err) {
+    resetApiHealthCache();
+    try {
+      products = await loadProducts([]);
+      populateCountries();
+      renderSummary();
+      syncPhoneCodeLabel();
+      setCheckoutReady(true);
+      updatePaymentState();
+      if (pendingAlert) {
+        showPaymentAlert(pendingAlert.message, pendingAlert.isError);
+      }
+      return;
+    } catch {
+      /* fall through */
+    }
+    if (checkoutLoadingMsg) {
+      checkoutLoadingMsg.textContent = err.message || 'Could not load checkout.';
+    }
+    setTimeout(() => window.location.replace('/'), 2500);
   }
 })();
 

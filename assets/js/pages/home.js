@@ -1,4 +1,4 @@
-import { loadCart, loadProducts, saveCart } from '../core/storage.js';
+import { loadCart, loadProducts, resetApiHealthCache, saveCart } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { SITE } from '../config/site.js';
@@ -963,15 +963,24 @@ if (document.fonts?.ready) {
 }
 
 (async () => {
-  try {
+  async function bootStore() {
     products = await loadProducts([]);
     productCodes = buildProductCodes(products);
     cartItems = await loadCart();
     renderCart();
     applyFilter('new');
+  }
+
+  try {
+    await bootStore();
   } catch (err) {
-    console.error(err);
-    grid.innerHTML = '<p class="empty-state">Store is temporarily unavailable.</p>';
+    resetApiHealthCache();
+    try {
+      await bootStore();
+    } catch (retryErr) {
+      console.error(retryErr);
+      grid.innerHTML = '<p class="empty-state">Store is temporarily unavailable.</p>';
+    }
   }
 })();
 

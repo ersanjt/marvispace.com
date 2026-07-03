@@ -50,6 +50,7 @@ if (empty($orderInput['id'])) {
     $orderInput['id'] = 'ord_' . base_convert((string) (int) (microtime(true) * 1000), 10, 36);
 }
 
+$orderInput['paymentGateway'] = 'paynet';
 $settings = paynet_settings($pdo);
 $customer = order_customer_from_input($orderInput['customer'] ?? []);
 

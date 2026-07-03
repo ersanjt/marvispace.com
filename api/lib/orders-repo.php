@@ -303,6 +303,10 @@ function order_create_pending(PDO $pdo, array $order): array
         }
 
         if (order_has_payment_columns($pdo)) {
+            $gateway = trim((string) ($order['paymentGateway'] ?? 'paynet'));
+            if ($gateway === '') {
+                $gateway = 'paynet';
+            }
             $stmt = $pdo->prepare(
                 'INSERT INTO orders (
                     id, status, total, currency,
@@ -329,7 +333,7 @@ function order_create_pending(PDO $pdo, array $order): array
                 $customer['country'],
                 $customer['payment'],
                 'pending',
-                'paynet',
+                $gateway,
                 $order['id'],
                 $customer['taxId'],
                 $customer['subscribe'] ? 1 : 0,
@@ -374,7 +378,7 @@ function order_update_gateway_session(PDO $pdo, string $orderId, string $session
     $stmt->execute([$sessionId, $tokenId, $orderId]);
 }
 
-function order_finalize_payment(PDO $pdo, string $orderId, array $gateway): ?array
+function order_finalize_payment(PDO $pdo, string $orderId, array $gateway, string $paymentGateway = 'paynet'): ?array
 {
     $pdo->beginTransaction();
     try {
@@ -417,7 +421,7 @@ function order_finalize_payment(PDO $pdo, string $orderId, array $gateway): ?arr
             $updOrder->execute([
                 'pending',
                 'paid',
-                'paynet',
+                $paymentGateway,
                 (string) ($gateway['xact_id'] ?? $gateway['transaction_id'] ?? ''),
                 (string) ($gateway['session_id'] ?? ''),
                 (string) ($gateway['token_id'] ?? ''),

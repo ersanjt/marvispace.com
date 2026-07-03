@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="developer" content="Ersan JT" />
   <title>Checkout — MARVISPACE | marvispace.com</title>
-  <meta name="description" content="Secure checkout at MARVISPACE. Complete your order for premium leather apparel with fast shipping." />
+  <meta name="description" content="Secure checkout at MARVISPACE." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="canonical" href="https://marvispace.com/checkout" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -21,9 +21,9 @@
 
   <div class="checkout-shell" id="checkout">
     <header class="checkout-nav">
-      <a class="back-link" href="/" aria-label="Back to store">‹</a>
-      <div class="checkout-wallet" aria-label="MARVISPACE wallet">
-        <span class="wallet-brand">MARVISPACE</span>
+      <a class="back-link" href="/" aria-label="Back to store" title="Back to store">‹</a>
+      <a class="checkout-brand" href="/" aria-label="MARVISPACE home">MARVISPACE</a>
+      <div class="checkout-wallet" aria-label="Cart items">
         <span class="wallet-bag">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M7 9h10l-1.2 9H8.2L7 9Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
@@ -40,16 +40,24 @@
       <div class="checkout-layout">
 
         <section class="checkout-form-col">
-            <div class="summary-mobile" id="summaryMobile">
-            <h2 class="cart-summary-heading">Order Summary</h2>
-            <div class="cart-lines" id="summaryItemsMobile"></div>
-            <div id="summaryTotalsMobile" hidden></div>
-            <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false">MARVISPACE code</button>
-            <div class="cart-discount-form" data-discount-form hidden>
-              <input type="text" placeholder="Enter code" aria-label="Discount code" />
-              <button type="button">Apply</button>
+          <details class="summary-mobile" id="summaryMobile">
+            <summary class="summary-mobile-toggle">
+              <span class="summary-mobile-toggle-label">Order summary</span>
+              <span class="summary-mobile-toggle-meta">
+                <span id="summaryMobileCount"></span>
+                <span class="summary-mobile-total" id="summaryMobileTotal">$0.00</span>
+              </span>
+            </summary>
+            <div class="summary-mobile-body">
+              <div class="cart-lines" id="summaryItemsMobile"></div>
+              <div id="summaryTotalsMobile" hidden></div>
+              <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false">MARVISPACE code</button>
+              <div class="cart-discount-form" data-discount-form hidden>
+                <input type="text" placeholder="Enter code" aria-label="Discount code" />
+                <button type="button">Apply</button>
+              </div>
             </div>
-          </div>
+          </details>
 
           <section class="express-checkout" aria-label="Express checkout">
             <h3 class="express-heading">Express Checkout</h3>
@@ -117,7 +125,7 @@
                 </label>
               </div>
               <div class="field-row">
-                <label>
+                <label id="stateField">
                   <span>State / Province</span>
                   <input type="text" id="state" name="state" autocomplete="address-level1" />
                 </label>
@@ -145,13 +153,15 @@
                   <input type="tel" id="phone" name="phone" required autocomplete="tel-national" inputmode="tel" placeholder="123 456 7890" minlength="6" />
                 </div>
               </label>
-              <label>
-                <span>Tax ID (Optional)</span>
-                <input type="text" id="taxId" name="taxId" placeholder="ENTER YOUR TAX ID" />
-              </label>
-              <p class="form-note">Turkish ID number (TCKN) or VAT number required</p>
-              <div class="tax-warn" id="taxNote">
-                <p>You must include tax ID for your order to ship. If you do not include it now, we will send an email requesting it before your order is released.</p>
+              <div id="taxFields" hidden>
+                <label>
+                  <span>Tax ID (Optional)</span>
+                  <input type="text" id="taxId" name="taxId" placeholder="ENTER YOUR TAX ID" />
+                </label>
+                <p class="form-note">Turkish ID number (TCKN) or VAT number required</p>
+                <div class="tax-warn" id="taxNote">
+                  <p>You must include tax ID for your order to ship. If you do not include it now, we will send an email requesting it before your order is released.</p>
+                </div>
               </div>
             </fieldset>
 
@@ -167,7 +177,7 @@
                   </span>
                   <span class="payment-method-copy">
                     <strong>Credit / Debit Card</strong>
-                    <small>iyzico Paynet — 3D Secure</small>
+                    <small id="cardGatewayLabel">Ziraat Bank — 3D Secure</small>
                   </span>
                 </button>
                 <button type="button" class="payment-method-btn" data-payment="usdc" disabled hidden>
@@ -212,7 +222,6 @@
                     <input type="text" id="cardCvc" name="cardCvc" autocomplete="cc-csc" inputmode="numeric" maxlength="4" placeholder="CVC" />
                   </label>
                 </div>
-                <p class="form-note">Payments are processed securely via <a href="https://www.iyzico.com/paynet/api" target="_blank" rel="noopener noreferrer">iyzico Paynet</a> with 3D Secure verification.</p>
               </div>
               <div id="paynet3dsHost" class="paynet-3ds-host" hidden aria-live="polite"></div>
               <input type="hidden" name="payment" id="paymentMethod" value="" />
@@ -227,8 +236,8 @@
               </label>
             </fieldset>
 
-            <div class="checkout-actions" id="checkoutActions" hidden>
-              <button type="submit" class="place-order-btn" id="placeOrderBtn">Place Order</button>
+            <div class="checkout-actions" id="checkoutActions">
+              <button type="submit" class="place-order-btn" id="placeOrderBtn" disabled>Select a payment method</button>
             </div>
           </form>
         </section>

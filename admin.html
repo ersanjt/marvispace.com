@@ -333,79 +333,230 @@
         </section>
 
         <section class="view-panel" id="settingsPanel" data-view="settings">
-          <div class="card">
-            <div class="card-head">
-              <div class="card-head-start">
-                <h2>Site settings</h2>
-                <span class="muted">Branding and appearance</span>
+          <div class="settings-page">
+            <header class="settings-hero">
+              <div>
+                <h2 class="settings-hero__title">Settings</h2>
+                <p class="settings-hero__lead">Branding, payments, and email alerts when customers buy or subscribe.</p>
               </div>
-            </div>
+            </header>
+
             <p class="empty-state" id="settingsApiNotice" hidden>
               Settings require server database. Run <code>bash install/setup-server.sh</code> on the server.
             </p>
-            <div class="settings-section" id="settingsContent">
-              <div class="settings-block">
-                <h3 class="settings-title">Website favicon</h3>
-                <p class="settings-lead">Shown in browser tabs and bookmarks. Recommended: square SVG or PNG, at least 64×64 px.</p>
-                <div class="field field-upload">
-                  <div class="upload-zone upload-zone--favicon" id="faviconZone">
-                    <input type="file" id="faviconFile" accept="image/svg+xml,image/png,image/webp,image/x-icon,.ico" hidden />
-                    <div class="upload-zone-empty" id="faviconEmpty">
-                      <strong>Click or drop favicon</strong>
-                      <small>SVG, PNG, WebP, ICO · max 512 KB</small>
-                    </div>
-                    <div class="upload-preview upload-preview--favicon" id="faviconPreview" hidden>
-                      <img id="faviconPreviewImg" alt="Current favicon preview" />
-                    </div>
-                    <p class="upload-status" id="faviconStatus" hidden></p>
-                  </div>
-                </div>
-                <div class="settings-actions">
-                  <button type="button" class="btn btn-ghost" id="resetFaviconBtn">Reset to default</button>
-                </div>
+
+            <div id="settingsContent" hidden>
+              <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+                <button type="button" class="settings-tab is-active" data-settings-tab="brand" role="tab" aria-selected="true">Brand</button>
+                <button type="button" class="settings-tab" data-settings-tab="payments" role="tab" aria-selected="false">Payments</button>
+                <button type="button" class="settings-tab" data-settings-tab="notifications" role="tab" aria-selected="false">Notifications</button>
               </div>
-              <div class="settings-block" id="paynetSettingsBlock">
-                <h3 class="settings-title">iyzico Paynet</h3>
-                <p class="settings-lead">Card payments via <a href="https://www.iyzico.com/paynet/api" target="_blank" rel="noopener noreferrer">iyzico Paynet API</a> (3D Secure). Store the <strong>Secret Key</strong> only in server config (<code>api_config.php</code>).</p>
-                <form class="settings-form" id="paynetSettingsForm">
-                  <label class="checkbox-row">
-                    <input type="checkbox" id="paynetEnabled" name="enabled" />
-                    <span>Enable Paynet card checkout</span>
-                  </label>
-                  <div class="field-row">
-                    <label class="field">
-                      <span>Environment</span>
-                      <select id="paynetMode" name="mode">
-                        <option value="sandbox">Sandbox (test)</option>
-                        <option value="live">Live</option>
-                      </select>
-                    </label>
-                    <label class="field">
-                      <span>Store currency</span>
-                      <select id="paynetCurrency" name="currency">
-                        <option value="TRY">TRY — Turkish Lira</option>
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                      </select>
-                    </label>
+
+              <div class="settings-panels">
+                <div class="settings-panel is-active" data-settings-panel="brand" role="tabpanel">
+                  <div class="settings-card">
+                    <div class="settings-card__head">
+                      <h3>Website favicon</h3>
+                      <p>Browser tab icon · SVG or PNG, min 64×64 px</p>
+                    </div>
+                    <div class="field field-upload">
+                      <div class="upload-zone upload-zone--favicon" id="faviconZone">
+                        <input type="file" id="faviconFile" accept="image/svg+xml,image/png,image/webp,image/x-icon,.ico" hidden />
+                        <div class="upload-zone-empty" id="faviconEmpty">
+                          <strong>Click or drop favicon</strong>
+                          <small>SVG, PNG, WebP, ICO · max 512 KB</small>
+                        </div>
+                        <div class="upload-preview upload-preview--favicon" id="faviconPreview" hidden>
+                          <img id="faviconPreviewImg" alt="Current favicon preview" />
+                        </div>
+                        <p class="upload-status" id="faviconStatus" hidden></p>
+                      </div>
+                    </div>
+                    <div class="settings-actions">
+                      <button type="button" class="btn btn-ghost" id="resetFaviconBtn">Reset to default</button>
+                    </div>
                   </div>
-                  <label class="field">
-                    <span>Integration domain</span>
-                    <input type="text" id="paynetDomain" name="domain" placeholder="marvispace.com" autocomplete="off" />
-                  </label>
-                  <label class="field">
-                    <span>Publishable key (optional)</span>
-                    <input type="text" id="paynetPublishableKey" name="publishableKey" placeholder="pbk_…" autocomplete="off" />
-                  </label>
-                  <label class="checkbox-row">
-                    <input type="checkbox" id="paynetInstalment" name="instalment" />
-                    <span>Allow instalments</span>
-                  </label>
-                  <p class="settings-status" id="paynetStatusLine"></p>
-                  <div class="settings-actions">
-                    <button type="submit" class="btn btn-primary" id="savePaynetBtn">Save payment settings</button>
+                </div>
+
+                <div class="settings-panel" data-settings-panel="payments" role="tabpanel" hidden>
+                  <div class="settings-card settings-card--highlight" id="ziraatSettingsBlock">
+                    <div class="settings-card__head">
+                      <h3>Ziraat Bank Sanal POS</h3>
+                      <p>3D Pay card checkout · Store key and panel credentials managed here</p>
+                    </div>
+
+                    <div class="ziraat-account-grid" id="ziraatAccountGrid">
+                      <div class="ziraat-account-item">
+                        <span class="ziraat-account-label">Panel</span>
+                        <a class="ziraat-account-link" id="ziraatPanelLink" href="https://sanalpos2.ziraatbank.com.tr" target="_blank" rel="noopener noreferrer">sanalpos2.ziraatbank.com.tr</a>
+                      </div>
+                      <div class="ziraat-account-item">
+                        <span class="ziraat-account-label">Support</span>
+                        <span class="ziraat-account-value" id="ziraatSupportDisplay">—</span>
+                      </div>
+                      <div class="ziraat-account-item">
+                        <span class="ziraat-account-label">Store key</span>
+                        <span class="ziraat-account-value" id="ziraatStoreKeyStatus">—</span>
+                      </div>
+                      <div class="ziraat-account-item">
+                        <span class="ziraat-account-label">Checkout</span>
+                        <span class="ziraat-account-value" id="ziraatReadyStatus">—</span>
+                      </div>
+                    </div>
+
+                    <form class="settings-form" id="ziraatSettingsForm">
+                      <p class="settings-section-label">Account verification (from bank email)</p>
+                      <label class="field">
+                        <span>Panel URL</span>
+                        <input type="url" id="ziraatPanelUrl" name="panelUrl" placeholder="https://sanalpos2.ziraatbank.com.tr" autocomplete="off" />
+                      </label>
+                      <div class="field-row">
+                        <label class="field">
+                          <span>Panel username</span>
+                          <input type="text" id="ziraatPanelUser" name="panelUser" placeholder="marvisadmin" autocomplete="username" />
+                        </label>
+                        <label class="field">
+                          <span>Security code (güvenlik kodu)</span>
+                          <input type="text" id="ziraatSecurityCode" name="securityCode" placeholder="OTLN" autocomplete="off" />
+                        </label>
+                      </div>
+                      <label class="field">
+                        <span>Bank support phone</span>
+                        <input type="text" id="ziraatSupportPhone" name="supportPhone" placeholder="0212 319 06 19" autocomplete="off" />
+                      </label>
+                      <p class="settings-hint">Call support with your security code to get a temporary panel password. Then create the store key under Yönetim → Güvenlik Anahtarı Değiştirme.</p>
+
+                      <p class="settings-section-label">Payment settings</p>
+                      <label class="checkbox-row">
+                        <input type="checkbox" id="ziraatEnabled" name="enabled" />
+                        <span>Enable Ziraat card checkout on the store</span>
+                      </label>
+                      <div class="field-row">
+                        <label class="field">
+                          <span>Environment</span>
+                          <select id="ziraatMode" name="mode">
+                            <option value="live">Live (production)</option>
+                            <option value="test">Test</option>
+                          </select>
+                        </label>
+                        <label class="field">
+                          <span>Store currency</span>
+                          <select id="ziraatCurrency" name="currency">
+                            <option value="TRY">TRY — Turkish Lira</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                          </select>
+                        </label>
+                      </div>
+                      <label class="field">
+                        <span>Merchant / store number (mağaza no)</span>
+                        <input type="text" id="ziraatMerchantId" name="merchantId" placeholder="192868559" inputmode="numeric" autocomplete="off" />
+                      </label>
+                      <label class="field">
+                        <span>Store key (güvenlik anahtarı / 3D key)</span>
+                        <input type="password" id="ziraatStoreKey" name="storeKey" placeholder="Enter store key from Ziraat panel" autocomplete="new-password" />
+                      </label>
+                      <p class="settings-hint" id="ziraatStoreKeyHint">Leave blank to keep the current store key.</p>
+                      <label class="checkbox-row">
+                        <input type="checkbox" id="ziraatInstalment" name="instalment" />
+                        <span>Allow instalments</span>
+                      </label>
+                      <p class="settings-status" id="ziraatStatusLine"></p>
+                      <div class="settings-actions">
+                        <button type="submit" class="btn btn-primary" id="saveZiraatBtn">Save Ziraat settings</button>
+                      </div>
+                    </form>
                   </div>
-                </form>
+
+                  <div class="settings-card" id="paynetSettingsBlock" style="margin-top:20px">
+                    <div class="settings-card__head">
+                      <h3>iyzico Paynet</h3>
+                      <p>Card checkout with 3D Secure · Secret key stays in <code>api_config.php</code></p>
+                    </div>
+                    <form class="settings-form" id="paynetSettingsForm">
+                      <label class="checkbox-row">
+                        <input type="checkbox" id="paynetEnabled" name="enabled" />
+                        <span>Enable Paynet card checkout</span>
+                      </label>
+                      <div class="field-row">
+                        <label class="field">
+                          <span>Environment</span>
+                          <select id="paynetMode" name="mode">
+                            <option value="sandbox">Sandbox (test)</option>
+                            <option value="live">Live</option>
+                          </select>
+                        </label>
+                        <label class="field">
+                          <span>Store currency</span>
+                          <select id="paynetCurrency" name="currency">
+                            <option value="TRY">TRY — Turkish Lira</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                          </select>
+                        </label>
+                      </div>
+                      <label class="field">
+                        <span>Integration domain</span>
+                        <input type="text" id="paynetDomain" name="domain" placeholder="marvispace.com" autocomplete="off" />
+                      </label>
+                      <label class="field">
+                        <span>Publishable key (optional)</span>
+                        <input type="text" id="paynetPublishableKey" name="publishableKey" placeholder="pbk_…" autocomplete="off" />
+                      </label>
+                      <label class="checkbox-row">
+                        <input type="checkbox" id="paynetInstalment" name="instalment" />
+                        <span>Allow instalments</span>
+                      </label>
+                      <p class="settings-status" id="paynetStatusLine"></p>
+                      <div class="settings-actions">
+                        <button type="submit" class="btn btn-primary" id="savePaynetBtn">Save payment settings</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+                <div class="settings-panel" data-settings-panel="notifications" role="tabpanel" hidden>
+                  <div class="settings-card settings-card--highlight">
+                    <div class="settings-card__head">
+                      <h3>Email alerts</h3>
+                      <p>Get notified when someone places an order or joins the newsletter.</p>
+                    </div>
+                    <div class="notify-status-grid" id="notifyStatusGrid">
+                      <div class="notify-stat">
+                        <span class="notify-stat__label">SMTP</span>
+                        <span class="notify-stat__value" id="notifySmtpStatus">—</span>
+                      </div>
+                      <div class="notify-stat">
+                        <span class="notify-stat__label">Send from</span>
+                        <span class="notify-stat__value" id="notifyFromStatus">—</span>
+                      </div>
+                      <div class="notify-stat">
+                        <span class="notify-stat__label">Inbox</span>
+                        <span class="notify-stat__value" id="notifyInboxStatus">—</span>
+                      </div>
+                    </div>
+                    <form class="settings-form" id="notificationSettingsForm">
+                      <label class="field">
+                        <span>Your notification email</span>
+                        <input type="email" id="notifyAdminEmail" name="adminEmail" placeholder="you@marvispace.com" autocomplete="email" />
+                      </label>
+                      <p class="settings-hint">Order and signup alerts go here. Leave blank to use your admin account email or server config.</p>
+                      <label class="checkbox-row notify-toggle">
+                        <input type="checkbox" id="notifyOrders" name="notifyOrders" checked />
+                        <span><strong>New order</strong> — email me when a customer completes checkout</span>
+                      </label>
+                      <label class="checkbox-row notify-toggle">
+                        <input type="checkbox" id="notifyNewsletter" name="notifyNewsletter" checked />
+                        <span><strong>New subscriber</strong> — email me when someone joins the mailing list</span>
+                      </label>
+                      <div class="settings-actions settings-actions--split">
+                        <button type="submit" class="btn btn-primary" id="saveNotifyBtn">Save notification settings</button>
+                        <button type="button" class="btn btn-ghost" id="testNotifyBtn">Send test email</button>
+                      </div>
+                      <p class="settings-status" id="notifyStatusLine"></p>
+                    </form>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

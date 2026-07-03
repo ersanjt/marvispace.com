@@ -4,6 +4,17 @@
  */
 
 const API_BASE = '/api/v1';
+const REQUEST_TIMEOUT_MS = 15000;
+
+function requestSignal(options = {}) {
+  if (options.signal) return options.signal;
+  if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+    return AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+  }
+  const ctrl = new AbortController();
+  setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+  return ctrl.signal;
+}
 
 async function request(path, options = {}) {
   const headers = { Accept: 'application/json', ...(options.headers || {}) };
@@ -11,14 +22,25 @@ async function request(path, options = {}) {
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: 'include',
-    ...options,
-    headers,
-    body: options.body && typeof options.body === 'object' && !(options.body instanceof FormData)
-      ? JSON.stringify(options.body)
-      : options.body,
-  });
+  const { signal, ...fetchOpts } = options;
+
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      credentials: 'include',
+      ...fetchOpts,
+      signal: requestSignal({ signal }),
+      headers,
+      body: options.body && typeof options.body === 'object' && !(options.body instanceof FormData)
+        ? JSON.stringify(options.body)
+        : options.body,
+    });
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.');
+    }
+    throw err;
+  }
 
   let payload = {};
   try {
@@ -112,11 +134,20 @@ export async function adminUploadImage(file) {
   const fd = new FormData();
   fd.append('file', file);
 
-  const res = await fetch(`${API_BASE}/admin/upload.php`, {
-    method: 'POST',
-    credentials: 'include',
-    body: fd,
-  });
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/admin/upload.php`, {
+      method: 'POST',
+      credentials: 'include',
+      body: fd,
+      signal: requestSignal(),
+    });
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw new Error('Upload timed out. Please try again.');
+    }
+    throw err;
+  }
 
   let payload = {};
   try {
@@ -158,6 +189,13 @@ export async function initializePaynetPayment({ order, card }) {
   });
 }
 
+export async function initializeZiraatPayment({ order, card }) {
+  return request('/payments/ziraat-initialize.php', {
+    method: 'POST',
+    body: { order, card },
+  });
+}
+
 export async function adminFetchSettings() {
   return request('/admin/settings.php');
 }
@@ -166,11 +204,20 @@ export async function adminUploadFavicon(file) {
   const fd = new FormData();
   fd.append('file', file);
 
-  const res = await fetch(`${API_BASE}/admin/settings.php`, {
-    method: 'POST',
-    credentials: 'include',
-    body: fd,
-  });
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/admin/settings.php`, {
+      method: 'POST',
+      credentials: 'include',
+      body: fd,
+      signal: requestSignal(),
+    });
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw new Error('Upload timed out. Please try again.');
+    }
+    throw err;
+  }
 
   let payload = {};
   try {
@@ -193,10 +240,31 @@ export async function adminResetFavicon() {
   });
 }
 
+export async function adminSaveZiraatSettings(ziraat) {
+  return request('/admin/settings.php', {
+    method: 'POST',
+    body: { ziraat },
+  });
+}
+
 export async function adminSavePaynetSettings(paynet) {
   return request('/admin/settings.php', {
     method: 'POST',
     body: { paynet },
+  });
+}
+
+export async function adminSaveNotificationSettings(notifications) {
+  return request('/admin/settings.php', {
+    method: 'POST',
+    body: { notifications },
+  });
+}
+
+export async function adminSendTestNotification() {
+  return request('/admin/settings.php', {
+    method: 'POST',
+    body: { testNotification: true },
   });
 }
 
