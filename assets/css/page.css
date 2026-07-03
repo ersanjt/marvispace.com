@@ -171,18 +171,3 @@ body:has(.site-page) {
   left: 12px;
   top: 12px;
 }
-
-.site-credit {
-  margin-top: 32px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(0,0,0,0.08);
-  font-size: 8px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.32;
-}
-
-.site-credit a {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}

@@ -1,4 +1,5 @@
 /* Site footer — Yeezy-style responsive nav */
+@import url('dev-credit.css');
 
 .site-footer {
   width: 100%;
@@ -207,27 +208,6 @@ body.preview-open .newsletter-popup { display: none; }
 .footer-nav .nav-item:hover,
 .footer-nav .nav-item:focus-visible {
   opacity: 1;
-}
-
-.site-footer .site-credit {
-  width: 100%;
-  margin: 0;
-  padding: 0 1.25rem 1rem;
-  border-top: 0;
-  text-align: center;
-  font-size: 8px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.28;
-}
-
-.site-footer .site-credit a {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.site-footer .site-credit a:hover {
-  opacity: 0.85;
 }
 
 @media (max-width: 768px) {

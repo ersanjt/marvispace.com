@@ -18,6 +18,7 @@ export const DEVELOPER = {
   handle: 'ersanjt',
   url: 'https://github.com/ersanjt',
   repository: 'https://github.com/ersanjt/marvispace.com',
+  tagline: 'Design & development',
 };
 
 export const BUILD = {
