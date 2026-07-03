@@ -180,7 +180,7 @@ button, input, select, textarea {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   scrollbar-width: thin;
   scrollbar-color: var(--co-line) transparent;
 }
@@ -193,7 +193,7 @@ button, input, select, textarea {
   border-left: 1px solid var(--co-line-strong);
   background: var(--co-sidebar);
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .summary-panel {
@@ -604,6 +604,33 @@ button, input, select, textarea {
 }
 
 /* ── Payment ── */
+.payment-unavailable {
+  margin: 0 0 12px;
+  padding: 20px 18px;
+  border: 1px solid var(--co-line);
+  background: #fafafa;
+  text-align: center;
+}
+
+.payment-unavailable[hidden] {
+  display: none;
+}
+
+.payment-unavailable__title {
+  margin: 0 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.payment-unavailable__text {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.55;
+  color: var(--co-muted);
+}
+
 .payment-notice {
   margin: 0 0 10px;
   padding: 18px 16px;
@@ -625,6 +652,10 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.payment-methods[hidden] {
+  display: none;
 }
 
 .payment-methods--locked .payment-method-btn {
@@ -709,6 +740,15 @@ button, input, select, textarea {
   opacity: 0.55;
   font-weight: 400;
   text-transform: none;
+}
+
+.payment-method-btn--solo.is-selected {
+  cursor: default;
+}
+
+.payment-method-btn--solo.is-selected:hover {
+  background: var(--co-ink);
+  border-color: var(--co-ink);
 }
 
 .checkout-actions {
@@ -904,8 +944,6 @@ button, input, select, textarea {
   }
 
   .checkout-form,
-  .express-checkout,
-  .shipping-note,
   .checkout-actions {
     max-width: none;
   }

@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/mail.php';
+
 const FAVICON_DEFAULT_URL = '/favicon.svg';
 const FAVICON_DEFAULT_TYPE = 'image/svg+xml';
 const FAVICON_DIR_REL = '/assets/images/site';

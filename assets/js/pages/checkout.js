@@ -48,6 +48,7 @@ const cardCvc = document.getElementById('cardCvc');
 const paynet3dsHost = document.getElementById('paynet3dsHost');
 const paymentBlock = document.getElementById('paymentBlock');
 const cardGatewayLabel = document.getElementById('cardGatewayLabel');
+const paymentUnavailable = document.getElementById('paymentUnavailable');
 
 const STATE_REQUIRED_COUNTRIES = new Set(['US', 'CA', 'AU']);
 
@@ -169,8 +170,12 @@ function selectPayment(method) {
 
 function updatePlaceOrderLabel() {
   if (!placeOrderBtn) return;
+  if (isProductionHost() && !cardPaymentsEnabled) {
+    placeOrderBtn.textContent = 'Payment unavailable';
+    return;
+  }
   if (!selectedPayment) {
-    placeOrderBtn.textContent = 'Select a payment method';
+    placeOrderBtn.textContent = 'Complete details to pay';
   } else if (selectedPayment === 'card' && cardPaymentsEnabled && !cardDetailsValid()) {
     placeOrderBtn.textContent = 'Enter card details';
   } else {
@@ -228,19 +233,35 @@ function updatePaymentState() {
   updateStateRequired();
   updateTaxNote();
   const ready = formReady();
-  const cardBtn = paymentOptions.querySelector('[data-payment="card"]');
+  const cardBtn = paymentOptions?.querySelector('[data-payment="card"]');
+  const gatewayOff = isProductionHost() && !cardPaymentsEnabled;
 
-  if (paymentPlaceholder) paymentPlaceholder.hidden = ready;
-  paymentOptions.classList.toggle('payment-methods--locked', !ready);
+  if (paymentUnavailable) paymentUnavailable.hidden = !gatewayOff;
+  if (paymentOptions) paymentOptions.hidden = gatewayOff;
+  if (paymentPlaceholder) paymentPlaceholder.hidden = gatewayOff || ready;
+  if (cardForm) cardForm.hidden = gatewayOff || !ready || selectedPayment !== 'card' || !cardPaymentsEnabled;
 
-  if (cardBtn) {
+  if (paymentOptions && !gatewayOff) {
+    paymentOptions.classList.toggle('payment-methods--locked', !ready);
+  }
+
+  if (cardBtn && !gatewayOff) {
     cardBtn.disabled = !ready;
-    cardBtn.hidden = isProductionHost() && !cardPaymentsEnabled;
+    cardBtn.classList.toggle('is-selected', ready && selectedPayment === 'card');
+  }
+
+  if (gatewayOff) {
+    clearPaymentSelection();
+    if (placeOrderBtn) {
+      placeOrderBtn.disabled = true;
+      placeOrderBtn.textContent = 'Payment unavailable';
+    }
+    return;
   }
 
   if (!ready) {
     clearPaymentSelection();
-  } else if (cardPaymentsEnabled && !selectedPayment && cardBtn && !cardBtn.hidden) {
+  } else if (cardPaymentsEnabled && !selectedPayment) {
     selectPayment('card');
   } else if (!cardPaymentsEnabled && !isProductionHost() && !selectedPayment) {
     selectPayment('manual');
@@ -490,13 +511,6 @@ checkoutForm.addEventListener('submit', async e => {
     } catch {
       cardGateway = '';
       cardPaymentsEnabled = false;
-    }
-
-    if (isProductionHost() && !cardPaymentsEnabled && !pendingAlert) {
-      pendingAlert = {
-        message: 'Card payments are temporarily unavailable. Please try again later.',
-        isError: true,
-      };
     }
 
     products = await loadProducts([]);
