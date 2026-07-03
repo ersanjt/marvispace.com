@@ -167,10 +167,17 @@ export async function adminFetchUsers() {
   return request('/admin/users.php');
 }
 
-export async function adminCreateUser({ email, name, password, confirmPassword }) {
+export async function adminCreateUser({ email, name, password, confirmPassword, permissions }) {
   return request('/admin/users.php', {
     method: 'POST',
-    body: { email, name, password, confirmPassword },
+    body: { email, name, password, confirmPassword, permissions },
+  });
+}
+
+export async function adminUpdateUser(id, { name, permissions }) {
+  return request(`/admin/users.php?id=${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: { name, permissions },
   });
 }
 

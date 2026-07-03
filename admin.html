@@ -321,6 +321,7 @@
                   <tr>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Access</th>
                     <th>Added</th>
                     <th>Actions</th>
                   </tr>
@@ -589,25 +590,68 @@
       </div>
       <form class="product-form" id="userForm">
         <p class="auth-error" id="userFormError" hidden role="alert"></p>
-        <label class="field">
+        <label class="field" id="userNameField">
           <span>Display name</span>
           <input type="text" id="userName" placeholder="Store manager" autocomplete="name" />
         </label>
-        <label class="field">
+        <label class="field" id="userEmailField">
           <span>Email</span>
           <input type="email" id="userEmail" required placeholder="user@example.com" autocomplete="username" />
         </label>
-        <label class="field">
-          <span>Password</span>
-          <input type="password" id="userPassword" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" />
-        </label>
-        <label class="field">
-          <span>Confirm password</span>
-          <input type="password" id="userPasswordConfirm" required minlength="8" autocomplete="new-password" />
-        </label>
+        <div id="userPasswordFields">
+          <label class="field">
+            <span>Password</span>
+            <input type="password" id="userPassword" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" />
+          </label>
+          <label class="field">
+            <span>Confirm password</span>
+            <input type="password" id="userPasswordConfirm" required minlength="8" autocomplete="new-password" />
+          </label>
+        </div>
+        <fieldset class="permission-fieldset">
+          <legend>Dashboard access</legend>
+          <p class="permission-fieldset__hint">Choose which sections this admin can open.</p>
+          <div class="permission-grid">
+            <label class="permission-option">
+              <input type="checkbox" name="perm_dashboard" data-permission="dashboard" checked disabled />
+              <span>
+                <strong>Dashboard</strong>
+                <small>Store overview and stats</small>
+              </span>
+            </label>
+            <label class="permission-option">
+              <input type="checkbox" name="perm_products" data-permission="products" />
+              <span>
+                <strong>Products</strong>
+                <small>Catalog and inventory</small>
+              </span>
+            </label>
+            <label class="permission-option">
+              <input type="checkbox" name="perm_orders" data-permission="orders" />
+              <span>
+                <strong>Orders</strong>
+                <small>View and update orders</small>
+              </span>
+            </label>
+            <label class="permission-option">
+              <input type="checkbox" name="perm_users" data-permission="users" />
+              <span>
+                <strong>Users</strong>
+                <small>Manage admin accounts</small>
+              </span>
+            </label>
+            <label class="permission-option">
+              <input type="checkbox" name="perm_settings" data-permission="settings" />
+              <span>
+                <strong>Settings</strong>
+                <small>Branding, payments, alerts</small>
+              </span>
+            </label>
+          </div>
+        </fieldset>
         <div class="modal-foot">
           <button type="button" class="btn btn-ghost" id="cancelUserBtn">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create user</button>
+          <button type="submit" class="btn btn-primary" id="userFormSubmitBtn">Create user</button>
         </div>
       </form>
     </div>

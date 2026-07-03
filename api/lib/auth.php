@@ -121,10 +121,17 @@ function admin_require(PDO $pdo): array
         json_error('Unauthorized', 401);
     }
 
-    $stmt = $pdo->prepare('SELECT id, email FROM admin_users WHERE id = ? LIMIT 1');
+    $stmt = $pdo->prepare(
+        'SELECT id, email, name, role, permissions, is_active, created_at FROM admin_users WHERE id = ? LIMIT 1'
+    );
     $stmt->execute([(int) $_SESSION['admin_id']]);
     $row = $stmt->fetch();
     if (!$row) {
+        admin_logout();
+        json_error('Unauthorized', 401);
+    }
+
+    if (array_key_exists('is_active', $row) && !(int) $row['is_active']) {
         admin_logout();
         json_error('Unauthorized', 401);
     }

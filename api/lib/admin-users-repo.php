@@ -1,27 +1,22 @@
 <?php
 declare(strict_types=1);
 
-function admin_user_row(array $row): array
-{
-    return [
-        'id' => (int) $row['id'],
-        'email' => $row['email'],
-        'name' => $row['name'] ?? '',
-        'createdAt' => gmdate('c', strtotime($row['created_at'])),
-    ];
-}
+require_once __DIR__ . '/admin-permissions.php';
 
 function admin_users_list(PDO $pdo): array
 {
-    $stmt = $pdo->query('SELECT id, email, name, created_at FROM admin_users ORDER BY created_at ASC');
+    $stmt = $pdo->query(
+        'SELECT id, email, name, role, permissions, created_at FROM admin_users ORDER BY created_at ASC'
+    );
     $users = [];
     foreach ($stmt->fetchAll() as $row) {
-        $users[] = admin_user_row($row);
+        $users[] = admin_user_public($row);
     }
     return $users;
 }
 
-function admin_user_create(PDO $pdo, string $email, string $password, string $name = ''): array
+/** @param array<string, mixed>|null $permissionsInput */
+function admin_user_create(PDO $pdo, string $email, string $password, string $name = '', ?array $permissionsInput = null): array
 {
     $email = strtolower(trim($email));
     $name = trim($name);
@@ -40,16 +35,76 @@ function admin_user_create(PDO $pdo, string $email, string $password, string $na
         throw new InvalidArgumentException('This email is already registered');
     }
 
+    $permissions = admin_normalize_permissions_input($permissionsInput);
     $hash = password_hash($password, PASSWORD_BCRYPT);
-    $stmt = $pdo->prepare('INSERT INTO admin_users (email, name, password_hash) VALUES (?, ?, ?)');
-    $stmt->execute([$email, $name, $hash]);
+    $stmt = $pdo->prepare(
+        'INSERT INTO admin_users (email, name, password_hash, role, permissions) VALUES (?, ?, ?, ?, ?)'
+    );
+    $stmt->execute([$email, $name, $hash, 'admin', admin_permissions_json($permissions)]);
 
     $id = (int) $pdo->lastInsertId();
-    $row = $pdo->prepare('SELECT id, email, name, created_at FROM admin_users WHERE id = ?');
+    $row = $pdo->prepare(
+        'SELECT id, email, name, role, permissions, created_at FROM admin_users WHERE id = ?'
+    );
     $row->execute([$id]);
     $user = $row->fetch();
 
-    return $user ? admin_user_row($user) : ['id' => $id, 'email' => $email, 'name' => $name, 'createdAt' => gmdate('c')];
+    return $user ? admin_user_public($user) : [
+        'id' => $id,
+        'email' => $email,
+        'name' => $name,
+        'role' => 'admin',
+        'isOwner' => false,
+        'permissions' => $permissions,
+        'createdAt' => gmdate('c'),
+    ];
+}
+
+/** @param array<string, mixed>|null $permissionsInput */
+function admin_user_update(PDO $pdo, int $id, ?array $permissionsInput = null, ?string $name = null): ?array
+{
+    if ($id <= 0) {
+        return null;
+    }
+
+    $stmt = $pdo->prepare(
+        'SELECT id, email, name, role, permissions, created_at FROM admin_users WHERE id = ? LIMIT 1'
+    );
+    $stmt->execute([$id]);
+    $row = $stmt->fetch();
+    if (!$row) {
+        return null;
+    }
+
+    if (admin_is_owner($row)) {
+        throw new InvalidArgumentException('Owner account permissions cannot be changed');
+    }
+
+    $fields = [];
+    $params = [];
+
+    if ($name !== null) {
+        $fields[] = 'name = ?';
+        $params[] = trim($name);
+    }
+
+    if ($permissionsInput !== null) {
+        $permissions = admin_normalize_permissions_input($permissionsInput);
+        $fields[] = 'permissions = ?';
+        $params[] = admin_permissions_json($permissions);
+    }
+
+    if (!$fields) {
+        return admin_user_public($row);
+    }
+
+    $params[] = $id;
+    $upd = $pdo->prepare('UPDATE admin_users SET ' . implode(', ', $fields) . ' WHERE id = ?');
+    $upd->execute($params);
+
+    $stmt->execute([$id]);
+    $updated = $stmt->fetch();
+    return $updated ? admin_user_public($updated) : null;
 }
 
 function admin_user_delete(PDO $pdo, int $id, int $currentAdminId): bool
@@ -58,7 +113,14 @@ function admin_user_delete(PDO $pdo, int $id, int $currentAdminId): bool
         return false;
     }
 
-    $stmt = $pdo->prepare('DELETE FROM admin_users WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT role FROM admin_users WHERE id = ? LIMIT 1');
     $stmt->execute([$id]);
-    return $stmt->rowCount() > 0;
+    $row = $stmt->fetch();
+    if (!$row || admin_is_owner($row)) {
+        return false;
+    }
+
+    $del = $pdo->prepare('DELETE FROM admin_users WHERE id = ?');
+    $del->execute([$id]);
+    return $del->rowCount() > 0;
 }

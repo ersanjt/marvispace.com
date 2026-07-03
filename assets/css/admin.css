@@ -1115,6 +1115,95 @@ body:not(.is-logged-in) .admin-shell { display: none; }
   display: block;
   margin-bottom: 2px;
   font-size: 11px;
+}
+
+.permission-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.permission-fieldset legend {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.permission-fieldset__hint {
+  margin: 0 0 12px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.permission-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.permission-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: #fafafa;
+  cursor: pointer;
+}
+
+.permission-option input {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.permission-option strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.permission-option small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.permission-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.permission-badge {
+  display: inline-block;
+  padding: 3px 7px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  background: #f4f4f4;
+}
+
+.permission-badge--owner {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+.permission-badge--off {
+  opacity: 0.45;
+}
+
+.notify-toggle strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }

@@ -4,8 +4,9 @@ require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
 require_once dirname(__DIR__, 2) . '/lib/settings-repo.php';
 require_once dirname(__DIR__, 2) . '/lib/paynet-repo.php';
 require_once dirname(__DIR__, 2) . '/lib/ziraat-repo.php';
+require_once dirname(__DIR__, 2) . '/lib/admin-permissions.php';
 
-admin_require($pdo);
+admin_require_permission($pdo, 'settings');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if ($method === 'GET') {

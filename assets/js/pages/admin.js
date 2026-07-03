@@ -12,6 +12,7 @@ import {
 import {
   adminCreateUser,
   adminDeleteUser,
+  adminUpdateUser,
   adminFetchSettings,
   adminFetchUsers,
   adminMe,
@@ -63,6 +64,11 @@ const userNameInput = document.getElementById('userName');
 const userEmailInput = document.getElementById('userEmail');
 const userPasswordInput = document.getElementById('userPassword');
 const userPasswordConfirmInput = document.getElementById('userPasswordConfirm');
+const userPasswordFields = document.getElementById('userPasswordFields');
+const userEmailField = document.getElementById('userEmailField');
+const userFormTitle = document.getElementById('userFormTitle');
+const userFormSubmitBtn = document.getElementById('userFormSubmitBtn');
+const permissionInputs = [...document.querySelectorAll('[data-permission]')];
 
 const settingsApiNotice = document.getElementById('settingsApiNotice');
 const settingsContent = document.getElementById('settingsContent');
@@ -113,8 +119,26 @@ const VIEW_META = {
   dashboard: { title: 'Dashboard', subtitle: 'Store overview' },
   products: { title: 'Products', subtitle: 'Catalog and inventory management' },
   orders: { title: 'Orders', subtitle: 'Order tracking and status' },
-  users: { title: 'Users', subtitle: 'Admin accounts and access' },
+  users: { title: 'Users', subtitle: 'Admin accounts and access levels' },
   settings: { title: 'Settings', subtitle: 'Branding, payments, and email alerts' },
+};
+
+const PERMISSION_ORDER = ['dashboard', 'products', 'orders', 'users', 'settings'];
+
+const PERMISSION_LABELS = {
+  dashboard: 'Dashboard',
+  products: 'Products',
+  orders: 'Orders',
+  users: 'Users',
+  settings: 'Settings',
+};
+
+const FULL_PERMISSIONS = {
+  dashboard: true,
+  products: true,
+  orders: true,
+  users: true,
+  settings: true,
 };
 
 let products = [];
@@ -122,6 +146,9 @@ let orders = [];
 let adminUsers = [];
 let siteSettings = null;
 let currentAdminEmail = '';
+let currentAdminPermissions = { ...FULL_PERMISSIONS };
+let currentAdminIsOwner = false;
+let editingUserId = null;
 let usersApiReady = false;
 let settingsApiReady = false;
 let activeSettingsTab = 'brand';
@@ -161,6 +188,65 @@ function esc(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function canAccessSection(section) {
+  if (currentAdminIsOwner) return true;
+  return !!currentAdminPermissions[section];
+}
+
+function firstAllowedTab() {
+  for (const key of PERMISSION_ORDER) {
+    if (canAccessSection(key)) return key;
+  }
+  return 'dashboard';
+}
+
+function applyNavPermissions() {
+  navItems.forEach(btn => {
+    const tab = btn.dataset.tab;
+    const allowed = tab ? canAccessSection(tab) : true;
+    btn.hidden = !allowed;
+    btn.disabled = !allowed;
+  });
+}
+
+function readUserFormPermissions() {
+  const permissions = { dashboard: true };
+  permissionInputs.forEach(input => {
+    const key = input.dataset.permission;
+    if (!key || key === 'dashboard') return;
+    permissions[key] = input.checked;
+  });
+  return permissions;
+}
+
+function setUserFormPermissions(permissions = {}) {
+  permissionInputs.forEach(input => {
+    const key = input.dataset.permission;
+    if (!key) return;
+    if (key === 'dashboard') {
+      input.checked = true;
+      return;
+    }
+    input.checked = !!permissions[key];
+  });
+}
+
+function formatPermissionBadges(user) {
+  if (user.isOwner || user.role === 'owner') {
+    return '<span class="permission-badge permission-badge--owner">Owner · full access</span>';
+  }
+
+  const perms = user.permissions || {};
+  const enabled = PERMISSION_ORDER.filter(key => perms[key]);
+  if (!enabled.length) {
+    return '<span class="permission-badge permission-badge--off">Dashboard only</span>';
+  }
+
+  return enabled.map(key => (
+    `<span class="permission-badge">${esc(PERMISSION_LABELS[key] || key)}</span>`
+  )).join('');
 }
 
 function showToast(msg) {
@@ -230,18 +316,46 @@ async function showApp() {
   if (await isApiEnabled()) {
     try {
       const me = await adminMe();
-      if (me.authenticated) currentAdminEmail = (me.email || '').toLowerCase();
+      if (me.authenticated) {
+        currentAdminEmail = (me.email || '').toLowerCase();
+        currentAdminIsOwner = !!me.isOwner || me.role === 'owner';
+        currentAdminPermissions = me.permissions || { ...FULL_PERMISSIONS };
+      }
     } catch {
       /* ignore */
     }
   }
 
-  products = await loadProducts([]);
-  orders = await loadOrders();
-  await Promise.all([loadAdminUsers(), loadSiteSettings()]);
+  applyNavPermissions();
+
+  const loadTasks = [];
+  if (canAccessSection('products') || canAccessSection('dashboard')) {
+    loadTasks.push(loadProducts([]).then(list => { products = list; }));
+  } else {
+    products = [];
+  }
+  if (canAccessSection('orders') || canAccessSection('dashboard')) {
+    loadTasks.push(loadOrders().then(list => { orders = list; }));
+  } else {
+    orders = [];
+  }
+  if (canAccessSection('users')) {
+    loadTasks.push(loadAdminUsers());
+  } else {
+    usersApiReady = false;
+    adminUsers = [];
+  }
+  if (canAccessSection('settings')) {
+    loadTasks.push(loadSiteSettings());
+  } else {
+    settingsApiReady = false;
+    siteSettings = null;
+  }
+
+  await Promise.all(loadTasks);
   renderAll();
 
-  let initialTab = 'dashboard';
+  let initialTab = firstAllowedTab();
   try {
     const saved = sessionStorage.getItem('adminTab');
     if (saved && VIEW_META[saved]) initialTab = saved;
@@ -254,9 +368,10 @@ async function showApp() {
     if (hashTab.startsWith('settings-')) {
       activeSettingsTab = hashTab.slice('settings-'.length);
     }
-  } else if (hashTab && VIEW_META[hashTab]) {
+  } else if (hashTab && VIEW_META[hashTab] && canAccessSection(hashTab)) {
     initialTab = hashTab;
   }
+  if (!canAccessSection(initialTab)) initialTab = firstAllowedTab();
   switchTab(initialTab);
 }
 
@@ -264,12 +379,12 @@ function syncPageHeader() {
   const meta = VIEW_META[activeTab] || VIEW_META.dashboard;
   if (pageTitle) pageTitle.textContent = meta.title;
   if (pageSubtitle) pageSubtitle.textContent = meta.subtitle;
-  if (topNewProductBtn) topNewProductBtn.hidden = activeTab !== 'products';
-  if (topNewUserBtn) topNewUserBtn.hidden = activeTab !== 'users' || !usersApiReady;
+  if (topNewProductBtn) topNewProductBtn.hidden = activeTab !== 'products' || !canAccessSection('products');
+  if (topNewUserBtn) topNewUserBtn.hidden = activeTab !== 'users' || !usersApiReady || !canAccessSection('users');
 }
 
 function switchTab(name) {
-  if (!VIEW_META[name]) name = 'dashboard';
+  if (!VIEW_META[name] || !canAccessSection(name)) name = firstAllowedTab();
   activeTab = name;
   try {
     sessionStorage.setItem('adminTab', name);
@@ -307,20 +422,40 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-function openUserModal() {
+function openUserModal(user = null) {
   if (!userModal) return;
+  editingUserId = user?.id || null;
   userForm?.reset();
   if (userFormError) userFormError.hidden = true;
+
+  const isEdit = !!user;
+  if (userFormTitle) userFormTitle.textContent = isEdit ? 'Edit admin access' : 'Add admin user';
+  if (userFormSubmitBtn) userFormSubmitBtn.textContent = isEdit ? 'Save access' : 'Create user';
+
+  if (userEmailField) userEmailField.hidden = isEdit;
+  if (userPasswordFields) userPasswordFields.hidden = isEdit;
+  if (userEmailInput) {
+    userEmailInput.required = !isEdit;
+    userEmailInput.value = user?.email || '';
+    userEmailInput.readOnly = isEdit;
+  }
+  if (userPasswordInput) userPasswordInput.required = !isEdit;
+  if (userPasswordConfirmInput) userPasswordConfirmInput.required = !isEdit;
+  if (userNameInput) userNameInput.value = user?.name || '';
+  setUserFormPermissions(user?.permissions || { dashboard: true });
+
   userModal.hidden = false;
   userModal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
-  userEmailInput?.focus();
+  (isEdit ? userNameInput : userEmailInput)?.focus();
 }
 
 function closeUserModal() {
   if (!userModal) return;
   userModal.hidden = true;
   userModal.setAttribute('aria-hidden', 'true');
+  editingUserId = null;
+  if (userEmailInput) userEmailInput.readOnly = false;
   if (userFormError) userFormError.hidden = true;
   document.body.style.overflow = '';
 }
@@ -329,15 +464,18 @@ async function loadAdminUsers() {
   usersApiReady = false;
   adminUsers = [];
 
-  if (!(await isApiEnabled())) {
+  if (!(await isApiEnabled()) || !canAccessSection('users')) {
     return;
   }
 
   try {
     adminUsers = await adminFetchUsers();
     usersApiReady = true;
-  } catch {
+  } catch (err) {
     usersApiReady = false;
+    if (err?.message?.includes('403') || err?.message?.includes('access')) {
+      showToast('You do not have permission to manage users');
+    }
   }
 }
 
@@ -345,7 +483,7 @@ async function loadSiteSettings() {
   settingsApiReady = false;
   siteSettings = null;
 
-  if (!(await isApiEnabled())) {
+  if (!(await isApiEnabled()) || !canAccessSection('settings')) {
     return;
   }
 
@@ -363,8 +501,8 @@ function renderUsers() {
 
   if (usersApiNotice) usersApiNotice.hidden = apiOn;
   if (usersTableWrap) usersTableWrap.hidden = !apiOn;
-  if (newUserBtn) newUserBtn.hidden = !apiOn;
-  if (topNewUserBtn) topNewUserBtn.hidden = activeTab !== 'users' || !apiOn;
+  if (newUserBtn) newUserBtn.hidden = !apiOn || !canAccessSection('users');
+  if (topNewUserBtn) topNewUserBtn.hidden = activeTab !== 'users' || !apiOn || !canAccessSection('users');
 
   if (!apiOn) {
     if (usersEmpty) usersEmpty.hidden = true;
@@ -390,13 +528,15 @@ function renderUsers() {
     const displayName = user.name?.trim() || '—';
 
     row.innerHTML = `
-      <td><strong>${esc(displayName)}</strong>${isSelf ? ' <span class="muted">(you)</span>' : ''}</td>
+      <td><strong>${esc(displayName)}</strong>${isSelf ? ' <span class="muted">(you)</span>' : ''}${user.isOwner ? ' <span class="permission-badge permission-badge--owner">Owner</span>' : ''}</td>
       <td dir="ltr">${esc(user.email)}</td>
+      <td><div class="permission-badges">${formatPermissionBadges(user)}</div></td>
       <td>${fmtDate(user.createdAt)}</td>
       <td>
-        ${isSelf
+        ${isSelf || user.isOwner
     ? '<span class="muted">—</span>'
-    : `<button type="button" class="btn btn-ghost btn-danger" data-user-delete="${user.id}">Delete</button>`}
+    : `<button type="button" class="btn btn-ghost" data-user-edit="${user.id}">Edit access</button>
+       <button type="button" class="btn btn-ghost btn-danger" data-user-delete="${user.id}">Delete</button>`}
       </td>
     `;
     usersTableBody.append(row);
@@ -957,8 +1097,9 @@ userForm?.addEventListener('submit', async e => {
   const name = userNameInput?.value?.trim() || '';
   const password = userPasswordInput?.value || '';
   const confirmPassword = userPasswordConfirmInput?.value || '';
+  const permissions = readUserFormPermissions();
 
-  if (password !== confirmPassword) {
+  if (!editingUserId && password !== confirmPassword) {
     if (userFormError) {
       userFormError.hidden = false;
       userFormError.textContent = 'Passwords do not match.';
@@ -967,20 +1108,33 @@ userForm?.addEventListener('submit', async e => {
   }
 
   try {
-    await adminCreateUser({ email, name, password, confirmPassword });
+    if (editingUserId) {
+      await adminUpdateUser(editingUserId, { name, permissions });
+      showToast('Access updated');
+    } else {
+      await adminCreateUser({ email, name, password, confirmPassword, permissions });
+      showToast('Admin user created');
+    }
     await loadAdminUsers();
     renderUsers();
     closeUserModal();
-    showToast('Admin user created');
   } catch (err) {
     if (userFormError) {
       userFormError.hidden = false;
-      userFormError.textContent = err.message || 'Could not create user.';
+      userFormError.textContent = err.message || 'Could not save user.';
     }
   }
 });
 
 usersTableBody?.addEventListener('click', async e => {
+  const editBtn = e.target.closest('button[data-user-edit]');
+  if (editBtn) {
+    const id = Number(editBtn.dataset.userEdit);
+    const user = adminUsers.find(item => item.id === id);
+    if (user) openUserModal(user);
+    return;
+  }
+
   const btn = e.target.closest('button[data-user-delete]');
   if (!btn) return;
 

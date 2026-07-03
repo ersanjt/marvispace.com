@@ -1,12 +1,16 @@
 <?php
 declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__, 2) . '/lib/admin-permissions.php';
 
-admin_require($pdo);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $id = trim((string) ($_GET['id'] ?? ''));
 
 if ($method === 'GET') {
+    $admin = admin_require($pdo);
+    if (!admin_has_any_permission($admin, ['products', 'dashboard'])) {
+        json_error('You do not have access to this section', 403);
+    }
     if ($id !== '') {
         $product = product_get($pdo, $id);
         if (!$product) {
@@ -18,6 +22,7 @@ if ($method === 'GET') {
 }
 
 if ($method === 'POST') {
+    admin_require_permission($pdo, 'products');
     $body = read_json_body();
     $product = products_normalize_input($body['product'] ?? $body);
     if ($product['id'] === '' || $product['label'] === '') {
@@ -27,6 +32,7 @@ if ($method === 'POST') {
 }
 
 if ($method === 'PUT' || $method === 'PATCH') {
+    admin_require_permission($pdo, 'products');
     if ($id === '') {
         json_error('Product id required', 400);
     }
@@ -36,6 +42,7 @@ if ($method === 'PUT' || $method === 'PATCH') {
 }
 
 if ($method === 'DELETE') {
+    admin_require_permission($pdo, 'products');
     if ($id === '') {
         json_error('Product id required', 400);
     }

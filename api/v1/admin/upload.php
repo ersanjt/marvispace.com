@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__, 2) . '/lib/admin-permissions.php';
 
-admin_require($pdo);
+admin_require_permission($pdo, 'products');
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method !== 'POST') {
