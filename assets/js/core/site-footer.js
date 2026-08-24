@@ -28,12 +28,12 @@ function socialNavHtml() {
 
   if (!links.length) return '';
   return `
-    <div class="footer-social-block">
-      <p class="footer-legal-title">${SITE.name} — Social</p>
-      <ul class="footer-nav footer-nav--social">
+    <nav class="footer-col" aria-label="Social">
+      <p class="footer-col__title">Social</p>
+      <ul class="footer-nav">
         ${links.join('')}
       </ul>
-    </div>
+    </nav>
   `;
 }
 
@@ -46,27 +46,38 @@ const FOOTER_INNER_HTML = `
       </a>
       <p class="footer-tagline">${SITE.tagline}</p>
     </div>
-    <div class="footer-legal-block">
-      <p class="footer-legal-title">${SITE.name} — Yasal</p>
-      <ul class="footer-nav footer-nav--legal">
-        <li><a href="/kvkk" class="nav-item">KVKK</a></li>
-        <li><a href="/mesafeli-satis-sozlesmesi" class="nav-item">Mesafeli Satış</a></li>
-        <li><a href="/on-bilgilendirme" class="nav-item">Ön Bilgilendirme</a></li>
-        <li><a href="/iade-ve-iptal" class="nav-item">İade & Cayma</a></li>
-      </ul>
+
+    <div class="footer-columns">
+      <nav class="footer-col" aria-label="Yasal">
+        <p class="footer-col__title">Yasal</p>
+        <ul class="footer-nav">
+          <li><a href="/kvkk" class="nav-item">KVKK</a></li>
+          <li><a href="/mesafeli-satis-sozlesmesi" class="nav-item">Mesafeli Satış</a></li>
+          <li><a href="/on-bilgilendirme" class="nav-item">Ön Bilgilendirme</a></li>
+          <li><a href="/iade-ve-iptal" class="nav-item">İade &amp; Cayma</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer-col" aria-label="Help">
+        <p class="footer-col__title">Help</p>
+        <ul class="footer-nav">
+          <li><a href="/contact" class="nav-item">Contact</a></li>
+          <li><a href="/order-status" class="nav-item">Order Status</a></li>
+          <li><a href="/terms" class="nav-item">Terms</a></li>
+          <li><a href="/privacy" class="nav-item">Privacy</a></li>
+          <li><a href="/privacy-right-center" class="nav-item">Do Not Sell</a></li>
+          <li><a href="/accessibility" class="nav-item">Accessibility</a></li>
+          <li><button type="button" class="nav-item" data-cookies-btn>Cookies</button></li>
+        </ul>
+      </nav>
+
+      ${socialNavHtml()}
     </div>
-    ${socialNavHtml()}
-    <ul class="footer-nav">
-      <li><a href="/contact" class="nav-item">Contact</a></li>
-      <li><a href="/terms" class="nav-item">Terms</a></li>
-      <li><a href="/privacy" class="nav-item">Privacy</a></li>
-      <li><a href="/privacy-right-center" class="nav-item">Do Not Sell</a></li>
-      <li><a href="/accessibility" class="nav-item">Accessibility</a></li>
-      <li><button type="button" class="nav-item" data-cookies-btn>Cookies</button></li>
-      <li><a href="/order-status" class="nav-item">Order Status</a></li>
-    </ul>
-    <p class="footer-trust">14-day returns · Secure 3D payment · <a href="/contact">support@marvispace.com</a></p>
-    <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">ETBİS Kayıt</a> · <a href="/iade-ve-iptal">İade &amp; Cayma</a></p>
+
+    <div class="footer-meta">
+      <p class="footer-trust">14-day returns · Secure 3D payment · <a href="mailto:${SITE.supportEmail}">${SITE.supportEmail}</a></p>
+      <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">ETBİS Kayıt</a> · <a href="/iade-ve-iptal">İade &amp; Cayma</a></p>
+    </div>
   </div>
 `;
 
