@@ -963,8 +963,19 @@ if (document.fonts?.ready) {
 }
 
 (async () => {
+  async function fetchSeedProducts() {
+    try {
+      const res = await fetch('/install/products.json', { cache: 'no-store' });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    } catch {
+      return [];
+    }
+  }
+
   async function bootStore() {
-    products = await loadProducts([]);
+    products = await loadProducts(await fetchSeedProducts());
     productCodes = buildProductCodes(products);
     cartItems = await loadCart();
     renderCart();

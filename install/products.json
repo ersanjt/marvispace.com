@@ -1,20 +1,816 @@
 [
   {
-    "id": "ottimo_22_KML_144_A_004",
-    "label": "Aris Leather Jacket",
-    "image": "/assets/images/products/22_KML_144_A_004_01.jpg",
+    "id": "ottimo_13_S_202_LACIVERT",
+    "label": "13 S 202 Lacivert Suede Jacket",
+    "image": "/assets/images/products/13_S_202_LACIVERT_01.jpg",
     "images": [
-      "/assets/images/products/22_KML_144_A_004_01.jpg",
-      "/assets/images/products/22_KML_144_A_004_02.jpg",
-      "/assets/images/products/22_KML_144_A_004_03.jpg",
-      "/assets/images/products/22_KML_144_A_004_04.jpg",
-      "/assets/images/products/22_KML_144_A_004_05.jpg",
-      "/assets/images/products/22_KML_144_A_004_06.jpg"
+      "/assets/images/products/13_S_202_LACIVERT_01.jpg",
+      "/assets/images/products/13_S_202_LACIVERT_02.jpg",
+      "/assets/images/products/13_S_202_LACIVERT_03.jpg",
+      "/assets/images/products/13_S_202_LACIVERT_04.jpg",
+      "/assets/images/products/13_S_202_LACIVERT_05.jpg",
+      "/assets/images/products/13_S_202_LACIVERT_06.jpg",
+      "/assets/images/products/13_S_202_LACIVERT_07.jpg"
     ],
-    "galleryCount": 6,
-    "price": 545,
+    "galleryCount": 7,
+    "price": 100.0,
     "category": "jackets",
     "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_13_S_202_SIYAH",
+    "label": "13 S 202 Siyah Suede Jacket",
+    "image": "/assets/images/products/13_S_202_SIYAH_01.jpg",
+    "images": [
+      "/assets/images/products/13_S_202_SIYAH_01.jpg",
+      "/assets/images/products/13_S_202_SIYAH_02.jpg",
+      "/assets/images/products/13_S_202_SIYAH_03.jpg",
+      "/assets/images/products/13_S_202_SIYAH_04.jpg",
+      "/assets/images/products/13_S_202_SIYAH_05.jpg",
+      "/assets/images/products/13_S_202_SIYAH_06.jpg",
+      "/assets/images/products/13_S_202_SIYAH_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_14_S_126_BLACK",
+    "label": "14 S 126 Black Leather Jacket",
+    "image": "/assets/images/products/14_S_126_BLACK_01.jpg",
+    "images": [
+      "/assets/images/products/14_S_126_BLACK_01.jpg",
+      "/assets/images/products/14_S_126_BLACK_02.jpg",
+      "/assets/images/products/14_S_126_BLACK_03.jpg",
+      "/assets/images/products/14_S_126_BLACK_04.jpg",
+      "/assets/images/products/14_S_126_BLACK_05.jpg",
+      "/assets/images/products/14_S_126_BLACK_06.jpg",
+      "/assets/images/products/14_S_126_BLACK_07.jpg",
+      "/assets/images/products/14_S_126_BLACK_08.jpg"
+    ],
+    "galleryCount": 8,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_1498_BLACK_RED",
+    "label": "1498 Black Red Leather Jacket",
+    "image": "/assets/images/products/1498_BLACK_RED_01.jpg",
+    "images": [
+      "/assets/images/products/1498_BLACK_RED_01.jpg",
+      "/assets/images/products/1498_BLACK_RED_02.jpg",
+      "/assets/images/products/1498_BLACK_RED_03.jpg",
+      "/assets/images/products/1498_BLACK_RED_04.jpg",
+      "/assets/images/products/1498_BLACK_RED_05.jpg",
+      "/assets/images/products/1498_BLACK_RED_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_1498_RED_BLACK",
+    "label": "1498 Red Black Leather Jacket",
+    "image": "/assets/images/products/1498_RED_BLACK_01.jpg",
+    "images": [
+      "/assets/images/products/1498_RED_BLACK_01.jpg",
+      "/assets/images/products/1498_RED_BLACK_02.jpg",
+      "/assets/images/products/1498_RED_BLACK_03.jpg",
+      "/assets/images/products/1498_RED_BLACK_04.jpg",
+      "/assets/images/products/1498_RED_BLACK_05.jpg",
+      "/assets/images/products/1498_RED_BLACK_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_1498_YELLOW_BLACK",
+    "label": "1498 Yellow Black Leather Jacket",
+    "image": "/assets/images/products/1498_YELLOW_BLACK_01.jpg",
+    "images": [
+      "/assets/images/products/1498_YELLOW_BLACK_01.jpg",
+      "/assets/images/products/1498_YELLOW_BLACK_02.jpg"
+    ],
+    "galleryCount": 2,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_1697_000",
+    "label": "1697 000 Leather Jacket",
+    "image": "/assets/images/products/1697_000_01.jpg",
+    "images": [
+      "/assets/images/products/1697_000_01.jpg",
+      "/assets/images/products/1697_000_02.jpg",
+      "/assets/images/products/1697_000_03.jpg",
+      "/assets/images/products/1697_000_04.jpg",
+      "/assets/images/products/1697_000_05.jpg",
+      "/assets/images/products/1697_000_06.jpg",
+      "/assets/images/products/1697_000_07.jpg",
+      "/assets/images/products/1697_000_08.jpg"
+    ],
+    "galleryCount": 8,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_1916_400",
+    "label": "1916 400 Jacket",
+    "image": "/assets/images/products/1916_400_01.jpg",
+    "images": [
+      "/assets/images/products/1916_400_01.jpg",
+      "/assets/images/products/1916_400_02.jpg",
+      "/assets/images/products/1916_400_03.jpg",
+      "/assets/images/products/1916_400_04.jpg",
+      "/assets/images/products/1916_400_05.jpg",
+      "/assets/images/products/1916_400_06.jpg",
+      "/assets/images/products/1916_400_07.jpg",
+      "/assets/images/products/1916_400_08.jpg",
+      "/assets/images/products/1916_400_09.jpg",
+      "/assets/images/products/1916_400_10.jpg",
+      "/assets/images/products/1916_400_11.jpg"
+    ],
+    "galleryCount": 11,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2175_RED",
+    "label": "2175 Red Leather Jacket",
+    "image": "/assets/images/products/2175_RED_01.jpg",
+    "images": [
+      "/assets/images/products/2175_RED_01.jpg",
+      "/assets/images/products/2175_RED_02.jpg",
+      "/assets/images/products/2175_RED_03.jpg",
+      "/assets/images/products/2175_RED_04.jpg",
+      "/assets/images/products/2175_RED_05.jpg",
+      "/assets/images/products/2175_RED_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2176_SIYAH",
+    "label": "2176 Siyah Leather Jacket",
+    "image": "/assets/images/products/2176_SIYAH_01.jpg",
+    "images": [
+      "/assets/images/products/2176_SIYAH_01.jpg",
+      "/assets/images/products/2176_SIYAH_02.jpg",
+      "/assets/images/products/2176_SIYAH_03.jpg",
+      "/assets/images/products/2176_SIYAH_04.jpg",
+      "/assets/images/products/2176_SIYAH_05.jpg",
+      "/assets/images/products/2176_SIYAH_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2178_RED",
+    "label": "2178 Red Leather Jacket",
+    "image": "/assets/images/products/2178_RED_01.jpg",
+    "images": [
+      "/assets/images/products/2178_RED_01.jpg",
+      "/assets/images/products/2178_RED_02.jpg"
+    ],
+    "galleryCount": 2,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2239_004",
+    "label": "2239 004 Leather Jacket",
+    "image": "/assets/images/products/2239_004_01.jpg",
+    "images": [
+      "/assets/images/products/2239_004_01.jpg",
+      "/assets/images/products/2239_004_02.jpg",
+      "/assets/images/products/2239_004_03.jpg",
+      "/assets/images/products/2239_004_04.jpg",
+      "/assets/images/products/2239_004_05.jpg",
+      "/assets/images/products/2239_004_06.jpg",
+      "/assets/images/products/2239_004_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 120.0,
+    "category": "shirts",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2261_100",
+    "label": "2261 Red Leather Jacket",
+    "image": "/assets/images/products/2261_100_01.jpg",
+    "images": [
+      "/assets/images/products/2261_100_01.jpg",
+      "/assets/images/products/2261_100_02.jpg",
+      "/assets/images/products/2261_100_03.jpg",
+      "/assets/images/products/2261_100_04.jpg",
+      "/assets/images/products/2261_100_05.jpg",
+      "/assets/images/products/2261_100_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2272_BEYAZ",
+    "label": "2272 Beyaz Leather Jacket",
+    "image": "/assets/images/products/2272_BEYAZ_01.jpg",
+    "images": [
+      "/assets/images/products/2272_BEYAZ_01.jpg",
+      "/assets/images/products/2272_BEYAZ_02.jpg",
+      "/assets/images/products/2272_BEYAZ_03.jpg",
+      "/assets/images/products/2272_BEYAZ_04.jpg",
+      "/assets/images/products/2272_BEYAZ_05.jpg",
+      "/assets/images/products/2272_BEYAZ_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2272_RED",
+    "label": "2272 Red Leather Jacket",
+    "image": "/assets/images/products/2272_RED_01.jpg",
+    "images": [
+      "/assets/images/products/2272_RED_01.jpg",
+      "/assets/images/products/2272_RED_02.jpg",
+      "/assets/images/products/2272_RED_03.jpg",
+      "/assets/images/products/2272_RED_04.jpg",
+      "/assets/images/products/2272_RED_05.jpg",
+      "/assets/images/products/2272_RED_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2272_SIYAH",
+    "label": "2272 Siyah Leather Jacket",
+    "image": "/assets/images/products/2272_SIYAH_01.jpg",
+    "images": [
+      "/assets/images/products/2272_SIYAH_01.jpg",
+      "/assets/images/products/2272_SIYAH_02.jpg",
+      "/assets/images/products/2272_SIYAH_03.jpg",
+      "/assets/images/products/2272_SIYAH_04.jpg",
+      "/assets/images/products/2272_SIYAH_05.jpg",
+      "/assets/images/products/2272_SIYAH_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2778_BEYAZ",
+    "label": "2778 Beyaz Leather Jacket",
+    "image": "/assets/images/products/2778_BEYAZ_01.jpg",
+    "images": [
+      "/assets/images/products/2778_BEYAZ_01.jpg",
+      "/assets/images/products/2778_BEYAZ_02.jpg",
+      "/assets/images/products/2778_BEYAZ_03.jpg",
+      "/assets/images/products/2778_BEYAZ_04.jpg",
+      "/assets/images/products/2778_BEYAZ_05.jpg",
+      "/assets/images/products/2778_BEYAZ_06.jpg",
+      "/assets/images/products/2778_BEYAZ_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 75.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2778_KIRMIZI",
+    "label": "2778 Kirmizi Leather Jacket",
+    "image": "/assets/images/products/2778_KIRMIZI_01.jpg",
+    "images": [
+      "/assets/images/products/2778_KIRMIZI_01.jpg",
+      "/assets/images/products/2778_KIRMIZI_02.jpg",
+      "/assets/images/products/2778_KIRMIZI_03.jpg",
+      "/assets/images/products/2778_KIRMIZI_04.jpg",
+      "/assets/images/products/2778_KIRMIZI_05.jpg",
+      "/assets/images/products/2778_KIRMIZI_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 75.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2778_Turkuaz",
+    "label": "2778 Turkuaz Leather Jacket",
+    "image": "/assets/images/products/2778_Turkuaz_01.jpg",
+    "images": [
+      "/assets/images/products/2778_Turkuaz_01.jpg",
+      "/assets/images/products/2778_Turkuaz_02.jpg",
+      "/assets/images/products/2778_Turkuaz_03.jpg",
+      "/assets/images/products/2778_Turkuaz_04.jpg",
+      "/assets/images/products/2778_Turkuaz_05.jpg",
+      "/assets/images/products/2778_Turkuaz_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 75.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_2778_YESIL",
+    "label": "2778 Yesil Leather Jacket",
+    "image": "/assets/images/products/2778_YESIL_01.jpg",
+    "images": [
+      "/assets/images/products/2778_YESIL_01.jpg",
+      "/assets/images/products/2778_YESIL_02.jpg",
+      "/assets/images/products/2778_YESIL_03.jpg",
+      "/assets/images/products/2778_YESIL_04.jpg",
+      "/assets/images/products/2778_YESIL_05.jpg",
+      "/assets/images/products/2778_YESIL_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 75.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_3397_004",
+    "label": "3397 Kirmizi Leather Jacket",
+    "image": "/assets/images/products/3397_004_01.jpg",
+    "images": [
+      "/assets/images/products/3397_004_01.jpg",
+      "/assets/images/products/3397_004_02.jpg",
+      "/assets/images/products/3397_004_03.jpg",
+      "/assets/images/products/3397_004_04.jpg",
+      "/assets/images/products/3397_004_05.jpg",
+      "/assets/images/products/3397_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_3397_300",
+    "label": "3397 Siyah Leather Jacket",
+    "image": "/assets/images/products/3397_300_01.jpg",
+    "images": [
+      "/assets/images/products/3397_300_01.jpg",
+      "/assets/images/products/3397_300_02.jpg",
+      "/assets/images/products/3397_300_03.jpg",
+      "/assets/images/products/3397_300_04.jpg",
+      "/assets/images/products/3397_300_05.jpg",
+      "/assets/images/products/3397_300_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_3397_100",
+    "label": "3397 Yesil Leather Jacket",
+    "image": "/assets/images/products/3397_100_01.jpg",
+    "images": [
+      "/assets/images/products/3397_100_01.jpg",
+      "/assets/images/products/3397_100_02.jpg",
+      "/assets/images/products/3397_100_03.jpg",
+      "/assets/images/products/3397_100_04.jpg",
+      "/assets/images/products/3397_100_05.jpg",
+      "/assets/images/products/3397_100_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_4661_250",
+    "label": "4661 250 Leather Jacket",
+    "image": "/assets/images/products/4661_250_01.jpg",
+    "images": [
+      "/assets/images/products/4661_250_01.jpg",
+      "/assets/images/products/4661_250_02.jpg",
+      "/assets/images/products/4661_250_03.jpg",
+      "/assets/images/products/4661_250_04.jpg",
+      "/assets/images/products/4661_250_05.jpg",
+      "/assets/images/products/4661_250_06.jpg",
+      "/assets/images/products/4661_250_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 150.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_5518_BLACK",
+    "label": "5518 Black Leather Jacket",
+    "image": "/assets/images/products/5518_BLACK_01.jpg",
+    "images": [
+      "/assets/images/products/5518_BLACK_01.jpg",
+      "/assets/images/products/5518_BLACK_02.jpg",
+      "/assets/images/products/5518_BLACK_03.jpg",
+      "/assets/images/products/5518_BLACK_04.jpg",
+      "/assets/images/products/5518_BLACK_05.jpg",
+      "/assets/images/products/5518_BLACK_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_5528_B_RED",
+    "label": "5528 B Red Leather Jacket",
+    "image": "/assets/images/products/5528_B_RED_01.jpg",
+    "images": [
+      "/assets/images/products/5528_B_RED_01.jpg",
+      "/assets/images/products/5528_B_RED_02.jpg",
+      "/assets/images/products/5528_B_RED_03.jpg",
+      "/assets/images/products/5528_B_RED_04.jpg",
+      "/assets/images/products/5528_B_RED_05.jpg",
+      "/assets/images/products/5528_B_RED_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 80.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_5565_RED",
+    "label": "5565 Red Suede Jacket",
+    "image": "/assets/images/products/5565_RED_01.jpg",
+    "images": [
+      "/assets/images/products/5565_RED_01.jpg",
+      "/assets/images/products/5565_RED_02.jpg",
+      "/assets/images/products/5565_RED_03.jpg",
+      "/assets/images/products/5565_RED_04.jpg",
+      "/assets/images/products/5565_RED_05.jpg",
+      "/assets/images/products/5565_RED_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_5571_RED",
+    "label": "5571 Red Suede Jacket",
+    "image": "/assets/images/products/5571_RED_01.jpg",
+    "images": [
+      "/assets/images/products/5571_RED_01.jpg",
+      "/assets/images/products/5571_RED_02.jpg",
+      "/assets/images/products/5571_RED_03.jpg",
+      "/assets/images/products/5571_RED_04.jpg",
+      "/assets/images/products/5571_RED_05.jpg",
+      "/assets/images/products/5571_RED_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 80.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_6466_SIYAH",
+    "label": "6466 Siyah Leather Jacket",
+    "image": "/assets/images/products/6466_SIYAH_01.jpg",
+    "images": [
+      "/assets/images/products/6466_SIYAH_01.jpg",
+      "/assets/images/products/6466_SIYAH_02.jpg",
+      "/assets/images/products/6466_SIYAH_03.jpg",
+      "/assets/images/products/6466_SIYAH_04.jpg",
+      "/assets/images/products/6466_SIYAH_05.jpg",
+      "/assets/images/products/6466_SIYAH_06.jpg",
+      "/assets/images/products/6466_SIYAH_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 170.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_72428_004",
+    "label": "72428 Yeni Lacivert Leather Jacket",
+    "image": "/assets/images/products/72428_004_01.jpg",
+    "images": [
+      "/assets/images/products/72428_004_01.jpg",
+      "/assets/images/products/72428_004_02.jpg",
+      "/assets/images/products/72428_004_03.jpg"
+    ],
+    "galleryCount": 3,
+    "price": 230.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_72428_LACIVERT",
+    "label": "72428 Yeni Lacivert Leather Jacket",
+    "image": "/assets/images/products/72428_LACIVERT_01.jpg",
+    "images": [
+      "/assets/images/products/72428_LACIVERT_01.jpg",
+      "/assets/images/products/72428_LACIVERT_02.jpg",
+      "/assets/images/products/72428_LACIVERT_03.jpg"
+    ],
+    "galleryCount": 3,
+    "price": 230.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_808_004",
+    "label": "808 004 Shirt",
+    "image": "/assets/images/products/808_004_01.jpg",
+    "images": [
+      "/assets/images/products/808_004_01.jpg",
+      "/assets/images/products/808_004_02.jpg",
+      "/assets/images/products/808_004_03.jpg",
+      "/assets/images/products/808_004_04.jpg",
+      "/assets/images/products/808_004_05.jpg",
+      "/assets/images/products/808_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 60.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_808_SARI",
+    "label": "808 Sari Leather Jacket",
+    "image": "/assets/images/products/808_SARI_01.jpg",
+    "images": [
+      "/assets/images/products/808_SARI_01.jpg",
+      "/assets/images/products/808_SARI_02.jpg",
+      "/assets/images/products/808_SARI_03.jpg",
+      "/assets/images/products/808_SARI_04.jpg",
+      "/assets/images/products/808_SARI_05.jpg",
+      "/assets/images/products/808_SARI_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A10550_001",
+    "label": "A10550 001 Leather Jacket",
+    "image": "/assets/images/products/A10550_001_01.jpg",
+    "images": [
+      "/assets/images/products/A10550_001_01.jpg",
+      "/assets/images/products/A10550_001_02.jpg",
+      "/assets/images/products/A10550_001_03.jpg",
+      "/assets/images/products/A10550_001_04.jpg",
+      "/assets/images/products/A10550_001_05.jpg",
+      "/assets/images/products/A10550_001_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A10550_004",
+    "label": "A10550 004 Leather Jacket",
+    "image": "/assets/images/products/A10550_004_01.jpg",
+    "images": [
+      "/assets/images/products/A10550_004_01.jpg",
+      "/assets/images/products/A10550_004_02.jpg",
+      "/assets/images/products/A10550_004_03.jpg",
+      "/assets/images/products/A10550_004_04.jpg",
+      "/assets/images/products/A10550_004_05.jpg",
+      "/assets/images/products/A10550_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A10550_220",
+    "label": "A10550 220 Leather Jacket",
+    "image": "/assets/images/products/A10550_220_01.jpg",
+    "images": [
+      "/assets/images/products/A10550_220_01.jpg",
+      "/assets/images/products/A10550_220_02.jpg",
+      "/assets/images/products/A10550_220_03.jpg",
+      "/assets/images/products/A10550_220_04.jpg",
+      "/assets/images/products/A10550_220_05.jpg",
+      "/assets/images/products/A10550_220_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A10710_004",
+    "label": "A10710 004 Jacket",
+    "image": "/assets/images/products/A10710_004_01.jpg",
+    "images": [
+      "/assets/images/products/A10710_004_01.jpg",
+      "/assets/images/products/A10710_004_02.jpg",
+      "/assets/images/products/A10710_004_03.jpg",
+      "/assets/images/products/A10710_004_04.jpg",
+      "/assets/images/products/A10710_004_05.jpg",
+      "/assets/images/products/A10710_004_06.jpg",
+      "/assets/images/products/A10710_004_07.jpg",
+      "/assets/images/products/A10710_004_08.jpg",
+      "/assets/images/products/A10710_004_09.jpg",
+      "/assets/images/products/A10710_004_10.jpg"
+    ],
+    "galleryCount": 10,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15690_004",
+    "label": "A15690 004 Jacket",
+    "image": "/assets/images/products/A15690_004_01.jpg",
+    "images": [
+      "/assets/images/products/A15690_004_01.jpg",
+      "/assets/images/products/A15690_004_02.jpg",
+      "/assets/images/products/A15690_004_03.jpg",
+      "/assets/images/products/A15690_004_04.jpg",
+      "/assets/images/products/A15690_004_05.jpg",
+      "/assets/images/products/A15690_004_06.jpg",
+      "/assets/images/products/A15690_004_07.jpg",
+      "/assets/images/products/A15690_004_08.jpg",
+      "/assets/images/products/A15690_004_09.jpg",
+      "/assets/images/products/A15690_004_10.jpg",
+      "/assets/images/products/A15690_004_11.jpg"
+    ],
+    "galleryCount": 11,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_734_004",
+    "label": "A15734 004 Leather Jacket",
+    "image": "/assets/images/products/A15_734_004_01.jpg",
+    "images": [
+      "/assets/images/products/A15_734_004_01.jpg",
+      "/assets/images/products/A15_734_004_02.jpg",
+      "/assets/images/products/A15_734_004_03.jpg"
+    ],
+    "galleryCount": 3,
+    "price": 110.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_769_004",
+    "label": "A15769 004 Leather Jacket",
+    "image": "/assets/images/products/A15_769_004_01.jpg",
+    "images": [
+      "/assets/images/products/A15_769_004_01.jpg",
+      "/assets/images/products/A15_769_004_02.jpg",
+      "/assets/images/products/A15_769_004_03.jpg"
+    ],
+    "galleryCount": 3,
+    "price": 130.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_793_004",
+    "label": "A15793 004 Leather Jacket",
+    "image": "/assets/images/products/A15_793_004_01.jpg",
+    "images": [
+      "/assets/images/products/A15_793_004_01.jpg",
+      "/assets/images/products/A15_793_004_02.jpg",
+      "/assets/images/products/A15_793_004_03.jpg"
+    ],
+    "galleryCount": 3,
+    "price": 170.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_810_004",
+    "label": "A15810 004 Leather Jacket",
+    "image": "/assets/images/products/A15_810_004_01.jpg",
+    "images": [
+      "/assets/images/products/A15_810_004_01.jpg",
+      "/assets/images/products/A15_810_004_02.jpg",
+      "/assets/images/products/A15_810_004_03.jpg"
+    ],
+    "galleryCount": 3,
+    "price": 120.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A20527_555",
+    "label": "A20527 555 Jacket",
+    "image": "/assets/images/products/A20527_555_01.jpg",
+    "images": [
+      "/assets/images/products/A20527_555_01.jpg",
+      "/assets/images/products/A20527_555_02.jpg",
+      "/assets/images/products/A20527_555_03.jpg",
+      "/assets/images/products/A20527_555_04.jpg",
+      "/assets/images/products/A20527_555_05.jpg",
+      "/assets/images/products/A20527_555_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
     "inStock": true,
     "stock": 12
   },
@@ -38,38 +834,19 @@
     "stock": 12
   },
   {
-    "id": "ottimo_A15_910_004",
-    "label": "Axis Bomber Leather Jacket",
-    "image": "/assets/images/products/A15_910_004_01.jpg",
+    "id": "ottimo_22_KML_144_A_004",
+    "label": "Aris Leather Jacket",
+    "image": "/assets/images/products/22_KML_144_A_004_01.jpg",
     "images": [
-      "/assets/images/products/A15_910_004_01.jpg",
-      "/assets/images/products/A15_910_004_02.jpg",
-      "/assets/images/products/A15_910_004_03.jpg",
-      "/assets/images/products/A15_910_004_04.jpg",
-      "/assets/images/products/A15_910_004_05.jpg",
-      "/assets/images/products/A15_910_004_06.jpg"
+      "/assets/images/products/22_KML_144_A_004_01.jpg",
+      "/assets/images/products/22_KML_144_A_004_02.jpg",
+      "/assets/images/products/22_KML_144_A_004_03.jpg",
+      "/assets/images/products/22_KML_144_A_004_04.jpg",
+      "/assets/images/products/22_KML_144_A_004_05.jpg",
+      "/assets/images/products/22_KML_144_A_004_06.jpg"
     ],
     "galleryCount": 6,
-    "price": 1008,
-    "category": "jackets",
-    "gender": "mens",
-    "inStock": true,
-    "stock": 12
-  },
-  {
-    "id": "ottimo_DRK_CMLB_1756_000_KREM",
-    "label": "Asis Bomber Leather Jacket",
-    "image": "/assets/images/products/DRK_CMLB_1756_000_KREM_01.jpg",
-    "images": [
-      "/assets/images/products/DRK_CMLB_1756_000_KREM_01.jpg",
-      "/assets/images/products/DRK_CMLB_1756_000_KREM_02.jpg",
-      "/assets/images/products/DRK_CMLB_1756_000_KREM_03.jpg",
-      "/assets/images/products/DRK_CMLB_1756_000_KREM_04.jpg",
-      "/assets/images/products/DRK_CMLB_1756_000_KREM_05.jpg",
-      "/assets/images/products/DRK_CMLB_1756_000_KREM_06.jpg"
-    ],
-    "galleryCount": 6,
-    "price": 490,
+    "price": 545,
     "category": "jackets",
     "gender": "mens",
     "inStock": true,
@@ -95,6 +872,25 @@
     "stock": 12
   },
   {
+    "id": "ottimo_DRK_CMLB_1756_000_KREM",
+    "label": "Asis Bomber Leather Jacket",
+    "image": "/assets/images/products/DRK_CMLB_1756_000_KREM_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_01.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_02.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_03.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_04.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_05.jpg",
+      "/assets/images/products/DRK_CMLB_1756_000_KREM_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 490,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
     "id": "ottimo_A15_854_000",
     "label": "Aven Suede Bomber Jacket",
     "image": "/assets/images/products/A15_854_000_01.jpg",
@@ -109,6 +905,1151 @@
     "galleryCount": 6,
     "price": 477,
     "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A15_910_004",
+    "label": "Axis Bomber Leather Jacket",
+    "image": "/assets/images/products/A15_910_004_01.jpg",
+    "images": [
+      "/assets/images/products/A15_910_004_01.jpg",
+      "/assets/images/products/A15_910_004_02.jpg",
+      "/assets/images/products/A15_910_004_03.jpg",
+      "/assets/images/products/A15_910_004_04.jpg",
+      "/assets/images/products/A15_910_004_05.jpg",
+      "/assets/images/products/A15_910_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 1008,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_B1374_KAKAO",
+    "label": "B 1374 Kakao Leather Jacket",
+    "image": "/assets/images/products/B1374_KAKAO_01.jpg",
+    "images": [
+      "/assets/images/products/B1374_KAKAO_01.jpg",
+      "/assets/images/products/B1374_KAKAO_02.jpg",
+      "/assets/images/products/B1374_KAKAO_03.jpg",
+      "/assets/images/products/B1374_KAKAO_04.jpg",
+      "/assets/images/products/B1374_KAKAO_05.jpg",
+      "/assets/images/products/B1374_KAKAO_06.jpg",
+      "/assets/images/products/B1374_KAKAO_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_B808_100",
+    "label": "B 808 105 Leather Jacket",
+    "image": "/assets/images/products/B808_100_01.jpg",
+    "images": [
+      "/assets/images/products/B808_100_01.jpg",
+      "/assets/images/products/B808_100_02.jpg",
+      "/assets/images/products/B808_100_03.jpg",
+      "/assets/images/products/B808_100_04.jpg",
+      "/assets/images/products/B808_100_05.jpg",
+      "/assets/images/products/B808_100_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEM16_09_004",
+    "label": "Dem16 09 004 Jacket",
+    "image": "/assets/images/products/DEM16_09_004_01.jpg",
+    "images": [
+      "/assets/images/products/DEM16_09_004_01.jpg",
+      "/assets/images/products/DEM16_09_004_02.jpg",
+      "/assets/images/products/DEM16_09_004_03.jpg",
+      "/assets/images/products/DEM16_09_004_04.jpg",
+      "/assets/images/products/DEM16_09_004_05.jpg",
+      "/assets/images/products/DEM16_09_004_06.jpg",
+      "/assets/images/products/DEM16_09_004_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 150.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEM16_13_004_KIRISIK",
+    "label": "Dem16 13 600 Leather Jacket",
+    "image": "/assets/images/products/DEM16_13_004_KIRISIK_01.jpg",
+    "images": [
+      "/assets/images/products/DEM16_13_004_KIRISIK_01.jpg",
+      "/assets/images/products/DEM16_13_004_KIRISIK_02.jpg",
+      "/assets/images/products/DEM16_13_004_KIRISIK_03.jpg",
+      "/assets/images/products/DEM16_13_004_KIRISIK_04.jpg",
+      "/assets/images/products/DEM16_13_004_KIRISIK_05.jpg"
+    ],
+    "galleryCount": 5,
+    "price": 120.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEM16_13_616_KIRISIK",
+    "label": "Dem16 13 600 Leather Jacket",
+    "image": "/assets/images/products/DEM16_13_616_KIRISIK_01.jpg",
+    "images": [
+      "/assets/images/products/DEM16_13_616_KIRISIK_01.jpg",
+      "/assets/images/products/DEM16_13_616_KIRISIK_02.jpg",
+      "/assets/images/products/DEM16_13_616_KIRISIK_03.jpg",
+      "/assets/images/products/DEM16_13_616_KIRISIK_04.jpg",
+      "/assets/images/products/DEM16_13_616_KIRISIK_05.jpg",
+      "/assets/images/products/DEM16_13_616_KIRISIK_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 120.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEM_16_19_004",
+    "label": "Dem16 19 004 Leather Jacket",
+    "image": "/assets/images/products/DEM_16_19_004_01.jpg",
+    "images": [
+      "/assets/images/products/DEM_16_19_004_01.jpg",
+      "/assets/images/products/DEM_16_19_004_02.jpg",
+      "/assets/images/products/DEM_16_19_004_03.jpg",
+      "/assets/images/products/DEM_16_19_004_04.jpg",
+      "/assets/images/products/DEM_16_19_004_05.jpg",
+      "/assets/images/products/DEM_16_19_004_06.jpg",
+      "/assets/images/products/DEM_16_19_004_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEM_16_19_600",
+    "label": "Dem16 19 600 Jacket",
+    "image": "/assets/images/products/DEM_16_19_600_01.jpg",
+    "images": [
+      "/assets/images/products/DEM_16_19_600_01.jpg",
+      "/assets/images/products/DEM_16_19_600_02.jpg",
+      "/assets/images/products/DEM_16_19_600_03.jpg",
+      "/assets/images/products/DEM_16_19_600_04.jpg",
+      "/assets/images/products/DEM_16_19_600_05.jpg",
+      "/assets/images/products/DEM_16_19_600_06.jpg",
+      "/assets/images/products/DEM_16_19_600_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEM_16_19_000_ITALIANO",
+    "label": "Dem16 19 Laci Leather Jacket",
+    "image": "/assets/images/products/DEM_16_19_000_ITALIANO_01.jpg",
+    "images": [
+      "/assets/images/products/DEM_16_19_000_ITALIANO_01.jpg",
+      "/assets/images/products/DEM_16_19_000_ITALIANO_02.jpg",
+      "/assets/images/products/DEM_16_19_000_ITALIANO_03.jpg",
+      "/assets/images/products/DEM_16_19_000_ITALIANO_04.jpg",
+      "/assets/images/products/DEM_16_19_000_ITALIANO_05.jpg",
+      "/assets/images/products/DEM_16_19_000_ITALIANO_06.jpg",
+      "/assets/images/products/DEM_16_19_000_ITALIANO_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEM16_20_000_ROMEO",
+    "label": "Dem16 20 004 Jacket",
+    "image": "/assets/images/products/DEM16_20_000_ROMEO_01.jpg",
+    "images": [
+      "/assets/images/products/DEM16_20_000_ROMEO_01.jpg",
+      "/assets/images/products/DEM16_20_000_ROMEO_02.jpg",
+      "/assets/images/products/DEM16_20_000_ROMEO_03.jpg",
+      "/assets/images/products/DEM16_20_000_ROMEO_04.jpg",
+      "/assets/images/products/DEM16_20_000_ROMEO_05.jpg",
+      "/assets/images/products/DEM16_20_000_ROMEO_06.jpg",
+      "/assets/images/products/DEM16_20_000_ROMEO_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEM16_20_004",
+    "label": "Dem16 20 004 Jacket",
+    "image": "/assets/images/products/DEM16_20_004_01.jpg",
+    "images": [
+      "/assets/images/products/DEM16_20_004_01.jpg",
+      "/assets/images/products/DEM16_20_004_02.jpg",
+      "/assets/images/products/DEM16_20_004_03.jpg",
+      "/assets/images/products/DEM16_20_004_04.jpg",
+      "/assets/images/products/DEM16_20_004_05.jpg",
+      "/assets/images/products/DEM16_20_004_06.jpg",
+      "/assets/images/products/DEM16_20_004_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW_16_02_000_LUIGI",
+    "label": "Dew16 02 000 Leather Jacket",
+    "image": "/assets/images/products/DEW_16_02_000_LUIGI_01.jpg",
+    "images": [
+      "/assets/images/products/DEW_16_02_000_LUIGI_01.jpg",
+      "/assets/images/products/DEW_16_02_000_LUIGI_02.jpg",
+      "/assets/images/products/DEW_16_02_000_LUIGI_03.jpg",
+      "/assets/images/products/DEW_16_02_000_LUIGI_04.jpg",
+      "/assets/images/products/DEW_16_02_000_LUIGI_05.jpg",
+      "/assets/images/products/DEW_16_02_000_LUIGI_06.jpg",
+      "/assets/images/products/DEW_16_02_000_LUIGI_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_03_133",
+    "label": "Dew16 03 133 Jacket",
+    "image": "/assets/images/products/DEW16_03_133_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_03_133_01.jpg",
+      "/assets/images/products/DEW16_03_133_02.jpg",
+      "/assets/images/products/DEW16_03_133_03.jpg",
+      "/assets/images/products/DEW16_03_133_04.jpg",
+      "/assets/images/products/DEW16_03_133_05.jpg",
+      "/assets/images/products/DEW16_03_133_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_03_000_075",
+    "label": "Dew16 03 193 Shirt",
+    "image": "/assets/images/products/DEW16_03_000_075_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_03_000_075_01.jpg",
+      "/assets/images/products/DEW16_03_000_075_02.jpg",
+      "/assets/images/products/DEW16_03_000_075_03.jpg",
+      "/assets/images/products/DEW16_03_000_075_04.jpg",
+      "/assets/images/products/DEW16_03_000_075_05.jpg",
+      "/assets/images/products/DEW16_03_000_075_06.jpg",
+      "/assets/images/products/DEW16_03_000_075_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_03_193",
+    "label": "Dew16 03 193 Shirt",
+    "image": "/assets/images/products/DEW16_03_193_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_03_193_01.jpg",
+      "/assets/images/products/DEW16_03_193_02.jpg",
+      "/assets/images/products/DEW16_03_193_03.jpg",
+      "/assets/images/products/DEW16_03_193_04.jpg",
+      "/assets/images/products/DEW16_03_193_05.jpg",
+      "/assets/images/products/DEW16_03_193_06.jpg",
+      "/assets/images/products/DEW16_03_193_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_03_230",
+    "label": "Dew16 03 193 Shirt",
+    "image": "/assets/images/products/DEW16_03_230_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_03_230_01.jpg",
+      "/assets/images/products/DEW16_03_230_02.jpg",
+      "/assets/images/products/DEW16_03_230_03.jpg",
+      "/assets/images/products/DEW16_03_230_04.jpg",
+      "/assets/images/products/DEW16_03_230_05.jpg",
+      "/assets/images/products/DEW16_03_230_06.jpg",
+      "/assets/images/products/DEW16_03_230_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_03_312",
+    "label": "Dew16 03 312 Leather Jacket",
+    "image": "/assets/images/products/DEW16_03_312_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_03_312_01.jpg",
+      "/assets/images/products/DEW16_03_312_02.jpg",
+      "/assets/images/products/DEW16_03_312_03.jpg",
+      "/assets/images/products/DEW16_03_312_04.jpg",
+      "/assets/images/products/DEW16_03_312_05.jpg",
+      "/assets/images/products/DEW16_03_312_06.jpg",
+      "/assets/images/products/DEW16_03_312_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_03_404",
+    "label": "Dew16 03 404 Shirt",
+    "image": "/assets/images/products/DEW16_03_404_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_03_404_01.jpg",
+      "/assets/images/products/DEW16_03_404_02.jpg",
+      "/assets/images/products/DEW16_03_404_03.jpg",
+      "/assets/images/products/DEW16_03_404_04.jpg",
+      "/assets/images/products/DEW16_03_404_05.jpg",
+      "/assets/images/products/DEW16_03_404_06.jpg",
+      "/assets/images/products/DEW16_03_404_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_03_481",
+    "label": "Dew16 03 481 Jacket",
+    "image": "/assets/images/products/DEW16_03_481_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_03_481_01.jpg",
+      "/assets/images/products/DEW16_03_481_02.jpg",
+      "/assets/images/products/DEW16_03_481_03.jpg",
+      "/assets/images/products/DEW16_03_481_04.jpg",
+      "/assets/images/products/DEW16_03_481_05.jpg",
+      "/assets/images/products/DEW16_03_481_06.jpg",
+      "/assets/images/products/DEW16_03_481_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_03_000_TURKUAZ",
+    "label": "Dew16 03 Turkuaz Leather Jacket",
+    "image": "/assets/images/products/DEW16_03_000_TURKUAZ_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_03_000_TURKUAZ_01.jpg",
+      "/assets/images/products/DEW16_03_000_TURKUAZ_02.jpg",
+      "/assets/images/products/DEW16_03_000_TURKUAZ_03.jpg",
+      "/assets/images/products/DEW16_03_000_TURKUAZ_04.jpg",
+      "/assets/images/products/DEW16_03_000_TURKUAZ_05.jpg",
+      "/assets/images/products/DEW16_03_000_TURKUAZ_06.jpg",
+      "/assets/images/products/DEW16_03_000_TURKUAZ_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_04_144",
+    "label": "Dew16 04 144 Shirt",
+    "image": "/assets/images/products/DEW16_04_144_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_04_144_01.jpg",
+      "/assets/images/products/DEW16_04_144_02.jpg",
+      "/assets/images/products/DEW16_04_144_03.jpg",
+      "/assets/images/products/DEW16_04_144_04.jpg",
+      "/assets/images/products/DEW16_04_144_05.jpg",
+      "/assets/images/products/DEW16_04_144_06.jpg",
+      "/assets/images/products/DEW16_04_144_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_04_193",
+    "label": "Dew16 04 193 Shirt",
+    "image": "/assets/images/products/DEW16_04_193_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_04_193_01.jpg",
+      "/assets/images/products/DEW16_04_193_02.jpg",
+      "/assets/images/products/DEW16_04_193_03.jpg",
+      "/assets/images/products/DEW16_04_193_04.jpg",
+      "/assets/images/products/DEW16_04_193_05.jpg",
+      "/assets/images/products/DEW16_04_193_06.jpg",
+      "/assets/images/products/DEW16_04_193_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_04_000_NAR_CICEGI",
+    "label": "Dew16 04 250 Jacket",
+    "image": "/assets/images/products/DEW16_04_000_NAR_CICEGI_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_04_000_NAR_CICEGI_01.jpg",
+      "/assets/images/products/DEW16_04_000_NAR_CICEGI_02.jpg",
+      "/assets/images/products/DEW16_04_000_NAR_CICEGI_03.jpg",
+      "/assets/images/products/DEW16_04_000_NAR_CICEGI_04.jpg",
+      "/assets/images/products/DEW16_04_000_NAR_CICEGI_05.jpg",
+      "/assets/images/products/DEW16_04_000_NAR_CICEGI_06.jpg",
+      "/assets/images/products/DEW16_04_000_NAR_CICEGI_07.jpg",
+      "/assets/images/products/DEW16_04_000_NAR_CICEGI_08.jpg"
+    ],
+    "galleryCount": 8,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_04_000_SASSOFON",
+    "label": "Dew16 04 250 Jacket",
+    "image": "/assets/images/products/DEW16_04_000_SASSOFON_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_04_000_SASSOFON_01.jpg",
+      "/assets/images/products/DEW16_04_000_SASSOFON_02.jpg",
+      "/assets/images/products/DEW16_04_000_SASSOFON_03.jpg",
+      "/assets/images/products/DEW16_04_000_SASSOFON_04.jpg",
+      "/assets/images/products/DEW16_04_000_SASSOFON_05.jpg",
+      "/assets/images/products/DEW16_04_000_SASSOFON_06.jpg",
+      "/assets/images/products/DEW16_04_000_SASSOFON_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_04_250",
+    "label": "Dew16 04 250 Jacket",
+    "image": "/assets/images/products/DEW16_04_250_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_04_250_01.jpg",
+      "/assets/images/products/DEW16_04_250_02.jpg",
+      "/assets/images/products/DEW16_04_250_03.jpg",
+      "/assets/images/products/DEW16_04_250_04.jpg",
+      "/assets/images/products/DEW16_04_250_05.jpg",
+      "/assets/images/products/DEW16_04_250_06.jpg",
+      "/assets/images/products/DEW16_04_250_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_04_610",
+    "label": "Dew16 04 610 Jacket",
+    "image": "/assets/images/products/DEW16_04_610_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_04_610_01.jpg",
+      "/assets/images/products/DEW16_04_610_02.jpg",
+      "/assets/images/products/DEW16_04_610_03.jpg",
+      "/assets/images/products/DEW16_04_610_04.jpg",
+      "/assets/images/products/DEW16_04_610_05.jpg",
+      "/assets/images/products/DEW16_04_610_06.jpg",
+      "/assets/images/products/DEW16_04_610_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_04_000_SOMON",
+    "label": "Dew16 04 Somon Jacket",
+    "image": "/assets/images/products/DEW16_04_000_SOMON_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_04_000_SOMON_01.jpg",
+      "/assets/images/products/DEW16_04_000_SOMON_02.jpg",
+      "/assets/images/products/DEW16_04_000_SOMON_03.jpg",
+      "/assets/images/products/DEW16_04_000_SOMON_04.jpg",
+      "/assets/images/products/DEW16_04_000_SOMON_05.jpg",
+      "/assets/images/products/DEW16_04_000_SOMON_06.jpg",
+      "/assets/images/products/DEW16_04_000_SOMON_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_08_160",
+    "label": "Dew16 08 160 Leather Jacket",
+    "image": "/assets/images/products/DEW16_08_160_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_08_160_01.jpg",
+      "/assets/images/products/DEW16_08_160_02.jpg",
+      "/assets/images/products/DEW16_08_160_03.jpg",
+      "/assets/images/products/DEW16_08_160_04.jpg",
+      "/assets/images/products/DEW16_08_160_05.jpg",
+      "/assets/images/products/DEW16_08_160_06.jpg",
+      "/assets/images/products/DEW16_08_160_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_08_500",
+    "label": "Dew16 08 500 Leather Jacket",
+    "image": "/assets/images/products/DEW16_08_500_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_08_500_01.jpg",
+      "/assets/images/products/DEW16_08_500_02.jpg",
+      "/assets/images/products/DEW16_08_500_03.jpg",
+      "/assets/images/products/DEW16_08_500_04.jpg",
+      "/assets/images/products/DEW16_08_500_05.jpg",
+      "/assets/images/products/DEW16_08_500_06.jpg",
+      "/assets/images/products/DEW16_08_500_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_16_133",
+    "label": "Dew16 16 133 Shirt",
+    "image": "/assets/images/products/DEW16_16_133_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_16_133_01.jpg",
+      "/assets/images/products/DEW16_16_133_02.jpg",
+      "/assets/images/products/DEW16_16_133_03.jpg",
+      "/assets/images/products/DEW16_16_133_04.jpg",
+      "/assets/images/products/DEW16_16_133_05.jpg",
+      "/assets/images/products/DEW16_16_133_06.jpg",
+      "/assets/images/products/DEW16_16_133_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 50.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_16_248",
+    "label": "Dew16 16 248 Shirt",
+    "image": "/assets/images/products/DEW16_16_248_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_16_248_01.jpg",
+      "/assets/images/products/DEW16_16_248_02.jpg",
+      "/assets/images/products/DEW16_16_248_03.jpg",
+      "/assets/images/products/DEW16_16_248_04.jpg",
+      "/assets/images/products/DEW16_16_248_05.jpg",
+      "/assets/images/products/DEW16_16_248_06.jpg",
+      "/assets/images/products/DEW16_16_248_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 50.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_16_LACIVERT",
+    "label": "Dew16 16 Lacivert Leather Jacket",
+    "image": "/assets/images/products/DEW16_16_LACIVERT_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_16_LACIVERT_01.jpg",
+      "/assets/images/products/DEW16_16_LACIVERT_02.jpg",
+      "/assets/images/products/DEW16_16_LACIVERT_03.jpg",
+      "/assets/images/products/DEW16_16_LACIVERT_04.jpg",
+      "/assets/images/products/DEW16_16_LACIVERT_05.jpg",
+      "/assets/images/products/DEW16_16_LACIVERT_06.jpg",
+      "/assets/images/products/DEW16_16_LACIVERT_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_16_000_KAHVELI",
+    "label": "Dew16 16 Lila Leather Jacket",
+    "image": "/assets/images/products/DEW16_16_000_KAHVELI_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_16_000_KAHVELI_01.jpg",
+      "/assets/images/products/DEW16_16_000_KAHVELI_02.jpg",
+      "/assets/images/products/DEW16_16_000_KAHVELI_03.jpg",
+      "/assets/images/products/DEW16_16_000_KAHVELI_04.jpg",
+      "/assets/images/products/DEW16_16_000_KAHVELI_05.jpg",
+      "/assets/images/products/DEW16_16_000_KAHVELI_06.jpg",
+      "/assets/images/products/DEW16_16_000_KAHVELI_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_16_000_SANDK_BEJ",
+    "label": "Dew16 16 Lila Leather Jacket",
+    "image": "/assets/images/products/DEW16_16_000_SANDK_BEJ_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_16_000_SANDK_BEJ_01.jpg",
+      "/assets/images/products/DEW16_16_000_SANDK_BEJ_02.jpg",
+      "/assets/images/products/DEW16_16_000_SANDK_BEJ_03.jpg",
+      "/assets/images/products/DEW16_16_000_SANDK_BEJ_04.jpg",
+      "/assets/images/products/DEW16_16_000_SANDK_BEJ_05.jpg",
+      "/assets/images/products/DEW16_16_000_SANDK_BEJ_06.jpg",
+      "/assets/images/products/DEW16_16_000_SANDK_BEJ_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_16_PETROL",
+    "label": "Dew16 16 Lila Leather Jacket",
+    "image": "/assets/images/products/DEW16_16_PETROL_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_16_PETROL_01.jpg",
+      "/assets/images/products/DEW16_16_PETROL_02.jpg",
+      "/assets/images/products/DEW16_16_PETROL_03.jpg",
+      "/assets/images/products/DEW16_16_PETROL_04.jpg",
+      "/assets/images/products/DEW16_16_PETROL_05.jpg",
+      "/assets/images/products/DEW16_16_PETROL_06.jpg",
+      "/assets/images/products/DEW16_16_PETROL_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 50.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_17_004",
+    "label": "Dew16 17 004 Leather Jacket",
+    "image": "/assets/images/products/DEW16_17_004_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_17_004_01.jpg",
+      "/assets/images/products/DEW16_17_004_02.jpg",
+      "/assets/images/products/DEW16_17_004_03.jpg",
+      "/assets/images/products/DEW16_17_004_04.jpg",
+      "/assets/images/products/DEW16_17_004_05.jpg",
+      "/assets/images/products/DEW16_17_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_17_YIKAMALI_004",
+    "label": "Dew16 17 004 Leather Jacket",
+    "image": "/assets/images/products/DEW16_17_YIKAMALI_004_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_17_YIKAMALI_004_01.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_004_02.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_004_03.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_004_04.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_004_05.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_004_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_17_YIKAMALI_525",
+    "label": "Dew16 17 525 Leather Jacket",
+    "image": "/assets/images/products/DEW16_17_YIKAMALI_525_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_17_YIKAMALI_525_01.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_525_02.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_525_03.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_525_04.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_525_05.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_525_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_17_YIKAMALI_900",
+    "label": "Dew16 17 900 Shirt",
+    "image": "/assets/images/products/DEW16_17_YIKAMALI_900_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_17_YIKAMALI_900_01.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_900_02.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_900_03.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_900_04.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_900_05.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_900_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "shirts",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_16_000_525_YIKAMALI",
+    "label": "Dew16 17 Kahve Leather Jacket",
+    "image": "/assets/images/products/DEW16_16_000_525_YIKAMALI_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_16_000_525_YIKAMALI_01.jpg",
+      "/assets/images/products/DEW16_16_000_525_YIKAMALI_02.jpg",
+      "/assets/images/products/DEW16_16_000_525_YIKAMALI_03.jpg",
+      "/assets/images/products/DEW16_16_000_525_YIKAMALI_04.jpg",
+      "/assets/images/products/DEW16_16_000_525_YIKAMALI_05.jpg",
+      "/assets/images/products/DEW16_16_000_525_YIKAMALI_06.jpg",
+      "/assets/images/products/DEW16_16_000_525_YIKAMALI_07.jpg",
+      "/assets/images/products/DEW16_16_000_525_YIKAMALI_08.jpg"
+    ],
+    "galleryCount": 8,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_16_000_LILA_YIKAMALI",
+    "label": "Dew16 17 Kahve Leather Jacket",
+    "image": "/assets/images/products/DEW16_16_000_LILA_YIKAMALI_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_16_000_LILA_YIKAMALI_01.jpg",
+      "/assets/images/products/DEW16_16_000_LILA_YIKAMALI_02.jpg",
+      "/assets/images/products/DEW16_16_000_LILA_YIKAMALI_03.jpg",
+      "/assets/images/products/DEW16_16_000_LILA_YIKAMALI_04.jpg",
+      "/assets/images/products/DEW16_16_000_LILA_YIKAMALI_05.jpg",
+      "/assets/images/products/DEW16_16_000_LILA_YIKAMALI_06.jpg",
+      "/assets/images/products/DEW16_16_000_LILA_YIKAMALI_07.jpg",
+      "/assets/images/products/DEW16_16_000_LILA_YIKAMALI_08.jpg"
+    ],
+    "galleryCount": 8,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_16_900_YIKAMALI",
+    "label": "Dew16 17 Kahve Leather Jacket",
+    "image": "/assets/images/products/DEW16_16_900_YIKAMALI_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_16_900_YIKAMALI_01.jpg",
+      "/assets/images/products/DEW16_16_900_YIKAMALI_02.jpg",
+      "/assets/images/products/DEW16_16_900_YIKAMALI_03.jpg",
+      "/assets/images/products/DEW16_16_900_YIKAMALI_04.jpg",
+      "/assets/images/products/DEW16_16_900_YIKAMALI_05.jpg",
+      "/assets/images/products/DEW16_16_900_YIKAMALI_06.jpg",
+      "/assets/images/products/DEW16_16_900_YIKAMALI_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_17_000_KAHVE",
+    "label": "Dew16 17 Kahve Leather Jacket",
+    "image": "/assets/images/products/DEW16_17_000_KAHVE_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_17_000_KAHVE_01.jpg",
+      "/assets/images/products/DEW16_17_000_KAHVE_02.jpg",
+      "/assets/images/products/DEW16_17_000_KAHVE_03.jpg",
+      "/assets/images/products/DEW16_17_000_KAHVE_04.jpg",
+      "/assets/images/products/DEW16_17_000_KAHVE_05.jpg",
+      "/assets/images/products/DEW16_17_000_KAHVE_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_17_YIKAMALI_000_PETROL",
+    "label": "Dew16 17 Kahve Leather Jacket",
+    "image": "/assets/images/products/DEW16_17_YIKAMALI_000_PETROL_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_17_YIKAMALI_000_PETROL_01.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_000_PETROL_02.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_000_PETROL_03.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_000_PETROL_04.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_000_PETROL_05.jpg",
+      "/assets/images/products/DEW16_17_YIKAMALI_000_PETROL_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_17_000_LACIVERT",
+    "label": "Dew16 17 Lacivert Leather Jacket",
+    "image": "/assets/images/products/DEW16_17_000_LACIVERT_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_17_000_LACIVERT_01.jpg",
+      "/assets/images/products/DEW16_17_000_LACIVERT_02.jpg",
+      "/assets/images/products/DEW16_17_000_LACIVERT_03.jpg",
+      "/assets/images/products/DEW16_17_000_LACIVERT_04.jpg",
+      "/assets/images/products/DEW16_17_000_LACIVERT_05.jpg",
+      "/assets/images/products/DEW16_17_000_LACIVERT_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_40_310",
+    "label": "Dew16 40 310 Leather Jacket",
+    "image": "/assets/images/products/DEW16_40_310_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_40_310_01.jpg",
+      "/assets/images/products/DEW16_40_310_02.jpg",
+      "/assets/images/products/DEW16_40_310_03.jpg",
+      "/assets/images/products/DEW16_40_310_04.jpg",
+      "/assets/images/products/DEW16_40_310_05.jpg",
+      "/assets/images/products/DEW16_40_310_06.jpg",
+      "/assets/images/products/DEW16_40_310_07.jpg",
+      "/assets/images/products/DEW16_40_310_08.jpg"
+    ],
+    "galleryCount": 8,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_40_320",
+    "label": "Dew16 40 320 Suede Jacket",
+    "image": "/assets/images/products/DEW16_40_320_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_40_320_01.jpg",
+      "/assets/images/products/DEW16_40_320_02.jpg",
+      "/assets/images/products/DEW16_40_320_03.jpg",
+      "/assets/images/products/DEW16_40_320_04.jpg",
+      "/assets/images/products/DEW16_40_320_05.jpg",
+      "/assets/images/products/DEW16_40_320_06.jpg",
+      "/assets/images/products/DEW16_40_320_07.jpg",
+      "/assets/images/products/DEW16_40_320_08.jpg"
+    ],
+    "galleryCount": 8,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_40_000_SIYAH",
+    "label": "Dew16 40 Siyah Suede Jacket",
+    "image": "/assets/images/products/DEW16_40_000_SIYAH_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_40_000_SIYAH_01.jpg",
+      "/assets/images/products/DEW16_40_000_SIYAH_02.jpg",
+      "/assets/images/products/DEW16_40_000_SIYAH_03.jpg",
+      "/assets/images/products/DEW16_40_000_SIYAH_04.jpg",
+      "/assets/images/products/DEW16_40_000_SIYAH_05.jpg",
+      "/assets/images/products/DEW16_40_000_SIYAH_06.jpg",
+      "/assets/images/products/DEW16_40_000_SIYAH_07.jpg",
+      "/assets/images/products/DEW16_40_000_SIYAH_08.jpg"
+    ],
+    "galleryCount": 8,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_41_310",
+    "label": "Dew16 41 310 Leather Jacket",
+    "image": "/assets/images/products/DEW16_41_310_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_41_310_01.jpg",
+      "/assets/images/products/DEW16_41_310_02.jpg",
+      "/assets/images/products/DEW16_41_310_03.jpg",
+      "/assets/images/products/DEW16_41_310_04.jpg",
+      "/assets/images/products/DEW16_41_310_05.jpg",
+      "/assets/images/products/DEW16_41_310_06.jpg",
+      "/assets/images/products/DEW16_41_310_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_41_400",
+    "label": "Dew16 41 400 Leather Jacket",
+    "image": "/assets/images/products/DEW16_41_400_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_41_400_01.jpg",
+      "/assets/images/products/DEW16_41_400_02.jpg",
+      "/assets/images/products/DEW16_41_400_03.jpg",
+      "/assets/images/products/DEW16_41_400_04.jpg",
+      "/assets/images/products/DEW16_41_400_05.jpg",
+      "/assets/images/products/DEW16_41_400_06.jpg",
+      "/assets/images/products/DEW16_41_400_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_66_004",
+    "label": "Dew16 66 004 Leather Jacket",
+    "image": "/assets/images/products/DEW16_66_004_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_66_004_01.jpg",
+      "/assets/images/products/DEW16_66_004_02.jpg",
+      "/assets/images/products/DEW16_66_004_03.jpg",
+      "/assets/images/products/DEW16_66_004_04.jpg",
+      "/assets/images/products/DEW16_66_004_05.jpg",
+      "/assets/images/products/DEW16_66_004_06.jpg",
+      "/assets/images/products/DEW16_66_004_07.jpg",
+      "/assets/images/products/DEW16_66_004_08.jpg"
+    ],
+    "galleryCount": 8,
+    "price": 120.0,
+    "category": "accessories",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_ELB78_000_LSTLACI",
+    "label": "Dew16 Elb78 000 Leather Jacket",
+    "image": "/assets/images/products/DEW16_ELB78_000_LSTLACI_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_ELB78_000_LSTLACI_01.jpg",
+      "/assets/images/products/DEW16_ELB78_000_LSTLACI_02.jpg",
+      "/assets/images/products/DEW16_ELB78_000_LSTLACI_03.jpg",
+      "/assets/images/products/DEW16_ELB78_000_LSTLACI_04.jpg",
+      "/assets/images/products/DEW16_ELB78_000_LSTLACI_05.jpg",
+      "/assets/images/products/DEW16_ELB78_000_LSTLACI_06.jpg",
+      "/assets/images/products/DEW16_ELB78_000_LSTLACI_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_ELB78_081",
+    "label": "Dew16 Elb78 081 Leather Jacket",
+    "image": "/assets/images/products/DEW16_ELB78_081_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_ELB78_081_01.jpg",
+      "/assets/images/products/DEW16_ELB78_081_02.jpg",
+      "/assets/images/products/DEW16_ELB78_081_03.jpg",
+      "/assets/images/products/DEW16_ELB78_081_04.jpg",
+      "/assets/images/products/DEW16_ELB78_081_05.jpg",
+      "/assets/images/products/DEW16_ELB78_081_06.jpg",
+      "/assets/images/products/DEW16_ELB78_081_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_ELB78_310",
+    "label": "Dew16 Elb78 310 Leather Jacket",
+    "image": "/assets/images/products/DEW16_ELB78_310_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_ELB78_310_01.jpg",
+      "/assets/images/products/DEW16_ELB78_310_02.jpg",
+      "/assets/images/products/DEW16_ELB78_310_03.jpg",
+      "/assets/images/products/DEW16_ELB78_310_04.jpg",
+      "/assets/images/products/DEW16_ELB78_310_05.jpg",
+      "/assets/images/products/DEW16_ELB78_310_06.jpg",
+      "/assets/images/products/DEW16_ELB78_310_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DEW16_ELB78_777",
+    "label": "Dew16 Elb78 777 Leather Jacket",
+    "image": "/assets/images/products/DEW16_ELB78_777_01.jpg",
+    "images": [
+      "/assets/images/products/DEW16_ELB78_777_01.jpg",
+      "/assets/images/products/DEW16_ELB78_777_02.jpg",
+      "/assets/images/products/DEW16_ELB78_777_03.jpg",
+      "/assets/images/products/DEW16_ELB78_777_04.jpg",
+      "/assets/images/products/DEW16_ELB78_777_05.jpg",
+      "/assets/images/products/DEW16_ELB78_777_06.jpg",
+      "/assets/images/products/DEW16_ELB78_777_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 60.0,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_CMRB_1996_004",
+    "label": "Fabcmrb1996 004 Jacket",
+    "image": "/assets/images/products/DRK_CMRB_1996_004_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_CMRB_1996_004_01.jpg",
+      "/assets/images/products/DRK_CMRB_1996_004_02.jpg",
+      "/assets/images/products/DRK_CMRB_1996_004_03.jpg"
+    ],
+    "galleryCount": 3,
+    "price": 105.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_CMRB_1996_BLACK",
+    "label": "Fabcmrb1996 Black Jacket",
+    "image": "/assets/images/products/DRK_CMRB_1996_BLACK_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_CMRB_1996_BLACK_01.jpg",
+      "/assets/images/products/DRK_CMRB_1996_BLACK_02.jpg",
+      "/assets/images/products/DRK_CMRB_1996_BLACK_03.jpg"
+    ],
+    "galleryCount": 3,
+    "price": 140.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_MACEOO_35_NAVY",
+    "label": "Kian Leather Shirt Jacket",
+    "image": "/assets/images/products/DRK_MACEOO_35_NAVY_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_MACEOO_35_NAVY_01.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_02.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_03.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_04.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_05.jpg",
+      "/assets/images/products/DRK_MACEOO_35_NAVY_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 490,
+    "category": "shirts",
     "gender": "mens",
     "inStock": true,
     "stock": 12
@@ -133,20 +2074,36 @@
     "stock": 12
   },
   {
-    "id": "ottimo_DRK_MACEOO_35_NAVY",
-    "label": "Kian Leather Shirt Jacket",
-    "image": "/assets/images/products/DRK_MACEOO_35_NAVY_01.jpg",
+    "id": "ottimo_A15_894_A_VISKI",
+    "label": "Luca Leather Jacket",
+    "image": "/assets/images/products/A15_894_A_VISKI_01.jpg",
     "images": [
-      "/assets/images/products/DRK_MACEOO_35_NAVY_01.jpg",
-      "/assets/images/products/DRK_MACEOO_35_NAVY_02.jpg",
-      "/assets/images/products/DRK_MACEOO_35_NAVY_03.jpg",
-      "/assets/images/products/DRK_MACEOO_35_NAVY_04.jpg",
-      "/assets/images/products/DRK_MACEOO_35_NAVY_05.jpg",
-      "/assets/images/products/DRK_MACEOO_35_NAVY_06.jpg"
+      "/assets/images/products/A15_894_A_VISKI_01.jpg",
+      "/assets/images/products/A15_894_A_VISKI_02.jpg",
+      "/assets/images/products/A15_894_A_VISKI_03.jpg",
+      "/assets/images/products/A15_894_A_VISKI_04.jpg",
+      "/assets/images/products/A15_894_A_VISKI_05.jpg",
+      "/assets/images/products/A15_894_A_VISKI_06.jpg"
     ],
     "galleryCount": 6,
-    "price": 490,
-    "category": "shirts",
+    "price": 436,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_MAC_02_004",
+    "label": "Mac 02 004 Leather Jacket",
+    "image": "/assets/images/products/MAC_02_004_01.jpg",
+    "images": [
+      "/assets/images/products/MAC_02_004_01.jpg",
+      "/assets/images/products/MAC_02_004_02.jpg",
+      "/assets/images/products/MAC_02_004_03.jpg"
+    ],
+    "galleryCount": 3,
+    "price": 150.0,
+    "category": "jackets",
     "gender": "mens",
     "inStock": true,
     "stock": 12
@@ -190,33 +2147,16 @@
     "stock": 12
   },
   {
-    "id": "ottimo_A10_973_001",
-    "label": "Rhea Crop Biker Jacket",
-    "image": "/assets/images/products/A10_973_001_01.jpg",
+    "id": "ottimo_NILIA_2000_004_02",
+    "label": "Nilia 3003 004 Leather Jacket",
+    "image": "/assets/images/products/NILIA_2000_004_02_01.jpg",
     "images": [
-      "/assets/images/products/A10_973_001_01.jpg",
-      "/assets/images/products/A10_973_001_02.jpg",
-      "/assets/images/products/A10_973_001_03.jpg",
-      "/assets/images/products/A10_973_001_04.jpg",
-      "/assets/images/products/A10_973_001_05.jpg",
-      "/assets/images/products/A10_973_001_06.jpg"
+      "/assets/images/products/NILIA_2000_004_02_01.jpg",
+      "/assets/images/products/NILIA_2000_004_02_02.jpg",
+      "/assets/images/products/NILIA_2000_004_02_03.jpg"
     ],
-    "galleryCount": 6,
-    "price": 429,
-    "category": "jackets",
-    "gender": "womens",
-    "inStock": true,
-    "stock": 12
-  },
-  {
-    "id": "ottimo_DRK_CWLB_1040_004",
-    "label": "Scarlet Suede Jacket",
-    "image": "/assets/images/products/DRK_CWLB_1040_004_01.jpg",
-    "images": [
-      "/assets/images/products/DRK_CWLB_1040_004_01.jpg"
-    ],
-    "galleryCount": 1,
-    "price": 686,
+    "galleryCount": 3,
+    "price": 50.0,
     "category": "jackets",
     "gender": "womens",
     "inStock": true,
@@ -242,21 +2182,61 @@
     "stock": 12
   },
   {
-    "id": "ottimo_A05_015_000",
-    "label": "Rico Grey Suede Jacket",
-    "image": "/assets/images/products/A05_015_000_01.jpg",
+    "id": "ottimo_NTW_E14_K001_004",
+    "label": "Ntw E14 K001 004 Jacket",
+    "image": "/assets/images/products/NTW_E14_K001_004_01.jpg",
     "images": [
-      "/assets/images/products/A05_015_000_01.jpg",
-      "/assets/images/products/A05_015_000_02.jpg",
-      "/assets/images/products/A05_015_000_03.jpg",
-      "/assets/images/products/A05_015_000_04.jpg",
-      "/assets/images/products/A05_015_000_05.jpg",
-      "/assets/images/products/A05_015_000_06.jpg"
+      "/assets/images/products/NTW_E14_K001_004_01.jpg",
+      "/assets/images/products/NTW_E14_K001_004_02.jpg",
+      "/assets/images/products/NTW_E14_K001_004_03.jpg",
+      "/assets/images/products/NTW_E14_K001_004_04.jpg",
+      "/assets/images/products/NTW_E14_K001_004_05.jpg",
+      "/assets/images/products/NTW_E14_K001_004_06.jpg",
+      "/assets/images/products/NTW_E14_K001_004_07.jpg"
     ],
-    "galleryCount": 6,
-    "price": 517,
+    "galleryCount": 7,
+    "price": 100.0,
     "category": "jackets",
     "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_NTW_E_14_K003_004",
+    "label": "Ntw E14 K003 004 Leather Jacket",
+    "image": "/assets/images/products/NTW_E_14_K003_004_01.jpg",
+    "images": [
+      "/assets/images/products/NTW_E_14_K003_004_01.jpg",
+      "/assets/images/products/NTW_E_14_K003_004_02.jpg",
+      "/assets/images/products/NTW_E_14_K003_004_03.jpg",
+      "/assets/images/products/NTW_E_14_K003_004_04.jpg",
+      "/assets/images/products/NTW_E_14_K003_004_05.jpg",
+      "/assets/images/products/NTW_E_14_K003_004_06.jpg",
+      "/assets/images/products/NTW_E_14_K003_004_07.jpg"
+    ],
+    "galleryCount": 7,
+    "price": 100.0,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_NTW_K14_K303_400",
+    "label": "Ntw K14 K303 400 Leather Jacket",
+    "image": "/assets/images/products/NTW_K14_K303_400_01.jpg",
+    "images": [
+      "/assets/images/products/NTW_K14_K303_400_01.jpg",
+      "/assets/images/products/NTW_K14_K303_400_02.jpg",
+      "/assets/images/products/NTW_K14_K303_400_03.jpg",
+      "/assets/images/products/NTW_K14_K303_400_04.jpg",
+      "/assets/images/products/NTW_K14_K303_400_05.jpg",
+      "/assets/images/products/NTW_K14_K303_400_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 70.0,
+    "category": "jackets",
+    "gender": "womens",
     "inStock": true,
     "stock": 12
   },
@@ -280,21 +2260,74 @@
     "stock": 12
   },
   {
-    "id": "ottimo_A15_894_A_VISKI",
-    "label": "Luca Leather Jacket",
-    "image": "/assets/images/products/A15_894_A_VISKI_01.jpg",
+    "id": "ottimo_QUE_E14_K104_004",
+    "label": "Que E14 K104 004 Leather Jacket",
+    "image": "/assets/images/products/QUE_E14_K104_004_01.jpg",
     "images": [
-      "/assets/images/products/A15_894_A_VISKI_01.jpg",
-      "/assets/images/products/A15_894_A_VISKI_02.jpg",
-      "/assets/images/products/A15_894_A_VISKI_03.jpg",
-      "/assets/images/products/A15_894_A_VISKI_04.jpg",
-      "/assets/images/products/A15_894_A_VISKI_05.jpg",
-      "/assets/images/products/A15_894_A_VISKI_06.jpg"
+      "/assets/images/products/QUE_E14_K104_004_01.jpg",
+      "/assets/images/products/QUE_E14_K104_004_02.jpg",
+      "/assets/images/products/QUE_E14_K104_004_03.jpg",
+      "/assets/images/products/QUE_E14_K104_004_04.jpg",
+      "/assets/images/products/QUE_E14_K104_004_05.jpg",
+      "/assets/images/products/QUE_E14_K104_004_06.jpg",
+      "/assets/images/products/QUE_E14_K104_004_07.jpg"
     ],
-    "galleryCount": 6,
-    "price": 436,
+    "galleryCount": 7,
+    "price": 50.0,
     "category": "jackets",
     "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A10_973_001",
+    "label": "Rhea Crop Biker Jacket",
+    "image": "/assets/images/products/A10_973_001_01.jpg",
+    "images": [
+      "/assets/images/products/A10_973_001_01.jpg",
+      "/assets/images/products/A10_973_001_02.jpg",
+      "/assets/images/products/A10_973_001_03.jpg",
+      "/assets/images/products/A10_973_001_04.jpg",
+      "/assets/images/products/A10_973_001_05.jpg",
+      "/assets/images/products/A10_973_001_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 429,
+    "category": "jackets",
+    "gender": "womens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_A05_015_000",
+    "label": "Rico Grey Suede Jacket",
+    "image": "/assets/images/products/A05_015_000_01.jpg",
+    "images": [
+      "/assets/images/products/A05_015_000_01.jpg",
+      "/assets/images/products/A05_015_000_02.jpg",
+      "/assets/images/products/A05_015_000_03.jpg",
+      "/assets/images/products/A05_015_000_04.jpg",
+      "/assets/images/products/A05_015_000_05.jpg",
+      "/assets/images/products/A05_015_000_06.jpg"
+    ],
+    "galleryCount": 6,
+    "price": 517,
+    "category": "jackets",
+    "gender": "mens",
+    "inStock": true,
+    "stock": 12
+  },
+  {
+    "id": "ottimo_DRK_CWLB_1040_004",
+    "label": "Scarlet Suede Jacket",
+    "image": "/assets/images/products/DRK_CWLB_1040_004_01.jpg",
+    "images": [
+      "/assets/images/products/DRK_CWLB_1040_004_01.jpg"
+    ],
+    "galleryCount": 1,
+    "price": 686,
+    "category": "jackets",
+    "gender": "womens",
     "inStock": true,
     "stock": 12
   },

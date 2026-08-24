@@ -261,6 +261,20 @@ export async function loadProducts(seed = []) {
   if (isProductionHost()) {
     throw new Error('Store database is unavailable. Please try again in a moment.');
   }
+  // Local/static preview: prefer seed catalog when localStorage is empty/stale
+  if (Array.isArray(seed) && seed.length) {
+    try {
+      const raw = localStorage.getItem(PRODUCTS_KEY);
+      const existing = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(existing) || existing.length < seed.length) {
+        const normalized = seed.map(normalizeProduct);
+        saveProductsLocal(normalized);
+        return normalized;
+      }
+    } catch {
+      /* fall through to getProductsLocal */
+    }
+  }
   return getProductsLocal(seed);
 }
 

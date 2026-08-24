@@ -31,3 +31,18 @@ docs/HANDOFF.local.md
 .idea/
 .vscode/
 *.swp
+
+# Ottimo import temp files (source: Google Drive bulk download)
+tools/drive-download/
+tools/drive-folder-debug.html
+tools/import-download.log
+tools/__pycache__/
+tools/analyze-folders.py
+tools/clean-manifest.py
+tools/debug-price-match.py
+tools/fetch-drive-folder.py
+tools/parse-drive-html.py
+tools/search-models.py
+tools/search-special.py
+tools/test-match.py
+tools/drive-folder-list.json
