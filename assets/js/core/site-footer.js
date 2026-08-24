@@ -60,11 +60,13 @@ const FOOTER_INNER_HTML = `
       <li><a href="/contact" class="nav-item">Contact</a></li>
       <li><a href="/terms" class="nav-item">Terms</a></li>
       <li><a href="/privacy" class="nav-item">Privacy</a></li>
+      <li><a href="/privacy-right-center" class="nav-item">Do Not Sell</a></li>
       <li><a href="/accessibility" class="nav-item">Accessibility</a></li>
       <li><button type="button" class="nav-item" data-cookies-btn>Cookies</button></li>
       <li><a href="/order-status" class="nav-item">Order Status</a></li>
     </ul>
-    <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">ETBİS Kayıt</a> · Güvenli ödeme · 3D Secure</p>
+    <p class="footer-trust">14-day returns · Secure 3D payment · <a href="/contact">support@marvispace.com</a></p>
+    <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">ETBİS Kayıt</a> · <a href="/iade-ve-iptal">İade &amp; Cayma</a></p>
   </div>
 `;
 

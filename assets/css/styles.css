@@ -11,7 +11,7 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 300ms;
   --dur-slow: 550ms;
-  font-family: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+  font-family: var(--font-en, 'Syne', system-ui, -apple-system, sans-serif);
   color: #000;
   background: #ffffff;
 }
@@ -1149,7 +1149,7 @@ body.preview-open .product-grid {
   .nav-spacer.preview-open { height: var(--preview-nav-h); }
 }
 
-/* Mobile header — menu (left) · filters (center) · cart (right) */
+/* Mobile header — menu · brand · cart (row 1) · filters (row 2) */
 @media (max-width: 768px) {
   :root {
     --size-panel-h: 15rem;
@@ -1157,14 +1157,26 @@ body.preview-open .product-grid {
 
   .site-nav {
     grid-template-columns: 40px 1fr 40px;
-    grid-template-rows: var(--nav-h);
-    grid-template-areas: "menu filt right";
+    grid-template-rows: var(--nav-h) auto;
+    grid-template-areas:
+      "menu brand right"
+      "filt filt filt";
     column-gap: 2px;
     padding: 0 8px 8px;
   }
-  .site-nav .brand { display: none; }
+  .site-nav .brand {
+    display: inline-flex;
+    gap: 0;
+  }
+  .site-nav .brand-mark {
+    display: none;
+  }
+  .site-nav .brand-icon {
+    width: 26px;
+    height: 26px;
+  }
   .site-nav .filters {
-    padding: 0;
+    padding: 0 0 2px;
     justify-content: center;
     gap: 0;
     overflow-x: auto;

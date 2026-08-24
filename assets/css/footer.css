@@ -223,6 +223,28 @@ body.preview-open .newsletter-popup { display: none; }
   opacity: 0.4;
 }
 
+.footer-trust {
+  width: 100%;
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.footer-trust a,
+.footer-etbis a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.footer-trust a:hover,
+.footer-etbis a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 .footer-etbis a {
   text-decoration: none;
   color: inherit;

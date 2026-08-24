@@ -160,7 +160,7 @@ function mkPreviewPicture(imageUrl, item, eager = true) {
   const pic = document.createElement('picture');
   appendOptimizedPicture(pic, {
     src: imageUrl,
-    alt: productDisplayName(item),
+    alt: item.label || productDisplayName(item),
     className: 'preview-img',
     eager,
     widths: PREVIEW_WIDTHS,
@@ -331,6 +331,16 @@ function applyFilter(key) {
   updateCols();
 }
 
+function absoluteUrl(path) {
+  if (!path) return SITE.url;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${SITE.url}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+function productShareUrl(product) {
+  return `${SITE.url}/?product=${encodeURIComponent(product.id)}`;
+}
+
 function injectProductSchema(items) {
   let el = document.getElementById('productSchema');
   if (!el) {
@@ -348,15 +358,19 @@ function injectProductSchema(items) {
       position: i + 1,
       item: {
         '@type': 'Product',
+        '@id': productShareUrl(p),
         name: p.label,
-        image: p.image,
+        sku: p.id,
+        image: absoluteUrl(p.image),
         brand: { '@type': 'Brand', name: 'MARVISPACE' },
         offers: {
           '@type': 'Offer',
-          url: `${SITE.url}/`,
+          url: productShareUrl(p),
           priceCurrency: 'USD',
-          price: p.price,
-          availability: 'https://schema.org/InStock',
+          price: String(p.price),
+          availability: p.inStock === false
+            ? 'https://schema.org/OutOfStock'
+            : 'https://schema.org/InStock',
         },
       },
     }));
@@ -387,7 +401,7 @@ function renderGrid(items) {
     const btn = document.createElement('button');
     btn.className = 'product-btn';
     btn.type = 'button';
-    btn.setAttribute('aria-label', `${productDisplayName(item)} — $${item.price}`);
+    btn.setAttribute('aria-label', `${item.label} — $${item.price}`);
     btn.title = `${item.label} — $${item.price}`;
     btn.dataset.id = item.id;
     btn.dataset.i = String(i);
@@ -730,6 +744,7 @@ function openPreview(idx) {
   syncSpacer(true);
 
   loadPreviewContent(idx);
+  syncProductDeepLink(visible[idx]);
 
   const z = zoomGrid(gridBtns[idx], true);
   flyInInverse(z, false);
@@ -740,6 +755,17 @@ function openPreview(idx) {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => settleFlyIn(true));
   });
+}
+
+function syncProductDeepLink(product) {
+  try {
+    const url = new URL(window.location.href);
+    if (product?.id) url.searchParams.set('product', product.id);
+    else url.searchParams.delete('product');
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+  } catch {
+    /* ignore */
+  }
 }
 
 function closePreview(animate = true) {
@@ -759,6 +785,7 @@ function closePreview(animate = true) {
     document.body.classList.remove('preview-open');
     setPreviewNav(false);
     syncSpacer(false);
+    syncProductDeepLink(null);
   };
 
   animate ? setTimeout(finish, ZOOM_DUR) : finish();
@@ -770,6 +797,7 @@ function stepPreview(d) {
   activeIdx = next;
   gridBtns.forEach((b,i) => b.classList.toggle('active', i===next));
   loadPreviewContent(next, { keepSizes: szOpen });
+  syncProductDeepLink(visible[next]);
   const z = zoomGrid(gridBtns[next], true);
   flyInInverse(z, false);
   requestAnimationFrame(() => settleFlyIn(true));
@@ -961,6 +989,28 @@ if (document.fonts?.ready) {
     cartItems = await loadCart();
     renderCart();
     applyFilter('new');
+    openProductFromQuery();
+  }
+
+  function openProductFromQuery() {
+    try {
+      const id = new URLSearchParams(window.location.search).get('product');
+      if (!id) return;
+      const found = products.find(p => p.id === id && p.inStock !== false);
+      if (!found) return;
+
+      let idx = visible.findIndex(p => p.id === id);
+      if (idx < 0) {
+        visible = products.filter(p => p.inStock !== false);
+        renderGrid(visible);
+        injectProductSchema(visible);
+        updateCols();
+        idx = visible.findIndex(p => p.id === id);
+      }
+      if (idx >= 0) openPreview(idx);
+    } catch {
+      /* ignore */
+    }
   }
 
   try {

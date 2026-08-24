@@ -4,30 +4,44 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>İletişim — MARVISPACE</title>
-  <meta name="description" content="MARVISPACE iletişim — sipariş desteği, iade ve müşteri hizmetleri." />
+  <meta name="description" content="MARVISPACE iletişim — sipariş desteği, iade ve müşteri hizmetleri. 1–2 iş günü içinde yanıt." />
   <link rel="canonical" href="https://marvispace.com/contact" />
   <meta name="robots" content="index, follow" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
   <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#0a0a0a" />
+  <meta property="og:type" content="website" />
   <meta property="og:site_name" content="MARVISPACE" />
+  <meta property="og:title" content="İletişim — MARVISPACE" />
+  <meta property="og:description" content="MARVISPACE iletişim — sipariş desteği, iade ve müşteri hizmetleri." />
+  <meta property="og:url" content="https://marvispace.com/contact" />
   <meta property="og:image" content="https://marvispace.com/assets/images/brand/og.jpg" />
+  <meta property="og:locale" content="tr_TR" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="İletişim — MARVISPACE" />
+  <meta name="twitter:description" content="MARVISPACE iletişim — sipariş desteği, iade ve müşteri hizmetleri." />
   <meta name="twitter:image" content="https://marvispace.com/assets/images/brand/og.jpg" />
   <script type="module" src="/assets/js/core/favicon-loader.js"></script>
   <script type="module" src="/assets/js/core/cookie-consent.js"></script>
-  <link rel="stylesheet" href="/assets/css/fonts.css" />
-  <link rel="stylesheet" href="/assets/css/styles.css" />
-  <link rel="stylesheet" href="/assets/css/page.css" />
-  <link rel="stylesheet" href="/assets/css/footer.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/fonts.css?v=20260825-seo" />
+  <link rel="stylesheet" href="/assets/css/styles.css?v=20260825-seo" />
+  <link rel="stylesheet" href="/assets/css/page.css?v=20260825-seo" />
+  <link rel="stylesheet" href="/assets/css/footer.css?v=20260825-seo" />
 </head>
 <body>
+  <a class="skip-link" href="#main">İçeriğe atla</a>
   <header class="site-page-nav">
-    <a href="/">‹ MARVISPACE</a>
+    <a href="/" aria-label="MARVISPACE ana sayfa">
+      <img src="/assets/images/brand/mark.svg" width="18" height="18" alt="" decoding="async" style="vertical-align:-4px;margin-right:6px" />
+      MARVISPACE
+    </a>
     <a href="/checkout">Sepet</a>
   </header>
-  <main class="site-page site-page--wide">
+  <main class="site-page site-page--wide" id="main">
     <h1>İletişim / Contact</h1>
     <p class="page-lead">Sipariş, iade, ödeme ve ürün sorularınız için bize ulaşın. We respond within 1–2 business days.</p>
     <div data-legal-nav></div>
@@ -39,7 +53,7 @@
       </a>
     </div>
 
-    <form class="page-form" id="contactForm" action="mailto:support@marvispace.com" method="post" enctype="text/plain">
+    <form class="page-form" id="contactForm" novalidate>
       <label>
         <span>Ad / Name</span>
         <input type="text" name="name" required autocomplete="name" />
@@ -50,12 +64,13 @@
       </label>
       <label>
         <span>Mesaj / Message</span>
-        <input type="text" name="message" required />
+        <textarea name="message" rows="5" required></textarea>
       </label>
+      <p class="page-form-status" id="contactFormStatus" hidden role="status"></p>
       <button type="submit" class="page-btn">Gönder / Send</button>
     </form>
 
-    <p class="page-note">Çalışma saatleri: Pazartesi–Cuma 09:00–18:00 (TR)</p>
+    <p class="page-note">Çalışma saatleri: Pazartesi–Cuma 09:00–18:00 (TR) · <a href="mailto:support@marvispace.com">support@marvispace.com</a></p>
     <a class="back-shop" href="/">← Mağazaya dön</a>
   </main>
   <footer data-site-footer></footer>
@@ -63,8 +78,37 @@
   <script type="module">
     import { fetchSiteSettings } from '/assets/js/core/api-client.js';
     import { initWhatsAppSupport } from '/assets/js/core/whatsapp-support.js';
+    import { SITE } from '/assets/js/config/site.js';
 
     initWhatsAppSupport();
+
+    const form = document.getElementById('contactForm');
+    const status = document.getElementById('contactFormStatus');
+
+    form?.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const name = String(data.get('name') || '').trim();
+      const email = String(data.get('email') || '').trim();
+      const message = String(data.get('message') || '').trim();
+
+      if (!name || !email || !message) {
+        if (status) {
+          status.hidden = false;
+          status.textContent = 'Lütfen tüm alanları doldurun.';
+        }
+        return;
+      }
+
+      const subject = encodeURIComponent(`MARVISPACE contact — ${name}`);
+      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
+      window.location.href = `mailto:${SITE.supportEmail}?subject=${subject}&body=${body}`;
+
+      if (status) {
+        status.hidden = false;
+        status.textContent = 'E-posta uygulamanız açılıyor…';
+      }
+    });
 
     (async () => {
       try {

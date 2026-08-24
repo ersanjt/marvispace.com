@@ -95,12 +95,30 @@ body:has(.site-page) {
   text-transform: uppercase;
 }
 
-.page-form input {
+.page-form input,
+.page-form textarea {
   height: 42px;
   border: 1px solid #000;
   padding: 0 12px;
   font-size: 11px;
   background: #fff;
+  font-family: inherit;
+}
+
+.page-form textarea {
+  height: auto;
+  min-height: 120px;
+  padding: 10px 12px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.page-form-status {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: #333;
 }
 
 .page-btn {
