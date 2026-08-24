@@ -71,6 +71,16 @@ const bulkVisibility = document.getElementById('bulkVisibility');
 const ordersTableBody = document.getElementById('ordersTableBody');
 const ordersCount = document.getElementById('ordersCount');
 const ordersEmpty = document.getElementById('ordersEmpty');
+const ordersFilterEmpty = document.getElementById('ordersFilterEmpty');
+const ordersStats = document.getElementById('ordersStats');
+const orderSearch = document.getElementById('orderSearch');
+const orderStatusFilter = document.getElementById('orderStatusFilter');
+const orderPaymentFilter = document.getElementById('orderPaymentFilter');
+const orderSort = document.getElementById('orderSort');
+const exportOrdersBtn = document.getElementById('exportOrdersBtn');
+const orderModalStatus = document.getElementById('orderModalStatus');
+const orderModalSaveStatus = document.getElementById('orderModalSaveStatus');
+const orderModalEmail = document.getElementById('orderModalEmail');
 
 const navProductCount = document.getElementById('navProductCount');
 const navOrderCount = document.getElementById('navOrderCount');
@@ -183,20 +193,59 @@ let settingsApiReady = false;
 let activeSettingsTab = 'brand';
 let activeTab = 'dashboard';
 let toastTimer;
+let activeOrderId = null;
+
+const ORDER_STATUS_OPTIONS = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'awaiting_payment', label: 'Awaiting payment' },
+  { value: 'processing', label: 'Processing' },
+  { value: 'shipped', label: 'Shipped' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
 
 function money(value) {
   return `$${Number(value).toFixed(2)}`;
 }
 
 function fmtDate(iso) {
+  return fmtDateShort(iso);
+}
+
+function fmtDateShort(iso) {
   try {
     return new Date(iso).toLocaleString('en-US', {
-      year: 'numeric', month: 'short', day: 'numeric',
+      month: 'short', day: 'numeric', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });
   } catch {
     return iso;
   }
+}
+
+function shortOrderId(id) {
+  if (!id) return '—';
+  return id.length > 12 ? `${id.slice(0, 12)}…` : id;
+}
+
+function orderStatusOptionsHtml(selected = 'pending') {
+  return ORDER_STATUS_OPTIONS.map(opt => (
+    `<option value="${opt.value}"${opt.value === selected ? ' selected' : ''}>${opt.label}</option>`
+  )).join('');
+}
+
+function orderItemCount(order) {
+  return (order.items || []).reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+}
+
+function orderItemsPreview(order, limit = 2) {
+  const items = order.items || [];
+  if (!items.length) return '—';
+  const lines = items.slice(0, limit).map(item => (
+    `${item.label}${item.size ? ` · ${item.size}` : ''} ×${item.qty}`
+  ));
+  if (items.length > limit) lines.push(`+${items.length - limit} more`);
+  return lines.join(' · ');
 }
 
 function categoryLabel(value) {
@@ -1038,19 +1087,23 @@ function renderProducts() {
 
 function orderStatusLabel(status) {
   if (status === 'completed') return { cls: 'on', label: 'Completed' };
-  if (status === 'processing') return { cls: 'low', label: 'Processing' };
+  if (status === 'processing') return { cls: 'info', label: 'Processing' };
   if (status === 'shipped') return { cls: 'on', label: 'Shipped' };
-  if (status === 'cancelled') return { cls: 'off', label: 'Cancelled' };
-  if (status === 'awaiting_payment') return { cls: 'low', label: 'Awaiting payment' };
-  return { cls: 'off', label: 'Pending' };
+  if (status === 'cancelled') return { cls: 'danger', label: 'Cancelled' };
+  if (status === 'awaiting_payment') return { cls: 'warn', label: 'Awaiting payment' };
+  return { cls: 'pending', label: 'Pending' };
 }
 
 function paymentStatusLabel(value) {
-  if (value === 'paid') return 'Paid';
-  if (value === 'pending') return 'Pending';
-  if (value === 'failed') return 'Failed';
-  if (value === 'unpaid') return 'Unpaid';
-  return value || '—';
+  if (value === 'paid') return { cls: 'on', label: 'Paid' };
+  if (value === 'pending') return { cls: 'warn', label: 'Pending' };
+  if (value === 'failed') return { cls: 'danger', label: 'Failed' };
+  if (value === 'unpaid') return { cls: 'off', label: 'Unpaid' };
+  return { cls: 'off', label: value || '—' };
+}
+
+function paymentStatusText(value) {
+  return paymentStatusLabel(value).label;
 }
 
 function customerName(customer) {
@@ -1095,9 +1148,20 @@ function detailRow(label, value, { ltr = false, link = false } = {}) {
 function openOrderModal(order) {
   if (!orderModal || !orderModalBody) return;
 
+  activeOrderId = order.id;
   const customer = order.customer || {};
   const st = orderStatusLabel(order.status);
+  const pay = paymentStatusLabel(order.paymentStatus);
   if (orderModalTitle) orderModalTitle.textContent = `Order ${order.id}`;
+
+  if (orderModalStatus) {
+    orderModalStatus.innerHTML = orderStatusOptionsHtml(order.status || 'pending');
+  }
+  if (orderModalEmail) {
+    const email = customer.email || '';
+    orderModalEmail.href = email ? `mailto:${email}?subject=${encodeURIComponent(`Order ${order.id}`)}` : '#';
+    orderModalEmail.hidden = !email;
+  }
 
   const itemsHtml = (order.items || []).map(item => `
     <div class="order-detail-item">
@@ -1122,7 +1186,10 @@ function openOrderModal(order) {
         </div>
         ${detailRow('Total', money(order.total), { ltr: true })}
         ${detailRow('Payment', paymentLabel(customer.payment))}
-        ${detailRow('Payment status', paymentStatusLabel(order.paymentStatus))}
+        <div class="detail-row">
+          <span class="detail-label">Payment status</span>
+          <div class="detail-value"><span class="status-pill ${pay.cls}">${pay.label}</span></div>
+        </div>
         ${order.gatewayTransactionId ? detailRow('Transaction ID', order.gatewayTransactionId, { ltr: true }) : ''}
         ${order.paidAt ? detailRow('Paid at', fmtDate(order.paidAt)) : ''}
         ${order.paymentError ? detailRow('Payment error', order.paymentError) : ''}
@@ -1158,48 +1225,171 @@ function openOrderModal(order) {
 
 function closeOrderModal() {
   if (!orderModal) return;
+  activeOrderId = null;
   orderModal.hidden = true;
   orderModal.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
 }
 
+function getFilteredOrders() {
+  const q = (orderSearch?.value || '').trim().toLowerCase();
+  const statusFilter = orderStatusFilter?.value || 'all';
+  const paymentFilter = orderPaymentFilter?.value || 'all';
+  const sort = orderSort?.value || 'newest';
+
+  let list = orders.filter(order => {
+    const customer = order.customer || {};
+    const name = customerName(customer).toLowerCase();
+    const email = (customer.email || '').toLowerCase();
+    const id = (order.id || '').toLowerCase();
+    const matchQ = !q || id.includes(q) || name.includes(q) || email.includes(q);
+
+    const matchStatus = statusFilter === 'all' || order.status === statusFilter;
+    const pay = (order.paymentStatus || 'unpaid').toLowerCase();
+    const matchPayment = paymentFilter === 'all' || pay === paymentFilter;
+
+    return matchQ && matchStatus && matchPayment;
+  });
+
+  list = [...list].sort((a, b) => {
+    if (sort === 'oldest') return new Date(a.createdAt) - new Date(b.createdAt);
+    if (sort === 'total-desc') return (Number(b.total) || 0) - (Number(a.total) || 0);
+    if (sort === 'total-asc') return (Number(a.total) || 0) - (Number(b.total) || 0);
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+
+  return list;
+}
+
+function renderOrderStats() {
+  if (!ordersStats) return;
+
+  const pending = orders.filter(o => o.status === 'pending' || o.status === 'awaiting_payment').length;
+  const processing = orders.filter(o => o.status === 'processing' || o.status === 'shipped').length;
+  const completed = orders.filter(o => o.status === 'completed').length;
+  const revenue = orders
+    .filter(o => o.status !== 'cancelled')
+    .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+
+  ordersStats.innerHTML = `
+    <div class="orders-stat">
+      <span class="orders-stat__label">Open</span>
+      <strong class="orders-stat__value">${pending}</strong>
+    </div>
+    <div class="orders-stat">
+      <span class="orders-stat__label">In progress</span>
+      <strong class="orders-stat__value">${processing}</strong>
+    </div>
+    <div class="orders-stat">
+      <span class="orders-stat__label">Completed</span>
+      <strong class="orders-stat__value">${completed}</strong>
+    </div>
+    <div class="orders-stat orders-stat--accent">
+      <span class="orders-stat__label">Revenue</span>
+      <strong class="orders-stat__value" dir="ltr">${money(revenue)}</strong>
+    </div>
+  `;
+}
+
+function exportOrdersCsv() {
+  const list = getFilteredOrders();
+  if (!list.length) {
+    showToast('No orders to export');
+    return;
+  }
+
+  const rows = [
+    ['Order ID', 'Date', 'Customer', 'Email', 'Items', 'Total', 'Status', 'Payment'],
+  ];
+
+  list.forEach(order => {
+    const customer = order.customer || {};
+    rows.push([
+      order.id,
+      order.createdAt || '',
+      customerName(customer),
+      customer.email || '',
+      String(orderItemCount(order)),
+      String(order.total ?? ''),
+      order.status || '',
+      order.paymentStatus || '',
+    ]);
+  });
+
+  const csv = rows
+    .map(cols => cols.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `marvispace-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${list.length} orders`);
+}
+
 function renderOrders() {
-  if (ordersCount) ordersCount.textContent = `${orders.length} orders`;
+  renderOrderStats();
+
+  const list = getFilteredOrders();
+  if (ordersCount) {
+    ordersCount.textContent = list.length === orders.length
+      ? `${orders.length} orders`
+      : `${list.length} of ${orders.length} orders`;
+  }
   if (navOrderCount) navOrderCount.textContent = String(orders.length);
   ordersTableBody.innerHTML = '';
 
   if (!orders.length) {
     if (ordersEmpty) ordersEmpty.hidden = false;
+    if (ordersFilterEmpty) ordersFilterEmpty.hidden = true;
     return;
   }
   if (ordersEmpty) ordersEmpty.hidden = true;
 
-  orders.forEach(order => {
+  if (!list.length) {
+    if (ordersFilterEmpty) ordersFilterEmpty.hidden = false;
+    return;
+  }
+  if (ordersFilterEmpty) ordersFilterEmpty.hidden = true;
+
+  list.forEach(order => {
     const row = document.createElement('tr');
-    const itemsHtml = order.items.map(item =>
-      `<span>${esc(item.label)} · Size ${esc(item.size)} · ${item.qty}× · ${money(item.price * item.qty)}</span>`
-    ).join('');
-    const customer = order.customer
-      ? `${esc(customerName(order.customer))}<br><span class="muted" dir="ltr">${esc(order.customer.email || '')}</span>`
-      : '—';
+    const customer = order.customer || {};
     const st = orderStatusLabel(order.status);
+    const pay = paymentStatusLabel(order.paymentStatus);
+    const itemCount = orderItemCount(order);
 
     row.innerHTML = `
-      <td><code dir="ltr">${esc(order.id)}</code></td>
-      <td>${fmtDate(order.createdAt)}</td>
-      <td>${customer || '—'}</td>
-      <td><div class="order-items">${itemsHtml}</div></td>
-      <td dir="ltr"><strong>${money(order.total)}</strong></td>
+      <td class="order-id-cell">
+        <button type="button" class="order-id-btn" data-copy-order-id="${esc(order.id)}" title="Copy order ID">
+          <code dir="ltr">${esc(shortOrderId(order.id))}</code>
+        </button>
+        <span class="order-date">${fmtDateShort(order.createdAt)}</span>
+      </td>
+      <td class="order-customer-cell">
+        <strong>${esc(customerName(customer))}</strong>
+        <span class="muted order-email" dir="ltr">${esc(customer.email || '—')}</span>
+      </td>
       <td>
-        <span class="status-pill ${st.cls}">
-          ${st.label}
-        </span>
+        <div class="order-items-compact">
+          <span class="order-items-count">${itemCount} item${itemCount === 1 ? '' : 's'}</span>
+          <span class="muted">${esc(orderItemsPreview(order))}</span>
+        </div>
+      </td>
+      <td dir="ltr"><strong class="order-total">${money(order.total)}</strong></td>
+      <td><span class="status-pill ${pay.cls}">${pay.label}</span></td>
+      <td>
+        <select class="filter-select order-status-select" data-order-status data-order-id="${esc(order.id)}" aria-label="Order status">
+          ${orderStatusOptionsHtml(order.status || 'pending')}
+        </select>
       </td>
       <td>
         <div class="row-actions">
           <button type="button" class="btn btn-ghost" data-order-view data-order-id="${esc(order.id)}">View</button>
-          <button type="button" class="btn btn-ghost" data-order-action="pending" data-order-id="${esc(order.id)}">Pending</button>
-          <button type="button" class="btn btn-ghost" data-order-action="completed" data-order-id="${esc(order.id)}">Complete</button>
+          ${customer.email ? `<a class="btn btn-ghost" href="mailto:${esc(customer.email)}?subject=${encodeURIComponent(`Order ${order.id}`)}">Email</a>` : ''}
         </div>
       </td>
     `;
@@ -1537,6 +1727,24 @@ productsTableBody?.addEventListener('click', async e => {
   }
 });
 
+async function applyOrderStatus(orderId, status) {
+  if (!orderId || !status) return false;
+  try {
+    await setOrderStatus(orderId, status);
+    orders = await loadOrders();
+    renderAll();
+    showToast('Order status updated');
+    if (activeOrderId === orderId) {
+      const order = orders.find(item => item.id === orderId);
+      if (order) openOrderModal(order);
+    }
+    return true;
+  } catch (err) {
+    showToast(err.message || 'Could not update order');
+    return false;
+  }
+}
+
 ordersTableBody?.addEventListener('click', async e => {
   const viewBtn = e.target.closest('button[data-order-view]');
   if (viewBtn) {
@@ -1545,16 +1753,36 @@ ordersTableBody?.addEventListener('click', async e => {
     return;
   }
 
-  const btn = e.target.closest('button[data-order-action]');
-  if (!btn) return;
-  try {
-    await setOrderStatus(btn.dataset.orderId, btn.dataset.orderAction);
-    orders = await loadOrders();
-    renderAll();
-    showToast('Order status updated');
-  } catch (err) {
-    showToast(err.message || 'Could not update order');
+  const copyBtn = e.target.closest('[data-copy-order-id]');
+  if (copyBtn) {
+    const id = copyBtn.dataset.copyOrderId;
+    try {
+      await navigator.clipboard.writeText(id);
+      showToast('Order ID copied');
+    } catch {
+      showToast(id);
+    }
   }
+});
+
+ordersTableBody?.addEventListener('change', async e => {
+  const select = e.target.closest('select[data-order-status]');
+  if (!select) return;
+  const orderId = select.dataset.orderId;
+  const prev = orders.find(item => item.id === orderId)?.status || 'pending';
+  const ok = await applyOrderStatus(orderId, select.value);
+  if (!ok) select.value = prev;
+});
+
+orderSearch?.addEventListener('input', () => renderOrders());
+orderStatusFilter?.addEventListener('change', () => renderOrders());
+orderPaymentFilter?.addEventListener('change', () => renderOrders());
+orderSort?.addEventListener('change', () => renderOrders());
+exportOrdersBtn?.addEventListener('click', exportOrdersCsv);
+
+orderModalSaveStatus?.addEventListener('click', async () => {
+  if (!activeOrderId || !orderModalStatus) return;
+  await applyOrderStatus(activeOrderId, orderModalStatus.value);
 });
 
 orderModal?.querySelectorAll('[data-close-order-modal]').forEach(el => {

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/fonts.css" />
-  <link rel="stylesheet" href="/assets/css/admin.css" />
+  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-orders" />
 </head>
 <body>
 
@@ -301,22 +301,50 @@
         </section>
 
         <section class="view-panel" id="ordersPanel" data-view="orders">
+          <div class="orders-stats" id="ordersStats" aria-label="Order summary"></div>
+
           <div class="card">
-            <div class="card-head">
+            <div class="card-head card-head--stack">
               <div class="card-head-start">
                 <h2>Orders</h2>
                 <span class="muted" id="ordersCount">0 orders</span>
               </div>
+              <div class="card-head-actions orders-toolbar">
+                <input type="search" class="search-input" id="orderSearch" placeholder="Search ID, name, email…" />
+                <select class="filter-select" id="orderStatusFilter" aria-label="Filter by status">
+                  <option value="all">All statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="awaiting_payment">Awaiting payment</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <select class="filter-select" id="orderPaymentFilter" aria-label="Filter by payment">
+                  <option value="all">All payments</option>
+                  <option value="paid">Paid</option>
+                  <option value="unpaid">Unpaid</option>
+                  <option value="pending">Payment pending</option>
+                  <option value="failed">Payment failed</option>
+                </select>
+                <select class="filter-select" id="orderSort" aria-label="Sort orders">
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="total-desc">Highest total</option>
+                  <option value="total-asc">Lowest total</option>
+                </select>
+                <button type="button" class="btn btn-ghost btn-sm" id="exportOrdersBtn">Export CSV</button>
+              </div>
             </div>
             <div class="table-wrap">
-              <table class="data-table" id="ordersTable">
+              <table class="data-table data-table--orders" id="ordersTable">
                 <thead>
                   <tr>
-                    <th>Order ID</th>
-                    <th>Date</th>
+                    <th>Order</th>
                     <th>Customer</th>
                     <th>Items</th>
                     <th>Total</th>
+                    <th>Payment</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -325,6 +353,7 @@
               </table>
             </div>
             <p class="empty-state" id="ordersEmpty" hidden>No orders yet.</p>
+            <p class="empty-state" id="ordersFilterEmpty" hidden>No orders match your filters.</p>
           </div>
         </section>
 
@@ -633,8 +662,18 @@
         <button type="button" class="modal-close" data-close-order-modal aria-label="Close">×</button>
       </div>
       <div class="order-detail" id="orderModalBody"></div>
-      <div class="modal-foot">
-        <button type="button" class="btn btn-ghost" data-close-order-modal>Close</button>
+      <div class="modal-foot order-modal-foot">
+        <div class="order-modal-foot__left">
+          <label class="order-status-field">
+            <span>Status</span>
+            <select class="filter-select" id="orderModalStatus"></select>
+          </label>
+          <button type="button" class="btn btn-primary btn-sm" id="orderModalSaveStatus">Update status</button>
+        </div>
+        <div class="order-modal-foot__right">
+          <a class="btn btn-ghost btn-sm" id="orderModalEmail" href="#">Email customer</a>
+          <button type="button" class="btn btn-ghost" data-close-order-modal>Close</button>
+        </div>
       </div>
     </div>
   </div>
@@ -898,6 +937,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script type="module" src="/assets/js/pages/admin.js?v=20260825-bulk"></script>
+  <script type="module" src="/assets/js/pages/admin.js?v=20260825-orders"></script>
 </body>
 </html>
