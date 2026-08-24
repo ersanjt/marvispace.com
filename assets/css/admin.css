@@ -779,14 +779,38 @@ body:not(.is-logged-in) .admin-shell { display: none; }
   min-width: 130px;
 }
 
-.data-table--orders th:nth-child(1) { min-width: 130px; }
-.data-table--orders th:nth-child(2) { min-width: 160px; }
-.data-table--orders th:nth-child(3) { min-width: 200px; }
+.data-table--orders {
+  table-layout: fixed;
+  min-width: 920px;
+}
 
-.order-id-cell {
+.data-table--orders th,
+.data-table--orders td {
+  vertical-align: top;
+  padding: 14px 12px;
+}
+
+.data-table--orders th:nth-child(1),
+.data-table--orders td:nth-child(1) { width: 14%; }
+.data-table--orders th:nth-child(2),
+.data-table--orders td:nth-child(2) { width: 18%; }
+.data-table--orders th:nth-child(3),
+.data-table--orders td:nth-child(3) { width: 24%; }
+.data-table--orders th:nth-child(4),
+.data-table--orders td:nth-child(4) { width: 10%; white-space: nowrap; }
+.data-table--orders th:nth-child(5),
+.data-table--orders td:nth-child(5) { width: 10%; }
+.data-table--orders th:nth-child(6),
+.data-table--orders td:nth-child(6) { width: 14%; }
+.data-table--orders th:nth-child(7),
+.data-table--orders td:nth-child(7) { width: 10%; }
+
+.order-stack {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 4px;
+  min-width: 0;
 }
 
 .order-id-btn {
@@ -806,30 +830,35 @@ body:not(.is-logged-in) .admin-shell { display: none; }
 
 .order-id-btn code {
   font-size: 12px;
+  font-weight: 600;
 }
 
 .order-date {
   font-size: 11px;
+  line-height: 1.35;
   color: var(--muted);
 }
 
-.order-customer-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 13px;
+.order-customer-name {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
-.order-customer-cell .order-email {
+.order-email {
+  display: block;
   font-size: 11px;
+  line-height: 1.35;
+  word-break: break-all;
 }
 
 .order-items-compact {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  min-width: 0;
   font-size: 12px;
-  max-width: 280px;
+  line-height: 1.4;
 }
 
 .order-items-count {
@@ -839,14 +868,39 @@ body:not(.is-logged-in) .admin-shell { display: none; }
   color: var(--muted);
 }
 
+.order-items-preview {
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .order-total {
-  font-size: 14px;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .order-status-select {
-  min-width: 140px;
+  display: block;
+  width: 100%;
+  max-width: 148px;
+  min-width: 0;
   height: 34px;
   font-size: 11px;
+}
+
+.data-table--orders .status-pill {
+  white-space: nowrap;
+}
+
+.data-table--orders .row-actions {
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.data-table--orders .row-actions .btn {
+  flex: 0 0 auto;
 }
 
 .order-modal-foot {

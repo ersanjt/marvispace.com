@@ -1358,25 +1358,28 @@ function renderOrders() {
   list.forEach(order => {
     const row = document.createElement('tr');
     const customer = order.customer || {};
-    const st = orderStatusLabel(order.status);
     const pay = paymentStatusLabel(order.paymentStatus);
     const itemCount = orderItemCount(order);
 
     row.innerHTML = `
-      <td class="order-id-cell">
-        <button type="button" class="order-id-btn" data-copy-order-id="${esc(order.id)}" title="Copy order ID">
-          <code dir="ltr">${esc(shortOrderId(order.id))}</code>
-        </button>
-        <span class="order-date">${fmtDateShort(order.createdAt)}</span>
+      <td>
+        <div class="order-stack">
+          <button type="button" class="order-id-btn" data-copy-order-id="${esc(order.id)}" title="Copy order ID">
+            <code dir="ltr">${esc(shortOrderId(order.id))}</code>
+          </button>
+          <span class="order-date">${fmtDateShort(order.createdAt)}</span>
+        </div>
       </td>
-      <td class="order-customer-cell">
-        <strong>${esc(customerName(customer))}</strong>
-        <span class="muted order-email" dir="ltr">${esc(customer.email || '—')}</span>
+      <td>
+        <div class="order-stack">
+          <span class="order-customer-name">${esc(customerName(customer))}</span>
+          <span class="muted order-email" dir="ltr">${esc(customer.email || '—')}</span>
+        </div>
       </td>
       <td>
         <div class="order-items-compact">
           <span class="order-items-count">${itemCount} item${itemCount === 1 ? '' : 's'}</span>
-          <span class="muted">${esc(orderItemsPreview(order))}</span>
+          <span class="order-items-preview">${esc(orderItemsPreview(order))}</span>
         </div>
       </td>
       <td dir="ltr"><strong class="order-total">${money(order.total)}</strong></td>
