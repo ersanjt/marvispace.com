@@ -49,6 +49,18 @@
   RewriteCond %{THE_REQUEST} \s/+privacy-right-center\.html[\s?] [NC]
   RewriteRule ^privacy-right-center\.html$ /privacy-right-center [R=301,L,NC]
 
+  RewriteCond %{THE_REQUEST} \s/+kvkk\.html[\s?] [NC]
+  RewriteRule ^kvkk\.html$ /kvkk [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+mesafeli-satis-sozlesmesi\.html[\s?] [NC]
+  RewriteRule ^mesafeli-satis-sozlesmesi\.html$ /mesafeli-satis-sozlesmesi [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+on-bilgilendirme\.html[\s?] [NC]
+  RewriteRule ^on-bilgilendirme\.html$ /on-bilgilendirme [R=301,L,NC]
+
+  RewriteCond %{THE_REQUEST} \s/+iade-ve-iptal\.html[\s?] [NC]
+  RewriteRule ^iade-ve-iptal\.html$ /iade-ve-iptal [R=301,L,NC]
+
   # Clean URL routes (internal rewrite — no redirect)
   RewriteRule ^checkout/?$ checkout.html [L,NC]
   RewriteRule ^admin/?$ admin.html [L,NC]
@@ -59,6 +71,10 @@
   RewriteRule ^order-status/?$ order-status.html [L,NC]
   RewriteRule ^order-confirmation/?$ order-confirmation.html [L,NC]
   RewriteRule ^privacy-right-center/?$ privacy-right-center.html [L,NC]
+  RewriteRule ^kvkk/?$ kvkk.html [L,NC]
+  RewriteRule ^mesafeli-satis-sozlesmesi/?$ mesafeli-satis-sozlesmesi.html [L,NC]
+  RewriteRule ^on-bilgilendirme/?$ on-bilgilendirme.html [L,NC]
+  RewriteRule ^iade-ve-iptal/?$ iade-ve-iptal.html [L,NC]
 
   # REST API (PHP + MySQL)
   RewriteRule ^api/v1/cart/?$ api/v1/cart.php [L,QSA]
@@ -79,7 +95,9 @@
   RewriteRule ^api/v1/admin/logout/?$ api/v1/admin/logout.php [L,QSA]
   RewriteRule ^api/v1/admin/me/?$ api/v1/admin/me.php [L,QSA]
   RewriteRule ^api/v1/admin/products/?$ api/v1/admin/products.php [L,QSA]
+  RewriteRule ^api/v1/admin/products/bulk/?$ api/v1/admin/products-bulk.php [L,QSA]
   RewriteRule ^api/v1/admin/orders/?$ api/v1/admin/orders.php [L,QSA]
+  RewriteRule ^api/v1/images/resize/?$ api/v1/images/resize.php [L,QSA]
 </IfModule>
 
 # Security headers

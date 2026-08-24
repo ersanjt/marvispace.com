@@ -299,6 +299,70 @@ export async function removeProduct(id) {
   saveProductsLocal(getProductsLocal().filter(p => p.id !== id));
 }
 
+function applyPricePatch(price, patch) {
+  const value = Number(patch.value) || 0;
+  let next = Number(price) || 0;
+  switch (patch.mode) {
+    case 'percent_increase':
+      next = next * (1 + value / 100);
+      break;
+    case 'percent_decrease':
+      next = next * (1 - value / 100);
+      break;
+    case 'amount_increase':
+      next = next + value;
+      break;
+    case 'amount_decrease':
+      next = next - value;
+      break;
+    case 'set':
+      next = value;
+      break;
+    default:
+      return price;
+  }
+  return Math.max(0, Math.round(next * 100) / 100);
+}
+
+function applyStockPatch(stock, patch) {
+  const value = Number(patch.value) || 0;
+  let next = Number(stock) || 0;
+  switch (patch.mode) {
+    case 'add':
+      next = next + value;
+      break;
+    case 'subtract':
+      next = next - value;
+      break;
+    case 'set':
+      next = value;
+      break;
+    default:
+      return stock;
+  }
+  return Math.max(0, Math.round(next));
+}
+
+export async function bulkUpdateProducts({ ids, price, stock, category, gender, inStock }) {
+  if (await requireDatabase()) {
+    return api.adminBulkUpdateProducts({ ids, price, stock, category, gender, inStock });
+  }
+
+  const idSet = new Set(ids);
+  const products = getProductsLocal().map((product) => {
+    if (!idSet.has(product.id)) return product;
+    const next = { ...product };
+    if (price) next.price = applyPricePatch(next.price, price);
+    if (stock) next.stock = applyStockPatch(next.stock, stock);
+    if (category !== undefined) next.category = category;
+    if (gender !== undefined) next.gender = gender;
+    if (inStock !== undefined) next.inStock = Boolean(inStock);
+    return normalizeProduct(next);
+  });
+  saveProductsLocal(products);
+  return { updated: ids.length, ids };
+}
+
 export async function loadOrders() {
   if (await requireDatabase()) {
     return api.adminFetchOrders();

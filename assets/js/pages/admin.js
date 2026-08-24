@@ -7,6 +7,7 @@ import {
   normalizeProduct,
   removeProduct,
   saveProduct,
+  bulkUpdateProducts,
   setOrderStatus,
 } from '../core/storage.js';
 import {
@@ -18,8 +19,10 @@ import {
   adminMe,
   adminSaveNotificationSettings,
   adminSavePaynetSettings,
+  adminSaveWhatsAppSettings,
   adminSaveZiraatSettings,
   adminSendTestNotification,
+  fetchSiteSettings,
 } from '../core/api-client.js';
 import { mountAdminLogin, signOutAdmin } from '../core/admin-auth.js';
 import { createFaviconUploadUI } from '../modules/admin-favicon.js';
@@ -40,6 +43,30 @@ const productsEmpty = document.getElementById('productsEmpty');
 const productsCount = document.getElementById('productsCount');
 const productSearch = document.getElementById('productSearch');
 const productFilter = document.getElementById('productFilter');
+const productBulkBar = document.getElementById('productBulkBar');
+const productSelectionLabel = document.getElementById('productSelectionLabel');
+const productSelectAllVisible = document.getElementById('productSelectAllVisible');
+const productSelectAllFiltered = document.getElementById('productSelectAllFiltered');
+const bulkEditBtn = document.getElementById('bulkEditBtn');
+const openBulkEditBtn = document.getElementById('openBulkEditBtn');
+const clearProductSelectionBtn = document.getElementById('clearProductSelectionBtn');
+const bulkEditModal = document.getElementById('bulkEditModal');
+const bulkEditForm = document.getElementById('bulkEditForm');
+const bulkEditTitle = document.getElementById('bulkEditTitle');
+const bulkEditLead = document.getElementById('bulkEditLead');
+const bulkEditSubmitBtn = document.getElementById('bulkEditSubmitBtn');
+const bulkEnablePrice = document.getElementById('bulkEnablePrice');
+const bulkPriceMode = document.getElementById('bulkPriceMode');
+const bulkPriceValue = document.getElementById('bulkPriceValue');
+const bulkEnableStock = document.getElementById('bulkEnableStock');
+const bulkStockMode = document.getElementById('bulkStockMode');
+const bulkStockValue = document.getElementById('bulkStockValue');
+const bulkEnableCategory = document.getElementById('bulkEnableCategory');
+const bulkCategory = document.getElementById('bulkCategory');
+const bulkEnableGender = document.getElementById('bulkEnableGender');
+const bulkGender = document.getElementById('bulkGender');
+const bulkEnableVisibility = document.getElementById('bulkEnableVisibility');
+const bulkVisibility = document.getElementById('bulkVisibility');
 
 const ordersTableBody = document.getElementById('ordersTableBody');
 const ordersCount = document.getElementById('ordersCount');
@@ -142,6 +169,8 @@ const FULL_PERMISSIONS = {
 };
 
 let products = [];
+let selectedProductIds = new Set();
+let lastFilteredProductIds = [];
 let orders = [];
 let adminUsers = [];
 let siteSettings = null;
@@ -544,7 +573,7 @@ function renderUsers() {
 }
 
 function switchSettingsTab(name) {
-  if (!['brand', 'payments', 'notifications'].includes(name)) name = 'brand';
+  if (!['brand', 'payments', 'notifications', 'support'].includes(name)) name = 'brand';
   activeSettingsTab = name;
 
   settingsTabs.forEach(btn => {
@@ -708,6 +737,81 @@ function renderSettings() {
       notifyStatusLine.textContent = hints.join(' · ');
     }
   }
+
+  const whatsapp = siteSettings?.whatsapp;
+  if (whatsapp) {
+    const enabledEl = document.getElementById('whatsappEnabled');
+    const phoneEl = document.getElementById('whatsappPhone');
+    const messageEl = document.getElementById('whatsappMessage');
+    const testLink = document.getElementById('whatsappTestLink');
+    const statusLine = document.getElementById('whatsappStatusLine');
+
+    if (enabledEl) enabledEl.checked = !!whatsapp.enabled;
+    if (phoneEl) phoneEl.value = whatsapp.phone || '';
+    if (messageEl) messageEl.value = whatsapp.message || '';
+
+    if (testLink) {
+      const url = buildWhatsAppAdminUrl(whatsapp);
+      if (url && whatsapp.enabled && whatsapp.phone) {
+        testLink.href = url;
+        testLink.hidden = false;
+      } else {
+        testLink.hidden = true;
+      }
+    }
+
+    if (statusLine && !statusLine.dataset.pending) {
+      statusLine.textContent = whatsapp.enabled && whatsapp.phone
+        ? `Live on store · +${whatsapp.phone}`
+        : 'Disabled — enable and save a phone number to show the chat button';
+    }
+  }
+
+  renderWhatsAppSetupCard();
+}
+
+function buildWhatsAppAdminUrl(config) {
+  const phone = String(config?.phone || '').replace(/\D/g, '');
+  if (!phone) return '';
+  const text = String(config?.message || '').trim();
+  const base = `https://wa.me/${phone}`;
+  return text ? `${base}?text=${encodeURIComponent(text)}` : base;
+}
+
+async function renderWhatsAppSetupCard() {
+  const card = document.getElementById('whatsappSetupCard');
+  const status = document.getElementById('whatsappSetupStatus');
+  const configureBtn = document.getElementById('whatsappConfigureBtn');
+  const previewBtn = document.getElementById('whatsappPreviewBtn');
+  if (!card || !status) return;
+
+  let whatsapp = siteSettings?.whatsapp;
+  if (!whatsapp) {
+    try {
+      const publicSettings = await fetchSiteSettings();
+      whatsapp = publicSettings?.whatsapp;
+    } catch {
+      whatsapp = null;
+    }
+  }
+
+  const canConfigure = canAccessSection('settings');
+  if (configureBtn) configureBtn.hidden = !canConfigure;
+
+  if (whatsapp?.enabled && whatsapp?.phone) {
+    card.classList.add('is-connected');
+    status.textContent = `Connected · customers can chat on +${whatsapp.phone}`;
+    if (previewBtn) {
+      previewBtn.href = whatsapp.url || buildWhatsAppAdminUrl(whatsapp);
+      previewBtn.hidden = false;
+    }
+  } else {
+    card.classList.remove('is-connected');
+    status.textContent = canConfigure
+      ? 'Not connected — add your WhatsApp number in Settings → Support.'
+      : 'WhatsApp support is not active. Ask an admin to configure it in Settings.';
+    if (previewBtn) previewBtn.hidden = true;
+  }
 }
 
 function resetForm() {
@@ -782,8 +886,114 @@ function stockStatus(product) {
   return { cls: 'on', label: 'In stock' };
 }
 
+function updateProductSelectionUi() {
+  const count = selectedProductIds.size;
+  const hasSelection = count > 0;
+
+  if (productBulkBar) productBulkBar.hidden = !hasSelection;
+  if (bulkEditBtn) bulkEditBtn.hidden = !hasSelection;
+  if (productSelectionLabel) {
+    productSelectionLabel.textContent = count === 1 ? '1 product selected' : `${count} products selected`;
+  }
+
+  const filteredIds = lastFilteredProductIds;
+  const allFilteredSelected = filteredIds.length > 0
+    && filteredIds.every(id => selectedProductIds.has(id));
+
+  if (productSelectAllVisible) {
+    productSelectAllVisible.checked = allFilteredSelected;
+    productSelectAllVisible.indeterminate = !allFilteredSelected
+      && filteredIds.some(id => selectedProductIds.has(id));
+  }
+  if (productSelectAllFiltered) {
+    productSelectAllFiltered.checked = allFilteredSelected;
+    productSelectAllFiltered.indeterminate = productSelectAllVisible?.indeterminate ?? false;
+  }
+}
+
+function toggleProductSelection(id, checked) {
+  if (checked) selectedProductIds.add(id);
+  else selectedProductIds.delete(id);
+  updateProductSelectionUi();
+}
+
+function selectFilteredProducts(checked) {
+  lastFilteredProductIds.forEach(id => {
+    if (checked) selectedProductIds.add(id);
+    else selectedProductIds.delete(id);
+  });
+  updateProductSelectionUi();
+  renderProducts();
+}
+
+function clearProductSelection() {
+  selectedProductIds.clear();
+  updateProductSelectionUi();
+  renderProducts();
+}
+
+function resetBulkEditForm() {
+  bulkEditForm?.reset();
+  if (bulkCategory) bulkCategory.disabled = true;
+  if (bulkGender) bulkGender.disabled = true;
+  if (bulkVisibility) bulkVisibility.disabled = true;
+  if (bulkPriceMode) bulkPriceMode.disabled = true;
+  if (bulkPriceValue) bulkPriceValue.disabled = true;
+  if (bulkStockMode) bulkStockMode.disabled = true;
+  if (bulkStockValue) bulkStockValue.disabled = true;
+}
+
+function openBulkEditModal() {
+  if (!bulkEditModal || selectedProductIds.size === 0) return;
+  const count = selectedProductIds.size;
+  if (bulkEditTitle) {
+    bulkEditTitle.textContent = count === 1 ? 'Bulk edit · 1 product' : `Bulk edit · ${count} products`;
+  }
+  if (bulkEditLead) {
+    bulkEditLead.textContent = `Changes apply to ${count} selected product${count === 1 ? '' : 's'}. Enable only the fields you want to update.`;
+  }
+  resetBulkEditForm();
+  bulkEditModal.hidden = false;
+  bulkEditModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeBulkEditModal() {
+  if (!bulkEditModal) return;
+  bulkEditModal.hidden = true;
+  bulkEditModal.setAttribute('aria-hidden', 'true');
+}
+
+function readBulkEditPayload() {
+  const payload = { ids: [...selectedProductIds] };
+
+  if (bulkEnablePrice?.checked) {
+    payload.price = {
+      mode: bulkPriceMode?.value || 'percent_increase',
+      value: Number(bulkPriceValue?.value || 0),
+    };
+  }
+  if (bulkEnableStock?.checked) {
+    payload.stock = {
+      mode: bulkStockMode?.value || 'add',
+      value: Number(bulkStockValue?.value || 0),
+    };
+  }
+  if (bulkEnableCategory?.checked) {
+    payload.category = bulkCategory?.value || 'jackets';
+  }
+  if (bulkEnableGender?.checked) {
+    payload.gender = bulkGender?.value || 'mens';
+  }
+  if (bulkEnableVisibility?.checked) {
+    payload.inStock = bulkVisibility?.value === '1';
+  }
+
+  return payload;
+}
+
 function renderProducts() {
   const list = getFilteredProducts();
+  lastFilteredProductIds = list.map(p => p.id);
   productsTableBody.innerHTML = '';
 
   if (productsCount) productsCount.textContent = `${products.length} products`;
@@ -792,12 +1002,17 @@ function renderProducts() {
 
   list.forEach(product => {
     const row = document.createElement('tr');
+    if (selectedProductIds.has(product.id)) row.classList.add('is-selected');
     const st = stockStatus(product);
     const thumb = product.image
       ? `<img class="thumb" src="${esc(product.image)}" alt="${esc(product.label)}" loading="lazy" />`
       : `<div class="thumb-empty">—</div>`;
+    const checked = selectedProductIds.has(product.id) ? 'checked' : '';
 
     row.innerHTML = `
+      <td class="col-check">
+        <input type="checkbox" class="product-select" data-id="${esc(product.id)}" aria-label="Select ${esc(product.label)}" ${checked} />
+      </td>
       <td>${thumb}</td>
       <td><strong>${esc(product.label)}</strong></td>
       <td>${categoryLabel(product.category)}</td>
@@ -817,6 +1032,8 @@ function renderProducts() {
     `;
     productsTableBody.append(row);
   });
+
+  updateProductSelectionUi();
 }
 
 function orderStatusLabel(status) {
@@ -1068,7 +1285,21 @@ window.addEventListener('hashchange', () => {
 });
 
 document.querySelectorAll('[data-goto]').forEach(btn => {
-  btn.addEventListener('click', () => switchTab(btn.dataset.goto));
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.goto;
+    if (btn.dataset.settingsTab) {
+      activeSettingsTab = btn.dataset.settingsTab;
+      try {
+        window.history.replaceState(null, '', `#settings-${btn.dataset.settingsTab}`);
+      } catch {
+        /* ignore */
+      }
+    }
+    switchTab(tab);
+    if (tab === 'settings') {
+      switchSettingsTab(activeSettingsTab);
+    }
+  });
 });
 
 topNewProductBtn?.addEventListener('click', () => {
@@ -1163,6 +1394,90 @@ productModal?.querySelectorAll('[data-close-modal]').forEach(el => {
 productSearch?.addEventListener('input', renderProducts);
 productFilter?.addEventListener('change', renderProducts);
 
+productSelectAllVisible?.addEventListener('change', e => {
+  selectFilteredProducts(e.target.checked);
+});
+
+productSelectAllFiltered?.addEventListener('change', e => {
+  selectFilteredProducts(e.target.checked);
+});
+
+bulkEditBtn?.addEventListener('click', openBulkEditModal);
+openBulkEditBtn?.addEventListener('click', openBulkEditModal);
+clearProductSelectionBtn?.addEventListener('click', clearProductSelection);
+
+bulkEnableCategory?.addEventListener('change', e => {
+  if (bulkCategory) bulkCategory.disabled = !e.target.checked;
+});
+bulkEnableGender?.addEventListener('change', e => {
+  if (bulkGender) bulkGender.disabled = !e.target.checked;
+});
+bulkEnableVisibility?.addEventListener('change', e => {
+  if (bulkVisibility) bulkVisibility.disabled = !e.target.checked;
+});
+bulkEnablePrice?.addEventListener('change', e => {
+  const on = e.target.checked;
+  if (bulkPriceMode) bulkPriceMode.disabled = !on;
+  if (bulkPriceValue) bulkPriceValue.disabled = !on;
+});
+bulkEnableStock?.addEventListener('change', e => {
+  const on = e.target.checked;
+  if (bulkStockMode) bulkStockMode.disabled = !on;
+  if (bulkStockValue) bulkStockValue.disabled = !on;
+});
+
+bulkEditModal?.querySelectorAll('[data-close-bulk-modal]').forEach(el => {
+  el.addEventListener('click', closeBulkEditModal);
+});
+
+bulkEditForm?.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (selectedProductIds.size === 0) {
+    showToast('Select at least one product');
+    return;
+  }
+
+  const payload = readBulkEditPayload();
+  const changeCount = ['price', 'stock', 'category', 'gender', 'inStock']
+    .filter(key => key in payload).length;
+  if (!changeCount) {
+    showToast('Enable at least one field to update');
+    return;
+  }
+
+  const count = payload.ids.length;
+  const summary = [];
+  if (payload.price) summary.push('price');
+  if (payload.stock) summary.push('stock');
+  if (payload.category) summary.push('category');
+  if (payload.gender) summary.push('gender');
+  if (payload.inStock !== undefined) summary.push('visibility');
+
+  if (!confirm(`Apply ${summary.join(', ')} changes to ${count} product${count === 1 ? '' : 's'}?`)) {
+    return;
+  }
+
+  if (bulkEditSubmitBtn) bulkEditSubmitBtn.disabled = true;
+  try {
+    const result = await bulkUpdateProducts(payload);
+    await refreshData();
+    closeBulkEditModal();
+    const updated = result?.updated ?? count;
+    showToast(`Updated ${updated} product${updated === 1 ? '' : 's'}`);
+  } catch (err) {
+    showToast(err.message || 'Bulk update failed');
+  } finally {
+    if (bulkEditSubmitBtn) bulkEditSubmitBtn.disabled = false;
+  }
+});
+
+productsTableBody?.addEventListener('change', e => {
+  const checkbox = e.target.closest('.product-select');
+  if (!checkbox) return;
+  toggleProductSelection(checkbox.dataset.id, checkbox.checked);
+  checkbox.closest('tr')?.classList.toggle('is-selected', checkbox.checked);
+});
+
 productForm?.addEventListener('submit', async e => {
   e.preventDefault();
   if (!fields.image?.value?.trim()) {
@@ -1213,6 +1528,7 @@ productsTableBody?.addEventListener('click', async e => {
     if (!confirm(`Delete product "${product.label}"?`)) return;
     try {
       await removeProduct(id);
+      selectedProductIds.delete(id);
       await refreshData();
       showToast('Product deleted');
     } catch (err) {
@@ -1250,6 +1566,7 @@ document.addEventListener('keydown', e => {
   if (productModal && !productModal.hidden) closeModal();
   if (userModal && !userModal.hidden) closeUserModal();
   if (orderModal && !orderModal.hidden) closeOrderModal();
+  if (bulkEditModal && !bulkEditModal.hidden) closeBulkEditModal();
 });
 
 paynetSettingsForm?.addEventListener('submit', async e => {
@@ -1373,6 +1690,40 @@ document.getElementById('testNotifyBtn')?.addEventListener('click', async () => 
     showToast(err.message || 'Could not send test email');
   } finally {
     if (testBtn) testBtn.disabled = false;
+  }
+});
+
+document.getElementById('whatsappSettingsForm')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const saveBtn = document.getElementById('saveWhatsAppBtn');
+  const statusLine = document.getElementById('whatsappStatusLine');
+  if (saveBtn) saveBtn.disabled = true;
+  if (statusLine) {
+    statusLine.dataset.pending = '1';
+    statusLine.textContent = 'Saving…';
+  }
+  try {
+    const payload = {
+      enabled: document.getElementById('whatsappEnabled')?.checked || false,
+      phone: document.getElementById('whatsappPhone')?.value?.trim() || '',
+      message: document.getElementById('whatsappMessage')?.value?.trim() || '',
+    };
+    const updated = await adminSaveWhatsAppSettings(payload);
+    siteSettings = { ...(siteSettings || {}), ...updated };
+    if (statusLine) {
+      delete statusLine.dataset.pending;
+      statusLine.textContent = 'WhatsApp settings saved';
+    }
+    renderSettings();
+    showToast('WhatsApp support updated');
+  } catch (err) {
+    if (statusLine) {
+      delete statusLine.dataset.pending;
+      statusLine.textContent = err.message || 'Could not save';
+    }
+    showToast(err.message || 'Could not save WhatsApp settings');
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
   }
 });
 

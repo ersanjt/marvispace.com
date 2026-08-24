@@ -46,7 +46,74 @@ function settings_admin_get(PDO $pdo): array
     return [
         'favicon' => favicon_public($pdo),
         'notifications' => notifications_admin_get($pdo),
+        'whatsapp' => whatsapp_admin_get($pdo),
     ];
+}
+
+function whatsapp_normalize_phone(string $phone): string
+{
+    return preg_replace('/\D+/', '', $phone);
+}
+
+function whatsapp_admin_get(PDO $pdo): array
+{
+    return [
+        'enabled' => setting_get($pdo, 'whatsapp_enabled', '0') === '1',
+        'phone' => setting_get($pdo, 'whatsapp_phone', ''),
+        'message' => setting_get($pdo, 'whatsapp_message', 'Merhaba, MARVISPACE destek ekibiyim. Yardıma ihtiyacım var.'),
+    ];
+}
+
+function whatsapp_public_get(PDO $pdo): array
+{
+    $data = whatsapp_admin_get($pdo);
+    if (!$data['enabled'] || $data['phone'] === '') {
+        return ['enabled' => false];
+    }
+
+    return [
+        'enabled' => true,
+        'phone' => $data['phone'],
+        'message' => $data['message'],
+        'url' => whatsapp_build_url($data),
+    ];
+}
+
+function whatsapp_build_url(array $config, string $extraText = ''): string
+{
+    $phone = whatsapp_normalize_phone((string) ($config['phone'] ?? ''));
+    if ($phone === '') {
+        return '';
+    }
+
+    $text = trim($extraText) !== '' ? trim($extraText) : trim((string) ($config['message'] ?? ''));
+    $url = 'https://wa.me/' . $phone;
+    if ($text !== '') {
+        $url .= '?text=' . rawurlencode($text);
+    }
+
+    return $url;
+}
+
+function whatsapp_save(PDO $pdo, array $input): array
+{
+    if (array_key_exists('enabled', $input)) {
+        setting_set($pdo, 'whatsapp_enabled', !empty($input['enabled']) ? '1' : '0');
+    }
+
+    if (array_key_exists('phone', $input)) {
+        $phone = whatsapp_normalize_phone((string) $input['phone']);
+        if ($phone !== '' && (strlen($phone) < 10 || strlen($phone) > 15)) {
+            throw new InvalidArgumentException('Enter a valid WhatsApp number with country code (e.g. 905551234567)');
+        }
+        setting_set($pdo, 'whatsapp_phone', $phone);
+    }
+
+    if (array_key_exists('message', $input)) {
+        setting_set($pdo, 'whatsapp_message', trim((string) $input['message']));
+    }
+
+    return whatsapp_admin_get($pdo);
 }
 
 function notifications_admin_get(PDO $pdo): array

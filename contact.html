@@ -1,19 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="tr">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script src="/assets/js/core/analytics.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Contact — MARVISPACE</title>
-  <meta name="description" content="Contact MARVISPACE for order support, product questions, and customer service at marvispace.com." />
+  <title>İletişim — MARVISPACE</title>
+  <meta name="description" content="MARVISPACE iletişim — sipariş desteği, iade ve müşteri hizmetleri." />
   <link rel="canonical" href="https://marvispace.com/contact" />
   <meta name="robots" content="index, follow" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <script type="module" src="/assets/js/core/favicon-loader.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="module" src="/assets/js/core/cookie-consent.js"></script>
   <link rel="stylesheet" href="/assets/css/fonts.css" />
   <link rel="stylesheet" href="/assets/css/styles.css" />
   <link rel="stylesheet" href="/assets/css/page.css" />
@@ -22,32 +18,62 @@
 <body>
   <header class="site-page-nav">
     <a href="/">‹ MARVISPACE</a>
-    <a href="/checkout">Cart</a>
+    <a href="/checkout">Sepet</a>
   </header>
-  <main class="site-page">
-    <h1>Contact</h1>
-    <p>For order support and product inquiries, email <strong>support@marvispace.com</strong> or use the form below.</p>
+  <main class="site-page site-page--wide">
+    <h1>İletişim / Contact</h1>
+    <p class="page-lead">Sipariş, iade, ödeme ve ürün sorularınız için bize ulaşın. We respond within 1–2 business days.</p>
+    <div data-legal-nav></div>
+    <div data-merchant-info></div>
+
+    <div class="contact-channels" id="contactWhatsApp" hidden>
+      <a class="contact-whatsapp" id="contactWhatsAppLink" href="#" target="_blank" rel="noopener noreferrer">
+        WhatsApp Support
+      </a>
+    </div>
 
     <form class="page-form" id="contactForm" action="mailto:support@marvispace.com" method="post" enctype="text/plain">
       <label>
-        <span>Name</span>
+        <span>Ad / Name</span>
         <input type="text" name="name" required autocomplete="name" />
       </label>
       <label>
-        <span>Email</span>
+        <span>E-posta / Email</span>
         <input type="email" name="email" required autocomplete="email" />
       </label>
       <label>
-        <span>Message</span>
+        <span>Mesaj / Message</span>
         <input type="text" name="message" required />
       </label>
-      <button type="submit" class="page-btn">Send message</button>
+      <button type="submit" class="page-btn">Gönder / Send</button>
     </form>
 
-    <p class="page-note">We respond within 1–2 business days.</p>
-    <a class="back-shop" href="/">← Back to shop</a>
+    <p class="page-note">Çalışma saatleri: Pazartesi–Cuma 09:00–18:00 (TR)</p>
+    <a class="back-shop" href="/">← Mağazaya dön</a>
   </main>
   <footer data-site-footer></footer>
+  <script type="module" src="/assets/js/core/legal-page.js"></script>
+  <script type="module">
+    import { fetchSiteSettings } from '/assets/js/core/api-client.js';
+    import { initWhatsAppSupport } from '/assets/js/core/whatsapp-support.js';
+
+    initWhatsAppSupport();
+
+    (async () => {
+      try {
+        const settings = await fetchSiteSettings();
+        const wa = settings?.whatsapp;
+        const block = document.getElementById('contactWhatsApp');
+        const link = document.getElementById('contactWhatsAppLink');
+        if (wa?.enabled && wa?.url && block && link) {
+          link.href = wa.url;
+          block.hidden = false;
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+  </script>
   <script type="module" src="/assets/js/core/credits.js"></script>
 </body>
 </html>

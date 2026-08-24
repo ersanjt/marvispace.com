@@ -3,17 +3,9 @@
  * @project MARVISPACE
  * @author Ersan JT <https://github.com/ersanjt>
  */
-const CDN = 'https://yeezy.com/cdn-cgi/image';
-const CDN_PARAMS = 'quality=100,compression=fast,slow-connection-quality=80,fit=pad,gravity=center,background=transparent';
+import { cartImageUrl, bindImageReveal, CART_SIZES, CART_WIDTHS, buildSrcset } from '../core/image-url.js';
 
-export function isLocalImage(src) {
-  return src?.startsWith('/') || src?.startsWith('http://') || src?.startsWith('https://');
-}
-
-export function cartImageUrl(src, w = 200) {
-  if (isLocalImage(src)) return src;
-  return `${CDN}/width=${w},height=${w},${CDN_PARAMS}/${src}`;
-}
+export { cartImageUrl } from '../core/image-url.js';
 
 let storeCurrency = 'USD';
 
@@ -65,9 +57,12 @@ export function buildCartLineItem(item, index, onChangeQty, { checkout = false }
   thumb.className = 'cart-line-thumb';
   const img = document.createElement('img');
   img.src = cartImageUrl(item.image, 200);
+  img.srcset = buildSrcset(item.image, CART_WIDTHS, 'webp');
+  img.sizes = CART_SIZES;
   img.alt = item.label;
   img.loading = 'lazy';
   img.decoding = 'async';
+  bindImageReveal(img);
   thumb.append(img);
 
   const body = document.createElement('div');

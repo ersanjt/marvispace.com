@@ -2,6 +2,14 @@ import { loadCart, loadProducts, resetApiHealthCache, saveCart } from '../core/s
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { SITE } from '../config/site.js';
+import {
+  appendOptimizedPicture,
+  prefetchGalleryImages,
+  PREVIEW_SIZES,
+  PREVIEW_WIDTHS,
+  GRID_SIZES,
+  GRID_WIDTHS,
+} from '../core/image-url.js';
 
 /* ════════════════════════════════════
    DOM refs
@@ -49,13 +57,9 @@ const pDesc          = document.getElementById('pDesc');
 /* ════════════════════════════════════
    Constants
    ════════════════════════════════════ */
-const CDN    = 'https://yeezy.com/cdn-cgi/image';
-const CDN_PARAMS = 'quality=100,compression=fast,slow-connection-quality=80,fit=pad,gravity=center,background=transparent';
-const WIDTHS = [16, 375, 560, 1024];
-const SIZES  = '(max-width: 767px) 375px, 560px';
 const ZOOM_DUR = 300;
 const WHEEL_COOLDOWN = 450;
-const GALLERY_FADE = 500;
+const GALLERY_FADE = 220;
 
 const SIZES_TABLE = [
   { us:'XS', eu:'34' },{ us:'S',  eu:'36' },{ us:'M',  eu:'38' },
@@ -118,49 +122,17 @@ function persistCart() {
   void saveCart(cartItems).catch(() => {});
 }
 
-/* ════════════════════════════════════
-   CDN image helpers
-   ════════════════════════════════════ */
-function cdnUrl(src, w, fmt) {
-  const base = `width=${w},height=${w},${CDN_PARAMS}`;
-  const f = fmt ? `,format=${fmt}` : '';
-  return `${CDN}/${base}${f}/${src}`;
-}
-function srcset(src, fmt) {
-  return WIDTHS.map(w => `${cdnUrl(src,w,fmt)} ${w}w`).join(', ');
-}
-function isLocalImage(src) {
-  return src.startsWith('/') || src.startsWith('http://') || src.startsWith('https://');
-}
-
 function mkPicture(item, eager) {
   const pic = document.createElement('picture');
-  const img = document.createElement('img');
-  img.decoding = 'async';
-  img.loading = eager ? 'eager' : 'lazy';
-  if (eager) img.fetchPriority = 'high';
-  img.alt = item.label;
-  img.className = 'prod-img';
-  img.draggable = false;
-
-  if (isLocalImage(item.image)) {
-    img.src = item.image;
-    pic.append(img);
-    return pic;
-  }
-
-  const avif = document.createElement('source');
-  avif.type = 'image/avif';
-  avif.srcset = srcset(item.image,'avif');
-  avif.sizes = SIZES;
-  const webp = document.createElement('source');
-  webp.type = 'image/webp';
-  webp.srcset = srcset(item.image,'webp');
-  webp.sizes = SIZES;
-  img.src = cdnUrl(item.image, 560);
-  img.srcset = srcset(item.image);
-  img.sizes = SIZES;
-  pic.append(avif, webp, img);
+  appendOptimizedPicture(pic, {
+    src: item.image,
+    alt: item.label,
+    className: 'prod-img',
+    eager,
+    widths: GRID_WIDTHS,
+    sizes: GRID_SIZES,
+    quality: 88,
+  });
   return pic;
 }
 
@@ -183,27 +155,20 @@ function getGallery(item) {
   return [url];
 }
 
-/** Preview gallery — matches Yeezy img markup (object-contain, --scale, 500ms fade) */
+/** Preview gallery — responsive WebP with smooth reveal */
 function mkPreviewPicture(imageUrl, item, eager = true) {
   const pic = document.createElement('picture');
-  const img = document.createElement('img');
-  img.decoding = 'async';
-  img.loading = eager ? 'eager' : 'lazy';
-  if (eager) img.fetchPriority = 'high';
-  img.alt = productDisplayName(item);
-  img.className = 'preview-img';
-  img.draggable = false;
-  img.style.setProperty('--scale', '1');
-
-  if (isLocalImage(imageUrl)) {
-    img.src = imageUrl;
-  } else {
-    img.src = cdnUrl(imageUrl, 560);
-    img.srcset = srcset(imageUrl);
-    img.sizes = SIZES;
-  }
-
-  pic.append(img);
+  appendOptimizedPicture(pic, {
+    src: imageUrl,
+    alt: productDisplayName(item),
+    className: 'preview-img',
+    eager,
+    widths: PREVIEW_WIDTHS,
+    sizes: PREVIEW_SIZES,
+    quality: 90,
+  });
+  const img = pic.querySelector('.preview-img');
+  if (img) img.style.setProperty('--scale', '1');
   return pic;
 }
 
@@ -443,6 +408,8 @@ function renderGrid(items) {
 
     btn.append(wrap, meta);
     btn.addEventListener('click', () => openPreview(i));
+    btn.addEventListener('mouseenter', () => prefetchGalleryImages(getGallery(item), 0), { passive: true });
+    btn.addEventListener('focusin', () => prefetchGalleryImages(getGallery(item), 0));
     grid.append(btn);
     gridBtns.push(btn);
   });
@@ -660,15 +627,28 @@ function updateGalleryImage(imageUrl, animate = true) {
   const item = visible[activeIdx];
   if (!item) return;
 
-  const render = () => {
-    imgSquare.innerHTML = '';
-    imgSquare.append(mkPreviewPicture(imageUrl, item, true));
-    const img = imgSquare.querySelector('.preview-img');
-    if (img) {
+  const gallery = getGallery(item);
+  prefetchGalleryImages(gallery, activeImageIdx);
+
+  const revealPreview = (img) => {
+    if (!img) return;
+    const show = () => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => { img.style.opacity = '1'; });
       });
+    };
+    if (img.complete) {
+      show();
+      return;
     }
+    img.addEventListener('load', show, { once: true });
+    img.addEventListener('error', show, { once: true });
+  };
+
+  const render = () => {
+    imgSquare.innerHTML = '';
+    imgSquare.append(mkPreviewPicture(imageUrl, item, true));
+    revealPreview(imgSquare.querySelector('.preview-img'));
   };
 
   if (!animate) {
@@ -721,6 +701,7 @@ function loadPreviewContent(idx, { keepSizes = false } = {}) {
   if (!keepSizes) closeSizes();
   renderSizes();
   buildDots(gallery.length, 0);
+  prefetchGalleryImages(gallery, 0);
   updateGalleryImage(gallery[0], false);
   resetPinch();
 }

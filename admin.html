@@ -240,6 +240,16 @@
         </section>
 
         <section class="view-panel" id="productsPanel" data-view="products">
+          <div class="support-setup-card" id="whatsappSetupCard">
+            <div class="support-setup-card__body">
+              <h3 class="support-setup-card__title">WhatsApp Support</h3>
+              <p class="support-setup-card__text" id="whatsappSetupStatus">Checking connection…</p>
+            </div>
+            <div class="support-setup-card__actions">
+              <a class="btn btn-ghost btn-sm" id="whatsappPreviewBtn" href="#" target="_blank" rel="noopener noreferrer" hidden>Test chat</a>
+              <button type="button" class="btn btn-primary btn-sm" id="whatsappConfigureBtn" data-goto="settings" data-settings-tab="support">Configure</button>
+            </div>
+          </div>
           <div class="card">
             <div class="card-head">
               <div class="card-head-start">
@@ -254,13 +264,25 @@
                   <option value="out">Out of stock</option>
                   <option value="low">Low stock (≤5)</option>
                 </select>
+                <button type="button" class="btn btn-ghost" id="bulkEditBtn" hidden>Bulk edit</button>
                 <button type="button" class="btn btn-primary" id="newProductBtn">+ New product</button>
+              </div>
+            </div>
+            <div class="bulk-bar" id="productBulkBar" hidden>
+              <label class="bulk-select-all">
+                <input type="checkbox" id="productSelectAllFiltered" />
+                <span id="productSelectionLabel">0 selected</span>
+              </label>
+              <div class="bulk-bar-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="openBulkEditBtn">Edit selected</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="clearProductSelectionBtn">Clear</button>
               </div>
             </div>
             <div class="table-wrap">
               <table class="data-table" id="productsTable">
                 <thead>
                   <tr>
+                    <th class="col-check"><input type="checkbox" id="productSelectAllVisible" aria-label="Select all visible products" /></th>
                     <th>Image</th>
                     <th>Model</th>
                     <th>Category</th>
@@ -356,6 +378,7 @@
                 <button type="button" class="settings-tab is-active" data-settings-tab="brand" role="tab" aria-selected="true">Brand</button>
                 <button type="button" class="settings-tab" data-settings-tab="payments" role="tab" aria-selected="false">Payments</button>
                 <button type="button" class="settings-tab" data-settings-tab="notifications" role="tab" aria-selected="false">Notifications</button>
+                <button type="button" class="settings-tab" data-settings-tab="support" role="tab" aria-selected="false">Support</button>
               </div>
 
               <div class="settings-panels">
@@ -563,6 +586,36 @@
                     </form>
                   </div>
                 </div>
+
+                <div class="settings-panel" data-settings-panel="support" role="tabpanel" hidden>
+                  <div class="settings-card settings-card--highlight">
+                    <div class="settings-card__head">
+                      <h3>WhatsApp Support</h3>
+                      <p>Connect your WhatsApp number — customers see a chat button on the store and contact page.</p>
+                    </div>
+                    <form class="settings-form" id="whatsappSettingsForm">
+                      <label class="checkbox-row notify-toggle">
+                        <input type="checkbox" id="whatsappEnabled" name="enabled" />
+                        <span><strong>Show WhatsApp button</strong> on marvispace.com</span>
+                      </label>
+                      <label class="field">
+                        <span>WhatsApp number</span>
+                        <input type="tel" id="whatsappPhone" name="phone" placeholder="905551234567" autocomplete="tel" inputmode="numeric" />
+                      </label>
+                      <p class="settings-hint">Country code + number, no + or spaces. Example Turkey: <code>905551234567</code></p>
+                      <label class="field">
+                        <span>Default message</span>
+                        <textarea id="whatsappMessage" name="message" rows="3" placeholder="Merhaba, MARVISPACE destek…"></textarea>
+                      </label>
+                      <p class="settings-hint">Pre-filled when the customer opens WhatsApp. They can edit before sending.</p>
+                      <div class="settings-actions settings-actions--split">
+                        <button type="submit" class="btn btn-primary" id="saveWhatsAppBtn">Save WhatsApp settings</button>
+                        <a class="btn btn-ghost" id="whatsappTestLink" href="#" target="_blank" rel="noopener noreferrer" hidden>Test in WhatsApp</a>
+                      </div>
+                      <p class="settings-status" id="whatsappStatusLine"></p>
+                    </form>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -738,6 +791,7 @@
             <p class="upload-status" id="galleryUploadStatus" hidden></p>
           </div>
           <div class="gallery-grid" id="galleryGrid" hidden></div>
+          <p class="gallery-hint" id="galleryHint" hidden>Drag photos to reorder · Image 1 shows first in the store gallery</p>
           <textarea id="productGallery" hidden></textarea>
           <details class="upload-url-fallback">
             <summary>Or paste gallery URLs (one per line)</summary>
@@ -751,6 +805,92 @@
         <div class="modal-foot">
           <button type="button" class="btn btn-ghost" id="resetFormBtn">Cancel</button>
           <button type="submit" class="btn btn-primary" id="saveProductBtn">Save product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="bulkEditModal" aria-hidden="true" hidden>
+    <div class="modal-backdrop" data-close-bulk-modal></div>
+    <div class="modal-dialog modal-dialog--wide" role="dialog" aria-modal="true" aria-labelledby="bulkEditTitle">
+      <div class="modal-head">
+        <h2 id="bulkEditTitle">Bulk edit products</h2>
+        <button type="button" class="modal-close" data-close-bulk-modal aria-label="Close">×</button>
+      </div>
+      <form id="bulkEditForm" class="bulk-edit-form">
+        <p class="bulk-edit-lead" id="bulkEditLead">Apply changes to selected products. Enable only the fields you want to update.</p>
+
+        <fieldset class="bulk-fieldset">
+          <label class="bulk-enable">
+            <input type="checkbox" id="bulkEnablePrice" />
+            <span>Price</span>
+          </label>
+          <div class="bulk-field-row" id="bulkPriceFields">
+            <select id="bulkPriceMode" class="filter-select" disabled>
+              <option value="percent_increase">Increase by %</option>
+              <option value="percent_decrease">Decrease by % (discount)</option>
+              <option value="amount_increase">Increase by amount</option>
+              <option value="amount_decrease">Decrease by amount</option>
+              <option value="set">Set fixed price</option>
+            </select>
+            <input type="number" id="bulkPriceValue" class="search-input" min="0" step="0.01" placeholder="Value" disabled />
+          </div>
+        </fieldset>
+
+        <fieldset class="bulk-fieldset">
+          <label class="bulk-enable">
+            <input type="checkbox" id="bulkEnableStock" />
+            <span>Stock quantity</span>
+          </label>
+          <div class="bulk-field-row" id="bulkStockFields">
+            <select id="bulkStockMode" class="filter-select" disabled>
+              <option value="add">Add</option>
+              <option value="subtract">Subtract</option>
+              <option value="set">Set to</option>
+            </select>
+            <input type="number" id="bulkStockValue" class="search-input" min="0" step="1" placeholder="Quantity" disabled />
+          </div>
+        </fieldset>
+
+        <fieldset class="bulk-fieldset">
+          <label class="bulk-enable">
+            <input type="checkbox" id="bulkEnableCategory" />
+            <span>Category</span>
+          </label>
+          <select id="bulkCategory" class="filter-select" disabled>
+            <option value="jackets">Jackets</option>
+            <option value="coats">Coats</option>
+            <option value="shirts">Shirts</option>
+            <option value="bottoms">Bottoms</option>
+            <option value="accessories">Accessories</option>
+          </select>
+        </fieldset>
+
+        <fieldset class="bulk-fieldset">
+          <label class="bulk-enable">
+            <input type="checkbox" id="bulkEnableGender" />
+            <span>Gender</span>
+          </label>
+          <select id="bulkGender" class="filter-select" disabled>
+            <option value="mens">Mens</option>
+            <option value="womens">Womens</option>
+          </select>
+        </fieldset>
+
+        <fieldset class="bulk-fieldset">
+          <label class="bulk-enable">
+            <input type="checkbox" id="bulkEnableVisibility" />
+            <span>Store visibility</span>
+          </label>
+          <select id="bulkVisibility" class="filter-select" disabled>
+            <option value="1">Publish (visible in store)</option>
+            <option value="0">Hide from store</option>
+          </select>
+        </fieldset>
+
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" data-close-bulk-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary" id="bulkEditSubmitBtn">Apply to selected</button>
         </div>
       </form>
     </div>

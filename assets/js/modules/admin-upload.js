@@ -69,6 +69,15 @@ export function createImageUploadUI({
     if (mainImageFile) mainImageFile.value = '';
   }
 
+  function moveGalleryItem(fromIndex, toIndex) {
+    if (fromIndex === toIndex) return;
+    if (fromIndex < 0 || toIndex < 0) return;
+    if (fromIndex >= galleryUrls.length || toIndex >= galleryUrls.length) return;
+    const [item] = galleryUrls.splice(fromIndex, 1);
+    galleryUrls.splice(toIndex, 0, item);
+    renderGallery();
+  }
+
   function renderGallery() {
     if (!galleryGrid) return;
     galleryGrid.innerHTML = '';
@@ -76,16 +85,29 @@ export function createImageUploadUI({
     if (!galleryUrls.length) {
       galleryGrid.hidden = true;
       syncGalleryField();
+      const hint = document.getElementById('galleryHint');
+      if (hint) hint.hidden = true;
       return;
     }
 
     galleryGrid.hidden = false;
+    const hint = document.getElementById('galleryHint');
+    if (hint) hint.hidden = false;
     galleryUrls.forEach((url, index) => {
       const item = document.createElement('div');
       item.className = 'gallery-item';
+      item.draggable = true;
+      item.dataset.index = String(index);
+      const safeUrl = url.replace(/"/g, '&quot;');
       item.innerHTML = `
-        <img src="${url.replace(/"/g, '&quot;')}" alt="" loading="lazy" />
-        <button type="button" class="gallery-remove" data-index="${index}" aria-label="Remove image">×</button>
+        <span class="gallery-order">${index + 1}</span>
+        <button type="button" class="gallery-handle" aria-label="Drag to reorder image ${index + 1}" tabindex="-1">⋮⋮</button>
+        <img src="${safeUrl}" alt="" loading="lazy" draggable="false" />
+        <div class="gallery-item-actions">
+          <button type="button" class="gallery-move" data-dir="-1" data-index="${index}" aria-label="Move image ${index + 1} earlier"${index === 0 ? ' disabled' : ''}>‹</button>
+          <button type="button" class="gallery-move" data-dir="1" data-index="${index}" aria-label="Move image ${index + 1} later"${index === galleryUrls.length - 1 ? ' disabled' : ''}>›</button>
+        </div>
+        <button type="button" class="gallery-remove" data-index="${index}" aria-label="Remove image ${index + 1}">×</button>
       `;
       galleryGrid.append(item);
     });
@@ -94,7 +116,7 @@ export function createImageUploadUI({
   }
 
   function setGallery(urls) {
-    galleryUrls = [...new Set((urls || []).map(u => u.trim()).filter(Boolean))];
+    galleryUrls = (urls || []).map(u => u.trim()).filter(Boolean);
     renderGallery();
   }
 
@@ -156,7 +178,7 @@ export function createImageUploadUI({
     if (!zone) return;
 
     zone.addEventListener('click', e => {
-      if (e.target.closest('.upload-remove, .gallery-remove')) return;
+      if (e.target.closest('.upload-remove, .gallery-remove, .gallery-move, .gallery-handle, .gallery-item')) return;
       const input = zone.querySelector('input[type="file"]');
       input?.click();
     });
@@ -193,9 +215,68 @@ export function createImageUploadUI({
     clearMainImage();
   });
 
+  let dragFromIndex = null;
+
+  galleryGrid?.addEventListener('dragstart', e => {
+    const item = e.target.closest('.gallery-item');
+    if (!item || !galleryGrid.contains(item)) return;
+    dragFromIndex = Number(item.dataset.index);
+    if (Number.isNaN(dragFromIndex)) return;
+    item.classList.add('is-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(dragFromIndex));
+  });
+
+  galleryGrid?.addEventListener('dragend', () => {
+    galleryGrid.querySelectorAll('.gallery-item').forEach(el => {
+      el.classList.remove('is-dragging', 'is-drop-target');
+    });
+    dragFromIndex = null;
+  });
+
+  galleryGrid?.addEventListener('dragover', e => {
+    const item = e.target.closest('.gallery-item');
+    if (!item || !galleryGrid.contains(item)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    galleryGrid.querySelectorAll('.gallery-item.is-drop-target').forEach(el => {
+      if (el !== item) el.classList.remove('is-drop-target');
+    });
+    item.classList.add('is-drop-target');
+  });
+
+  galleryGrid?.addEventListener('dragleave', e => {
+    const item = e.target.closest('.gallery-item');
+    if (!item) return;
+    const related = e.relatedTarget;
+    if (related instanceof Node && item.contains(related)) return;
+    item.classList.remove('is-drop-target');
+  });
+
+  galleryGrid?.addEventListener('drop', e => {
+    const item = e.target.closest('.gallery-item');
+    if (!item || dragFromIndex === null) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const toIndex = Number(item.dataset.index);
+    item.classList.remove('is-drop-target');
+    if (!Number.isNaN(toIndex)) moveGalleryItem(dragFromIndex, toIndex);
+  });
+
   galleryGrid?.addEventListener('click', e => {
+    const moveBtn = e.target.closest('.gallery-move');
+    if (moveBtn) {
+      e.stopPropagation();
+      if (moveBtn.disabled) return;
+      const index = Number(moveBtn.dataset.index);
+      const dir = Number(moveBtn.dataset.dir);
+      if (!Number.isNaN(index) && !Number.isNaN(dir)) moveGalleryItem(index, index + dir);
+      return;
+    }
+
     const btn = e.target.closest('.gallery-remove');
     if (!btn) return;
+    e.stopPropagation();
     const index = Number(btn.dataset.index);
     if (Number.isNaN(index)) return;
     galleryUrls.splice(index, 1);

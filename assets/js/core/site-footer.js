@@ -9,15 +9,24 @@ const NEWSLETTER_DISMISS_KEY = 'marvispace_newsletter_dismissed';
 
 const FOOTER_INNER_HTML = `
   <div class="footer-inner">
+    <div class="footer-legal-block">
+      <p class="footer-legal-title">MARVISPACE — Yasal</p>
+      <ul class="footer-nav footer-nav--legal">
+        <li><a href="/kvkk" class="nav-item">KVKK</a></li>
+        <li><a href="/mesafeli-satis-sozlesmesi" class="nav-item">Mesafeli Satış</a></li>
+        <li><a href="/on-bilgilendirme" class="nav-item">Ön Bilgilendirme</a></li>
+        <li><a href="/iade-ve-iptal" class="nav-item">İade & Cayma</a></li>
+      </ul>
+    </div>
     <ul class="footer-nav">
       <li><a href="/contact" class="nav-item">Contact</a></li>
       <li><a href="/terms" class="nav-item">Terms</a></li>
       <li><a href="/privacy" class="nav-item">Privacy</a></li>
       <li><a href="/accessibility" class="nav-item">Accessibility</a></li>
-      <li><a href="/privacy-right-center" class="nav-item">DNSMPI</a></li>
       <li><button type="button" class="nav-item" data-cookies-btn>Cookies</button></li>
       <li><a href="/order-status" class="nav-item">Order Status</a></li>
     </ul>
+    <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">ETBİS Kayıt</a> · Güvenli ödeme · 3D Secure</p>
   </div>
 `;
 
@@ -52,7 +61,7 @@ const NEWSLETTER_HTML = `
 
 function bindCookiesButton(footer) {
   footer.querySelector('[data-cookies-btn]')?.addEventListener('click', () => {
-    window.location.href = '/privacy#cookies';
+    window.location.href = '/kvkk#cookies';
   });
 }
 

@@ -13,6 +13,8 @@ import {
   startZiraatPayment,
 } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock, setStoreCurrency } from '../modules/cart-ui.js';
+import { initCookieConsent } from '../core/cookie-consent.js';
+import { initWhatsAppSupport } from '../core/whatsapp-support.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 
 const checkoutPage = document.getElementById('checkoutPage');
@@ -207,8 +209,17 @@ function phoneValid() {
   return digits.length >= 6;
 }
 
+function legalConsentValid() {
+  return Boolean(
+    document.getElementById('acceptOnBilgilendirme')?.checked
+    && document.getElementById('acceptMesafeliSatis')?.checked
+    && document.getElementById('acceptKvkk')?.checked
+  );
+}
+
 function formReady() {
   if (!checkoutForm?.checkValidity()) return false;
+  if (!legalConsentValid()) return false;
   if (!phoneValid()) return false;
   if (STATE_REQUIRED_COUNTRIES.has(countryEl.value) && !stateEl?.value.trim()) return false;
   return true;
@@ -416,6 +427,11 @@ checkoutForm.addEventListener('submit', async e => {
     return;
   }
 
+  if (!legalConsentValid()) {
+    showPaymentAlert('Devam etmek için yasal onay kutularını işaretleyin.', true);
+    return;
+  }
+
   const formData = new FormData(checkoutForm);
   const order = buildOrderPayload(formData);
 
@@ -470,6 +486,8 @@ checkoutForm.addEventListener('submit', async e => {
 });
 
 (async () => {
+  initCookieConsent();
+  initWhatsAppSupport({ message: 'Merhaba, MARVISPACE siparişim hakkında yardım istiyorum.' });
   setCheckoutReady(false);
 
   const params = new URLSearchParams(window.location.search);

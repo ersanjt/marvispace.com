@@ -28,6 +28,12 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.cart-line-thumb img.is-loaded {
+  opacity: 1;
 }
 
 .cart-line-body {

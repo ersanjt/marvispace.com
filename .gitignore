@@ -34,6 +34,7 @@ docs/HANDOFF.local.md
 
 # Ottimo import temp files (source: Google Drive bulk download)
 tools/drive-download/
+assets/images/.cache/
 tools/drive-folder-debug.html
 tools/import-download.log
 tools/__pycache__/

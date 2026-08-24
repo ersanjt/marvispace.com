@@ -11,5 +11,6 @@ if ($method !== 'GET') {
 
 json_ok(array_merge(
     ['favicon' => favicon_public($pdo)],
+    ['whatsapp' => whatsapp_public_get($pdo)],
     payment_public_settings($pdo)
 ));

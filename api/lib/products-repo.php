@@ -103,6 +103,90 @@ function product_delete(PDO $pdo, string $id): bool
     return $stmt->rowCount() > 0;
 }
 
+function products_bulk_ids_placeholder(array $ids): array
+{
+    $ids = array_values(array_unique(array_filter(array_map(
+        static fn($id) => trim((string) $id),
+        $ids
+    ))));
+    if (!$ids) {
+        return ['', []];
+    }
+    return [implode(',', array_fill(0, count($ids), '?')), $ids];
+}
+
+function products_bulk_update(PDO $pdo, array $ids, array $patch): array
+{
+    [$placeholder, $ids] = products_bulk_ids_placeholder($ids);
+    if ($placeholder === '') {
+        return ['updated' => 0, 'ids' => []];
+    }
+
+    $updated = 0;
+
+    if (!empty($patch['price']) && is_array($patch['price'])) {
+        $mode = (string) ($patch['price']['mode'] ?? '');
+        $value = (float) ($patch['price']['value'] ?? 0);
+        $sql = match ($mode) {
+            'percent_increase' => "UPDATE products SET price = ROUND(GREATEST(0, price * (1 + ? / 100)), 2) WHERE id IN ($placeholder)",
+            'percent_decrease' => "UPDATE products SET price = ROUND(GREATEST(0, price * (1 - ? / 100)), 2) WHERE id IN ($placeholder)",
+            'amount_increase' => "UPDATE products SET price = ROUND(GREATEST(0, price + ?), 2) WHERE id IN ($placeholder)",
+            'amount_decrease' => "UPDATE products SET price = ROUND(GREATEST(0, price - ?), 2) WHERE id IN ($placeholder)",
+            'set' => "UPDATE products SET price = ROUND(GREATEST(0, ?), 2) WHERE id IN ($placeholder)",
+            default => '',
+        };
+        if ($sql !== '') {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array_merge([$value], $ids));
+            $updated = max($updated, $stmt->rowCount());
+        }
+    }
+
+    if (!empty($patch['stock']) && is_array($patch['stock'])) {
+        $mode = (string) ($patch['stock']['mode'] ?? '');
+        $value = (int) ($patch['stock']['value'] ?? 0);
+        $sql = match ($mode) {
+            'add' => "UPDATE products SET stock = GREATEST(0, stock + ?) WHERE id IN ($placeholder)",
+            'subtract' => "UPDATE products SET stock = GREATEST(0, stock - ?) WHERE id IN ($placeholder)",
+            'set' => "UPDATE products SET stock = GREATEST(0, ?) WHERE id IN ($placeholder)",
+            default => '',
+        };
+        if ($sql !== '') {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array_merge([$value], $ids));
+            $updated = max($updated, $stmt->rowCount());
+        }
+    }
+
+    if (array_key_exists('category', $patch)) {
+        $category = trim((string) $patch['category']);
+        $allowed = ['jackets', 'coats', 'shirts', 'bottoms', 'accessories'];
+        if (in_array($category, $allowed, true)) {
+            $stmt = $pdo->prepare("UPDATE products SET category = ? WHERE id IN ($placeholder)");
+            $stmt->execute(array_merge([$category], $ids));
+            $updated = max($updated, $stmt->rowCount());
+        }
+    }
+
+    if (array_key_exists('gender', $patch)) {
+        $gender = trim((string) $patch['gender']);
+        if (in_array($gender, ['mens', 'womens'], true)) {
+            $stmt = $pdo->prepare("UPDATE products SET gender = ? WHERE id IN ($placeholder)");
+            $stmt->execute(array_merge([$gender], $ids));
+            $updated = max($updated, $stmt->rowCount());
+        }
+    }
+
+    if (array_key_exists('inStock', $patch)) {
+        $inStock = !empty($patch['inStock']) ? 1 : 0;
+        $stmt = $pdo->prepare("UPDATE products SET in_stock = ? WHERE id IN ($placeholder)");
+        $stmt->execute(array_merge([$inStock], $ids));
+        $updated = max($updated, $stmt->rowCount());
+    }
+
+    return ['updated' => $updated, 'ids' => $ids];
+}
+
 function products_normalize_input(array $input): array
 {
     $images = $input['images'] ?? [];

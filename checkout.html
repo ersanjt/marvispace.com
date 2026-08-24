@@ -1,8 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script src="/assets/js/core/analytics.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="developer" content="Ersan JT" />
@@ -197,6 +195,22 @@
               <label class="checkbox-row billing-same-row">
                 <input type="checkbox" id="billingSame" name="billingSame" checked />
                 <span>Use shipping address as billing address</span>
+              </label>
+            </fieldset>
+
+            <fieldset class="form-block legal-consent-block">
+              <legend>Yasal Onaylar</legend>
+              <label class="checkbox-row">
+                <input type="checkbox" id="acceptOnBilgilendirme" name="acceptOnBilgilendirme" required />
+                <span><a href="/on-bilgilendirme" target="_blank" rel="noopener">Ön Bilgilendirme Formu</a>'nu okudum ve kabul ediyorum.</span>
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="acceptMesafeliSatis" name="acceptMesafeliSatis" required />
+                <span><a href="/mesafeli-satis-sozlesmesi" target="_blank" rel="noopener">Mesafeli Satış Sözleşmesi</a>'ni okudum ve kabul ediyorum.</span>
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="acceptKvkk" name="acceptKvkk" required />
+                <span><a href="/kvkk" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>'ni okudum; kişisel verilerimin işlenmesine onay veriyorum.</span>
               </label>
             </fieldset>
 

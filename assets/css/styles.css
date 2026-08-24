@@ -438,10 +438,15 @@ a { color: inherit; text-decoration: none; }
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
-  transition: opacity 200ms ease;
+  opacity: 0;
+  transition: opacity 320ms ease;
 }
 
-.product-grid.is-open .product-btn.active .prod-img { opacity: 0; }
+.prod-img.is-loaded {
+  opacity: 1;
+}
+
+.product-grid.is-open .product-btn.active .prod-img { opacity: 0 !important; }
 
 /* Label — Yeezy: short code only, centered */
 .prod-meta {

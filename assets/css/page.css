@@ -171,3 +171,134 @@ body:has(.site-page) {
   left: 12px;
   top: 12px;
 }
+
+.legal-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0 0 24px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.legal-nav a {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  text-decoration: none;
+}
+
+.legal-nav a:hover { opacity: 1; }
+
+.merchant-info {
+  margin: 24px 0 32px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.merchant-info .section-label {
+  margin-top: 0;
+}
+
+.cookie-consent {
+  position: fixed;
+  z-index: 400;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+  pointer-events: none;
+}
+
+.cookie-consent__inner {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  pointer-events: auto;
+}
+
+.cookie-consent__text {
+  margin: 0 0 12px;
+  font-size: 10px;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+}
+
+.cookie-consent__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cookie-consent__btn {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #000;
+  background: #fff;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.cookie-consent__btn--accept {
+  background: #000;
+  color: #fff;
+}
+
+.footer-legal-block {
+  margin-bottom: 8px;
+}
+
+.footer-legal-title {
+  margin: 0 0 6px;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  text-align: center;
+}
+
+.footer-nav--legal {
+  margin-bottom: 4px;
+}
+
+.footer-etbis {
+  margin: 8px 0 0;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0.45;
+}
+
+.footer-etbis a {
+  color: inherit;
+}
+
+.contact-channels {
+  margin: 0 0 24px;
+}
+
+.contact-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid #25d366;
+  background: #25d366;
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.contact-whatsapp:hover {
+  opacity: 0.92;
+}

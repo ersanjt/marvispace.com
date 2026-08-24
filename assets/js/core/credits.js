@@ -5,6 +5,8 @@
 
 import { DEVELOPER } from '../config/site.js';
 import { mountSiteFooter } from './site-footer.js';
+import { initCookieConsent } from './cookie-consent.js';
+import { initWhatsAppSupport } from './whatsapp-support.js';
 
 export function createDeveloperCreditElement() {
   const credit = document.createElement('aside');
@@ -60,6 +62,8 @@ function mountPageCredit(root) {
 
 export function mountDeveloperCredit(root = document) {
   mountSiteFooter(root);
+  initCookieConsent();
+  initWhatsAppSupport();
 
   if (root.querySelector('[data-developer-credit]')) return;
 

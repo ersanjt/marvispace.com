@@ -80,6 +80,20 @@ if ($method === 'POST') {
         }
     }
 
+    if (!empty($body['whatsapp']) && is_array($body['whatsapp'])) {
+        try {
+            $saved = whatsapp_save($pdo, $body['whatsapp']);
+            json_ok(array_merge(
+                settings_admin_get($pdo),
+                paynet_settings_admin($pdo),
+                ziraat_settings_admin($pdo),
+                ['whatsapp' => $saved]
+            ));
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage(), 400);
+        }
+    }
+
     if (!empty($body['testNotification'])) {
         require_once dirname(__DIR__, 2) . '/lib/notification-mail.php';
         $ok = notification_mail_test($pdo);

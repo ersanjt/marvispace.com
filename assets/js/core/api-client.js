@@ -119,6 +119,16 @@ export async function adminDeleteProduct(id) {
   return request(`/admin/products.php?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
+export async function adminBulkUpdateProducts({ ids, price, stock, category, gender, inStock }) {
+  const body = { ids };
+  if (price) body.price = price;
+  if (stock) body.stock = stock;
+  if (category !== undefined) body.category = category;
+  if (gender !== undefined) body.gender = gender;
+  if (inStock !== undefined) body.inStock = inStock;
+  return request('/admin/products/bulk.php', { method: 'POST', body });
+}
+
 export async function adminFetchOrders() {
   return request('/admin/orders.php');
 }
@@ -265,6 +275,13 @@ export async function adminSaveNotificationSettings(notifications) {
   return request('/admin/settings.php', {
     method: 'POST',
     body: { notifications },
+  });
+}
+
+export async function adminSaveWhatsAppSettings(whatsapp) {
+  return request('/admin/settings.php', {
+    method: 'POST',
+    body: { whatsapp },
   });
 }
 

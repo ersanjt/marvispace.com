@@ -996,3 +996,98 @@ button, input, select, textarea {
     height: 44px;
   }
 }
+
+/* KVKK cookie banner (shared with page.css) */
+.cookie-consent {
+  position: fixed;
+  z-index: 400;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+  pointer-events: none;
+}
+
+.cookie-consent__inner {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  pointer-events: auto;
+}
+
+.cookie-consent__text {
+  margin: 0 0 12px;
+  font-size: 10px;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+}
+
+.cookie-consent__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cookie-consent__btn {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #000;
+  background: #fff;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.cookie-consent__btn--accept {
+  background: #000;
+  color: #fff;
+}
+
+.legal-consent-block .checkbox-row a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.whatsapp-support {
+  position: fixed;
+  z-index: 350;
+  right: 18px;
+  bottom: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 16px 0 12px;
+  border-radius: 999px;
+  background: #25d366;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
+}
+
+.whatsapp-support svg {
+  width: 22px;
+  height: 22px;
+}
+
+.whatsapp-support__label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 480px) {
+  .whatsapp-support__label { display: none; }
+  .whatsapp-support {
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+}
