@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/fonts.css" />
-  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-brand" />
+  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-savefix" />
 </head>
 <body>
 
@@ -823,7 +823,7 @@
           <input type="hidden" id="productImage" />
           <details class="upload-url-fallback">
             <summary>Or paste image URL</summary>
-            <input type="url" id="productImageUrl" placeholder="/assets/images/products/..." />
+            <input type="text" id="productImageUrl" inputmode="url" placeholder="/assets/images/products/..." autocomplete="off" />
           </details>
         </div>
 
@@ -945,6 +945,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script type="module" src="/assets/js/pages/admin.js?v=20260825-orders"></script>
+  <script type="module" src="/assets/js/pages/admin.js?v=20260825-savefix"></script>
 </body>
 </html>

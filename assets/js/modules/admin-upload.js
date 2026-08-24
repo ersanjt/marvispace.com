@@ -45,7 +45,10 @@ export function createImageUploadUI({
   function setMainImage(url) {
     const value = (url || '').trim();
     if (productImage) productImage.value = value;
-    if (productImageUrl) productImageUrl.value = value;
+    if (productImageUrl) {
+      productImageUrl.value = value;
+      productImageUrl.setCustomValidity('');
+    }
 
     if (!value || !imagePreview || !imagePreviewImg) {
       if (imagePreview) imagePreview.hidden = true;

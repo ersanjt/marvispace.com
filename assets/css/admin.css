@@ -1123,6 +1123,30 @@ body:not(.is-logged-in) .admin-shell { display: none; }
   gap: 14px;
 }
 
+#productModal .modal-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+#productModal .product-form {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 0;
+}
+
+#productModal .product-form .modal-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin: 8px -20px 0;
+  padding: 14px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.04);
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

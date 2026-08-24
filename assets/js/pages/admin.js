@@ -1670,10 +1670,23 @@ productsTableBody?.addEventListener('change', e => {
 
 productForm?.addEventListener('submit', async e => {
   e.preventDefault();
-  if (!fields.image?.value?.trim()) {
-    showToast('Add a main product image');
+
+  // Relative image paths fail type=url validation; keep a clear fallback message.
+  if (typeof productForm.checkValidity === 'function' && !productForm.checkValidity()) {
+    productForm.reportValidity();
+    showToast('Fill required fields before saving');
     return;
   }
+
+  if (!fields.image?.value?.trim()) {
+    showToast('Add a main product image');
+    fields.image?.focus?.();
+    return;
+  }
+
+  const saveBtn = document.getElementById('saveProductBtn');
+  if (saveBtn) saveBtn.disabled = true;
+
   const product = readForm();
   const index = products.findIndex(item => item.id === product.id);
 
@@ -1686,6 +1699,8 @@ productForm?.addEventListener('submit', async e => {
     showToast(index >= 0 ? 'Product updated' : 'Product added');
   } catch (err) {
     showToast(err.message || 'Could not save product');
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
   }
 });
 
