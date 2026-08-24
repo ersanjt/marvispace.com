@@ -113,11 +113,31 @@ function admin_user_delete(PDO $pdo, int $id, int $currentAdminId): bool
         return false;
     }
 
-    $stmt = $pdo->prepare('SELECT role FROM admin_users WHERE id = ? LIMIT 1');
+    $stmt = $pdo->prepare('SELECT id, role FROM admin_users WHERE id = ? LIMIT 1');
     $stmt->execute([$id]);
     $row = $stmt->fetch();
-    if (!$row || admin_is_owner($row)) {
+    if (!$row) {
         return false;
+    }
+
+    $currentStmt = $pdo->prepare('SELECT id, role FROM admin_users WHERE id = ? LIMIT 1');
+    $currentStmt->execute([$currentAdminId]);
+    $current = $currentStmt->fetch();
+    if (!$current) {
+        return false;
+    }
+
+    // Owners can remove other owners only when at least one owner remains.
+    if (admin_is_owner($row)) {
+        if (!admin_is_owner($current)) {
+            return false;
+        }
+        $ownerCount = (int) $pdo->query(
+            "SELECT COUNT(*) FROM admin_users WHERE role = 'owner'"
+        )->fetchColumn();
+        if ($ownerCount <= 1) {
+            return false;
+        }
     }
 
     $del = $pdo->prepare('DELETE FROM admin_users WHERE id = ?');

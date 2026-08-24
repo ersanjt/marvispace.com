@@ -91,11 +91,11 @@ const usersCount = document.getElementById('usersCount');
 const usersEmpty = document.getElementById('usersEmpty');
 const usersApiNotice = document.getElementById('usersApiNotice');
 const usersTableWrap = document.getElementById('usersTableWrap');
+const usersHint = document.getElementById('usersHint');
 
 const userModal = document.getElementById('userModal');
 const userForm = document.getElementById('userForm');
 const userFormError = document.getElementById('userFormError');
-const newUserBtn = document.getElementById('newUserBtn');
 const cancelUserBtn = document.getElementById('cancelUserBtn');
 const userNameInput = document.getElementById('userName');
 const userEmailInput = document.getElementById('userEmail');
@@ -576,10 +576,11 @@ async function loadSiteSettings() {
 
 function renderUsers() {
   const apiOn = usersApiReady;
+  const ownerCount = adminUsers.filter(u => u.isOwner).length;
 
   if (usersApiNotice) usersApiNotice.hidden = apiOn;
   if (usersTableWrap) usersTableWrap.hidden = !apiOn;
-  if (newUserBtn) newUserBtn.hidden = !apiOn || !canAccessSection('users');
+  if (usersHint) usersHint.hidden = !apiOn;
   if (topNewUserBtn) topNewUserBtn.hidden = activeTab !== 'users' || !apiOn || !canAccessSection('users');
 
   if (!apiOn) {
@@ -602,20 +603,46 @@ function renderUsers() {
 
   adminUsers.forEach(user => {
     const row = document.createElement('tr');
-    const isSelf = user.email.toLowerCase() === currentAdminEmail;
+    const email = String(user.email || '');
+    const isSelf = email.toLowerCase() === currentAdminEmail.toLowerCase();
     const displayName = user.name?.trim() || '—';
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const canEdit = !isSelf && !user.isOwner;
+    const canDelete = !isSelf && (
+      !user.isOwner || (currentAdminIsOwner && ownerCount > 1)
+    );
+
+    let actions = '<span class="muted">—</span>';
+    if (canEdit || canDelete) {
+      actions = '<div class="row-actions">';
+      if (canEdit) {
+        actions += `<button type="button" class="btn btn-ghost" data-user-edit="${user.id}">Edit access</button>`;
+      }
+      if (canDelete) {
+        actions += `<button type="button" class="btn btn-ghost btn-danger" data-user-delete="${user.id}">Delete</button>`;
+      }
+      actions += '</div>';
+    } else if (isSelf) {
+      actions = '<span class="muted">You</span>';
+    } else if (user.isOwner) {
+      actions = '<span class="muted">Protected</span>';
+    }
 
     row.innerHTML = `
-      <td><strong>${esc(displayName)}</strong>${isSelf ? ' <span class="muted">(you)</span>' : ''}${user.isOwner ? ' <span class="permission-badge permission-badge--owner">Owner</span>' : ''}</td>
-      <td dir="ltr">${esc(user.email)}</td>
+      <td>
+        <div class="user-name-cell">
+          <strong>${esc(displayName)}</strong>
+          ${isSelf ? '<span class="muted">(you)</span>' : ''}
+          ${user.isOwner ? '<span class="permission-badge permission-badge--owner">Owner</span>' : ''}
+        </div>
+      </td>
+      <td dir="ltr">
+        <span class="user-email${emailOk ? '' : ' user-email--invalid'}">${esc(email || '—')}</span>
+        ${emailOk ? '' : '<span class="user-email-warn">Invalid email</span>'}
+      </td>
       <td><div class="permission-badges">${formatPermissionBadges(user)}</div></td>
       <td>${fmtDate(user.createdAt)}</td>
-      <td>
-        ${isSelf || user.isOwner
-    ? '<span class="muted">—</span>'
-    : `<button type="button" class="btn btn-ghost" data-user-edit="${user.id}">Edit access</button>
-       <button type="button" class="btn btn-ghost btn-danger" data-user-delete="${user.id}">Delete</button>`}
-      </td>
+      <td>${actions}</td>
     `;
     usersTableBody.append(row);
   });
@@ -1506,7 +1533,6 @@ newProductBtn?.addEventListener('click', () => {
 });
 
 topNewUserBtn?.addEventListener('click', openUserModal);
-newUserBtn?.addEventListener('click', openUserModal);
 cancelUserBtn?.addEventListener('click', closeUserModal);
 
 userModal?.querySelectorAll('[data-close-user-modal]').forEach(el => {

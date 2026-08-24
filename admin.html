@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/fonts.css" />
-  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-bulk-ui" />
+  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-users" />
 </head>
 <body>
 
@@ -372,10 +372,10 @@
                 <h2>Admin users</h2>
                 <span class="muted" id="usersCount">0 users</span>
               </div>
-              <div class="card-head-actions">
-                <button type="button" class="btn btn-primary" id="newUserBtn">+ New user</button>
-              </div>
             </div>
+            <p class="users-hint" id="usersHint">
+              Create staff with limited access. Extra Owner accounts from failed seed runs can be removed if you keep at least one Owner.
+            </p>
             <p class="empty-state" id="usersApiNotice" hidden>
               User management requires server database. Run <code>bash install/setup-server.sh</code> on the server.
             </p>
@@ -949,6 +949,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script type="module" src="/assets/js/pages/admin.js?v=20260825-bulk-ui"></script>
+  <script type="module" src="/assets/js/pages/admin.js?v=20260825-users"></script>
 </body>
 </html>

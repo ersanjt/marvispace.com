@@ -1502,6 +1502,33 @@ body:not(.is-logged-in) .admin-shell { display: none; }
   opacity: 0.45;
 }
 
+.users-hint {
+  margin: 0 20px 12px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.user-name-cell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-email--invalid {
+  color: var(--danger);
+}
+
+.user-email-warn {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--danger);
+}
+
 .notify-toggle strong {
   display: block;
   margin-bottom: 2px;
