@@ -94,8 +94,9 @@
   RewriteRule ^api/v1/admin/settings/?$ api/v1/admin/settings.php [L,QSA]
   RewriteRule ^api/v1/admin/logout/?$ api/v1/admin/logout.php [L,QSA]
   RewriteRule ^api/v1/admin/me/?$ api/v1/admin/me.php [L,QSA]
-  RewriteRule ^api/v1/admin/products/?$ api/v1/admin/products.php [L,QSA]
   RewriteRule ^api/v1/admin/products/bulk/?$ api/v1/admin/products-bulk.php [L,QSA]
+  RewriteRule ^api/v1/admin/products/bulk\.php$ api/v1/admin/products-bulk.php [L,QSA]
+  RewriteRule ^api/v1/admin/products/?$ api/v1/admin/products.php [L,QSA]
   RewriteRule ^api/v1/admin/orders/?$ api/v1/admin/orders.php [L,QSA]
   RewriteRule ^api/v1/images/resize/?$ api/v1/images/resize.php [L,QSA]
 </IfModule>

@@ -126,7 +126,7 @@ export async function adminBulkUpdateProducts({ ids, price, stock, category, gen
   if (category !== undefined) body.category = category;
   if (gender !== undefined) body.gender = gender;
   if (inStock !== undefined) body.inStock = inStock;
-  return request('/admin/products/bulk.php', { method: 'POST', body });
+  return request('/admin/products/bulk', { method: 'POST', body });
 }
 
 export async function adminFetchOrders() {
