@@ -30,15 +30,15 @@ export const SITE = {
 };
 
 /**
- * Social profiles — set real URLs when accounts are live.
+ * Social profiles — leave empty until accounts are live.
  * Empty values are omitted from footer / schema.
  */
 export const SOCIAL = {
-  instagram: 'https://www.instagram.com/marvispace',
-  facebook: 'https://www.facebook.com/marvispace',
-  tiktok: 'https://www.tiktok.com/@marvispace',
-  x: 'https://x.com/marvispace',
-  pinterest: 'https://www.pinterest.com/marvispace',
+  instagram: '',
+  facebook: '',
+  tiktok: '',
+  x: '',
+  pinterest: '',
   youtube: '',
   linkedin: '',
 };
