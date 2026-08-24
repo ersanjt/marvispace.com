@@ -62,7 +62,7 @@ export function buildCartLineItem(item, index, onChangeQty, { checkout = false }
   img.alt = item.label;
   img.loading = 'lazy';
   img.decoding = 'async';
-  bindImageReveal(img);
+  bindImageReveal(img, item.image);
   thumb.append(img);
 
   const body = document.createElement('div');

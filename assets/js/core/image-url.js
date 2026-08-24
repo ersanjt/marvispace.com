@@ -40,11 +40,18 @@ export function buildSrcset(src, widths, format = 'webp', quality = 85) {
   return widths.map(w => `${resizeUrl(src, w, format, quality)} ${w}w`).join(', ');
 }
 
-export function bindImageReveal(img) {
+export function bindImageReveal(img, fallbackSrc = '') {
   const reveal = () => img.classList.add('is-loaded');
   img.addEventListener('load', reveal, { once: true });
-  img.addEventListener('error', reveal, { once: true });
-  if (img.complete) reveal();
+  img.addEventListener('error', () => {
+    if (fallbackSrc && img.src !== fallbackSrc) {
+      img.removeAttribute('srcset');
+      img.src = fallbackSrc;
+      return;
+    }
+    reveal();
+  }, { once: true });
+  if (img.complete && img.naturalWidth) reveal();
 }
 
 export function prefetchOptimizedImage(src, width = PREVIEW_WIDTHS[1]) {
@@ -108,7 +115,7 @@ export function appendOptimizedPicture(picture, {
   img.srcset = buildSrcset(src, widths, 'jpeg', quality);
   img.sizes = sizes;
 
-  bindImageReveal(img);
+  bindImageReveal(img, src);
   picture.append(webp, jpeg, img);
   return img;
 }
