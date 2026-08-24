@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MARVISPACE">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MARVISPACE mark">
   <rect width="64" height="64" fill="#0a0a0a"/>
   <path fill="#f4f2ee" d="M16 48V16h5.2L32 38.4 42.8 16H48v32h-5.2V27.6L32 48 21.2 27.6V48H16z"/>
   <rect x="4" y="4" width="56" height="56" fill="none" stroke="#f4f2ee" stroke-opacity="0.18" stroke-width="1"/>

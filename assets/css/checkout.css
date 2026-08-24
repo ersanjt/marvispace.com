@@ -114,12 +114,21 @@ button, input, select, textarea {
 
 .checkout-brand {
   justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 8px 12px;
   transition: opacity 0.15s var(--co-ease);
+}
+
+.checkout-brand img {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .checkout-brand:hover {

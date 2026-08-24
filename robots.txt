@@ -3,5 +3,7 @@ Allow: /
 Disallow: /admin
 Disallow: /checkout
 Disallow: /order-confirmation
+Disallow: /api/
 
+Host: https://marvispace.com
 Sitemap: https://marvispace.com/sitemap.xml

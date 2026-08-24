@@ -156,10 +156,81 @@ body.preview-open .newsletter-popup { display: none; }
   width: 100%;
   flex: 1 1 auto;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  gap: 0.75rem 1.25rem;
   padding: 1px 1.25rem 1.5rem;
+}
+
+.footer-brand-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.footer-brand img {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.footer-tagline {
+  margin: 0;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.45;
+}
+
+.footer-legal-block,
+.footer-social-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.footer-legal-title {
+  margin: 0;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.35;
+}
+
+.footer-etbis {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  opacity: 0.4;
+}
+
+.footer-etbis a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.footer-etbis a:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
 
 .footer-nav {

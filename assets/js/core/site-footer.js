@@ -4,13 +4,50 @@
  */
 
 import { subscribeNewsletter } from './api-client.js';
+import { SITE, SOCIAL } from '../config/site.js';
 
 const NEWSLETTER_DISMISS_KEY = 'marvispace_newsletter_dismissed';
 
+const SOCIAL_LABELS = {
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  tiktok: 'TikTok',
+  x: 'X',
+  pinterest: 'Pinterest',
+  youtube: 'YouTube',
+  linkedin: 'LinkedIn',
+};
+
+function socialNavHtml() {
+  const links = Object.entries(SOCIAL)
+    .filter(([, url]) => Boolean(url))
+    .map(([key, url]) => {
+      const label = SOCIAL_LABELS[key] || key;
+      return `<li><a href="${url}" class="nav-item" target="_blank" rel="noopener noreferrer me">${label}</a></li>`;
+    });
+
+  if (!links.length) return '';
+  return `
+    <div class="footer-social-block">
+      <p class="footer-legal-title">${SITE.name} — Social</p>
+      <ul class="footer-nav footer-nav--social">
+        ${links.join('')}
+      </ul>
+    </div>
+  `;
+}
+
 const FOOTER_INNER_HTML = `
   <div class="footer-inner">
+    <div class="footer-brand-block">
+      <a class="footer-brand" href="/" aria-label="${SITE.name} home">
+        <img src="${SITE.brand.mark}" width="36" height="36" alt="" decoding="async" />
+        <span>${SITE.name}</span>
+      </a>
+      <p class="footer-tagline">${SITE.tagline}</p>
+    </div>
     <div class="footer-legal-block">
-      <p class="footer-legal-title">MARVISPACE — Yasal</p>
+      <p class="footer-legal-title">${SITE.name} — Yasal</p>
       <ul class="footer-nav footer-nav--legal">
         <li><a href="/kvkk" class="nav-item">KVKK</a></li>
         <li><a href="/mesafeli-satis-sozlesmesi" class="nav-item">Mesafeli Satış</a></li>
@@ -18,6 +55,7 @@ const FOOTER_INNER_HTML = `
         <li><a href="/iade-ve-iptal" class="nav-item">İade & Cayma</a></li>
       </ul>
     </div>
+    ${socialNavHtml()}
     <ul class="footer-nav">
       <li><a href="/contact" class="nav-item">Contact</a></li>
       <li><a href="/terms" class="nav-item">Terms</a></li>

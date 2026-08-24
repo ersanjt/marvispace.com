@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -13,24 +13,40 @@
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <link rel="canonical" href="https://marvispace.com/" />
   <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-  <meta name="theme-color" content="#f6f6f5" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="color-scheme" content="light" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="application-name" content="MARVISPACE" />
+  <meta name="apple-mobile-web-app-title" content="MARVISPACE" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="MARVISPACE" />
   <meta property="og:title" content="MARVISPACE | Premium Leather Apparel" />
   <meta property="og:description" content="Shop premium leather jackets, coats and apparel at MARVISPACE. New arrivals for men and women at marvispace.com." />
   <meta property="og:url" content="https://marvispace.com/" />
-  <meta property="og:image" content="https://marvispace.com/assets/images/products/22_KML_144_A_004_01.jpg" />
+  <meta property="og:image" content="https://marvispace.com/assets/images/brand/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="MARVISPACE — Premium Leather Apparel" />
   <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="tr_TR" />
 
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@marvispace" />
+  <meta name="twitter:creator" content="@marvispace" />
   <meta name="twitter:title" content="MARVISPACE | Premium Leather Apparel" />
   <meta name="twitter:description" content="Shop premium leather jackets, coats and apparel at MARVISPACE — marvispace.com" />
-  <meta name="twitter:image" content="https://marvispace.com/assets/images/products/22_KML_144_A_004_01.jpg" />
+  <meta name="twitter:image" content="https://marvispace.com/assets/images/brand/og.jpg" />
+  <meta name="twitter:image:alt" content="MARVISPACE — Premium Leather Apparel" />
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/assets/images/brand/icon-180.png" type="image/png" sizes="180x180" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="mask-icon" href="/favicon.svg" color="#0a0a0a" />
   <script type="module" src="/assets/js/core/favicon-loader.js"></script>
-  <link rel="apple-touch-icon" href="/favicon.svg" />
 
   <script type="application/ld+json">
   {
@@ -41,8 +57,21 @@
         "@id": "https://marvispace.com/#organization",
         "name": "MARVISPACE",
         "url": "https://marvispace.com/",
-        "logo": "https://marvispace.com/favicon.svg",
-        "sameAs": []
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://marvispace.com/assets/images/brand/mark.png",
+          "width": 512,
+          "height": 512
+        },
+        "image": "https://marvispace.com/assets/images/brand/og.jpg",
+        "email": "support@marvispace.com",
+        "sameAs": [
+          "https://www.instagram.com/marvispace",
+          "https://www.facebook.com/marvispace",
+          "https://www.tiktok.com/@marvispace",
+          "https://x.com/marvispace",
+          "https://www.pinterest.com/marvispace"
+        ]
       },
       {
         "@type": "WebSite",
@@ -51,17 +80,31 @@
         "name": "MARVISPACE",
         "description": "Premium online store for leather jackets, coats, shirts and accessories.",
         "publisher": { "@id": "https://marvispace.com/#organization" },
-        "inLanguage": "en"
+        "inLanguage": ["en", "tr"],
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://marvispace.com/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
       },
       {
         "@type": "ClothingStore",
         "@id": "https://marvispace.com/#store",
         "name": "MARVISPACE",
         "url": "https://marvispace.com/",
-        "image": "https://marvispace.com/assets/images/products/22_KML_144_A_004_01.jpg",
+        "image": "https://marvispace.com/assets/images/brand/og.jpg",
+        "logo": "https://marvispace.com/assets/images/brand/mark.png",
         "priceRange": "$$",
-        "currenciesAccepted": "USD",
-        "paymentAccepted": "Credit Card"
+        "currenciesAccepted": "TRY, USD",
+        "paymentAccepted": "Credit Card, Debit Card",
+        "email": "support@marvispace.com"
+      },
+      {
+        "@type": "Brand",
+        "@id": "https://marvispace.com/#brand",
+        "name": "MARVISPACE",
+        "logo": "https://marvispace.com/assets/images/brand/mark.png",
+        "url": "https://marvispace.com/"
       }
     ]
   }
@@ -71,9 +114,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/fonts.css" />
+  <link rel="stylesheet" href="/assets/css/page-loader.css" />
   <link rel="stylesheet" href="/assets/css/cart-ui.css" />
   <link rel="stylesheet" href="/assets/css/styles.css" />
   <link rel="stylesheet" href="/assets/css/footer.css" />
+  <script type="module" src="/assets/js/core/page-loader.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#page">Skip to main content</a>
@@ -97,10 +142,11 @@
       <span class="back-arrow" aria-hidden="true">‹</span>
     </button>
 
-    <div class="brand" aria-label="MARVISPACE">
+    <a class="brand" href="/" aria-label="MARVISPACE home">
       <h1 class="visually-hidden">MARVISPACE — Premium Leather Apparel Online Store</h1>
+      <img class="brand-icon" src="/assets/images/brand/mark.svg" width="22" height="22" alt="" decoding="async" />
       <span class="brand-mark" aria-hidden="true">MARVISPACE</span>
-    </div>
+    </a>
 
     <!-- Filters (centered in nav) -->
     <nav class="filters" aria-label="Product filters" id="filters">

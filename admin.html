@@ -8,19 +8,25 @@
   <meta name="description" content="MARVISPACE store administration — products, inventory, and orders." />
   <meta name="robots" content="noindex, nofollow, noarchive" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#0a0a0a" />
   <script type="module" src="/assets/js/core/favicon-loader.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/fonts.css" />
-  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-orders" />
+  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-brand" />
 </head>
 <body>
 
   <div class="auth-screen" id="loginScreen">
     <header class="auth-top">
       <a class="auth-back" href="/" aria-label="Back to store">‹</a>
-      <span class="auth-mark">MARVISPACE</span>
+      <span class="auth-mark">
+        <img src="/assets/images/brand/mark.svg" width="20" height="20" alt="" decoding="async" />
+        MARVISPACE
+      </span>
       <span class="auth-spacer" aria-hidden="true"></span>
     </header>
 
@@ -140,7 +146,9 @@
   <div class="admin-shell" id="adminApp" hidden>
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <span class="sidebar-logo">MARVISPACE</span>
+        <span class="sidebar-logo">
+          <img src="/assets/images/brand/logo-light.svg" width="160" height="36" alt="MARVISPACE" decoding="async" />
+        </span>
         <small>Admin Panel</small>
       </div>
       <nav class="sidebar-nav" aria-label="Admin navigation">
