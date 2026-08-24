@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/fonts.css" />
-  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-orders-fix" />
+  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-bulk-ui" />
 </head>
 <body>
 
@@ -859,81 +859,85 @@
 
   <div class="modal" id="bulkEditModal" aria-hidden="true" hidden>
     <div class="modal-backdrop" data-close-bulk-modal></div>
-    <div class="modal-dialog modal-dialog--wide" role="dialog" aria-modal="true" aria-labelledby="bulkEditTitle">
+    <div class="modal-dialog modal-dialog--bulk" role="dialog" aria-modal="true" aria-labelledby="bulkEditTitle">
       <div class="modal-head">
         <h2 id="bulkEditTitle">Bulk edit products</h2>
         <button type="button" class="modal-close" data-close-bulk-modal aria-label="Close">×</button>
       </div>
       <form id="bulkEditForm" class="bulk-edit-form">
-        <p class="bulk-edit-lead" id="bulkEditLead">Apply changes to selected products. Enable only the fields you want to update.</p>
+        <div class="bulk-edit-body">
+          <p class="bulk-edit-lead" id="bulkEditLead">Apply changes to selected products. Enable only the fields you want to update.</p>
 
-        <fieldset class="bulk-fieldset">
-          <label class="bulk-enable">
-            <input type="checkbox" id="bulkEnablePrice" />
-            <span>Price</span>
-          </label>
-          <div class="bulk-field-row" id="bulkPriceFields">
-            <select id="bulkPriceMode" class="filter-select" disabled>
-              <option value="percent_increase">Increase by %</option>
-              <option value="percent_decrease">Decrease by % (discount)</option>
-              <option value="amount_increase">Increase by amount</option>
-              <option value="amount_decrease">Decrease by amount</option>
-              <option value="set">Set fixed price</option>
-            </select>
-            <input type="number" id="bulkPriceValue" class="search-input" min="0" step="0.01" placeholder="Value" disabled />
+          <div class="bulk-edit-grid">
+            <fieldset class="bulk-fieldset">
+              <label class="bulk-enable">
+                <input type="checkbox" id="bulkEnablePrice" />
+                <span>Price</span>
+              </label>
+              <div class="bulk-field-row" id="bulkPriceFields">
+                <select id="bulkPriceMode" class="filter-select" disabled>
+                  <option value="percent_increase">Increase by %</option>
+                  <option value="percent_decrease">Decrease by % (discount)</option>
+                  <option value="amount_increase">Increase by amount</option>
+                  <option value="amount_decrease">Decrease by amount</option>
+                  <option value="set">Set fixed price</option>
+                </select>
+                <input type="number" id="bulkPriceValue" class="search-input" min="0" step="0.01" placeholder="Value" disabled />
+              </div>
+            </fieldset>
+
+            <fieldset class="bulk-fieldset">
+              <label class="bulk-enable">
+                <input type="checkbox" id="bulkEnableStock" />
+                <span>Stock quantity</span>
+              </label>
+              <div class="bulk-field-row" id="bulkStockFields">
+                <select id="bulkStockMode" class="filter-select" disabled>
+                  <option value="add">Add</option>
+                  <option value="subtract">Subtract</option>
+                  <option value="set">Set to</option>
+                </select>
+                <input type="number" id="bulkStockValue" class="search-input" min="0" step="1" placeholder="Qty" disabled />
+              </div>
+            </fieldset>
+
+            <fieldset class="bulk-fieldset">
+              <label class="bulk-enable">
+                <input type="checkbox" id="bulkEnableCategory" />
+                <span>Category</span>
+              </label>
+              <select id="bulkCategory" class="filter-select bulk-field-full" disabled>
+                <option value="jackets">Jackets</option>
+                <option value="coats">Coats</option>
+                <option value="shirts">Shirts</option>
+                <option value="bottoms">Bottoms</option>
+                <option value="accessories">Accessories</option>
+              </select>
+            </fieldset>
+
+            <fieldset class="bulk-fieldset">
+              <label class="bulk-enable">
+                <input type="checkbox" id="bulkEnableGender" />
+                <span>Gender</span>
+              </label>
+              <select id="bulkGender" class="filter-select bulk-field-full" disabled>
+                <option value="mens">Mens</option>
+                <option value="womens">Womens</option>
+              </select>
+            </fieldset>
+
+            <fieldset class="bulk-fieldset bulk-fieldset--wide">
+              <label class="bulk-enable">
+                <input type="checkbox" id="bulkEnableVisibility" />
+                <span>Store visibility</span>
+              </label>
+              <select id="bulkVisibility" class="filter-select bulk-field-full" disabled>
+                <option value="1">Publish (visible in store)</option>
+                <option value="0">Hide from store</option>
+              </select>
+            </fieldset>
           </div>
-        </fieldset>
-
-        <fieldset class="bulk-fieldset">
-          <label class="bulk-enable">
-            <input type="checkbox" id="bulkEnableStock" />
-            <span>Stock quantity</span>
-          </label>
-          <div class="bulk-field-row" id="bulkStockFields">
-            <select id="bulkStockMode" class="filter-select" disabled>
-              <option value="add">Add</option>
-              <option value="subtract">Subtract</option>
-              <option value="set">Set to</option>
-            </select>
-            <input type="number" id="bulkStockValue" class="search-input" min="0" step="1" placeholder="Quantity" disabled />
-          </div>
-        </fieldset>
-
-        <fieldset class="bulk-fieldset">
-          <label class="bulk-enable">
-            <input type="checkbox" id="bulkEnableCategory" />
-            <span>Category</span>
-          </label>
-          <select id="bulkCategory" class="filter-select" disabled>
-            <option value="jackets">Jackets</option>
-            <option value="coats">Coats</option>
-            <option value="shirts">Shirts</option>
-            <option value="bottoms">Bottoms</option>
-            <option value="accessories">Accessories</option>
-          </select>
-        </fieldset>
-
-        <fieldset class="bulk-fieldset">
-          <label class="bulk-enable">
-            <input type="checkbox" id="bulkEnableGender" />
-            <span>Gender</span>
-          </label>
-          <select id="bulkGender" class="filter-select" disabled>
-            <option value="mens">Mens</option>
-            <option value="womens">Womens</option>
-          </select>
-        </fieldset>
-
-        <fieldset class="bulk-fieldset">
-          <label class="bulk-enable">
-            <input type="checkbox" id="bulkEnableVisibility" />
-            <span>Store visibility</span>
-          </label>
-          <select id="bulkVisibility" class="filter-select" disabled>
-            <option value="1">Publish (visible in store)</option>
-            <option value="0">Hide from store</option>
-          </select>
-        </fieldset>
+        </div>
 
         <div class="modal-foot bulk-edit-foot">
           <button type="button" class="btn btn-ghost" data-close-bulk-modal>Cancel</button>
@@ -945,6 +949,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script type="module" src="/assets/js/pages/admin.js?v=20260825-orders-fix"></script>
+  <script type="module" src="/assets/js/pages/admin.js?v=20260825-bulk-ui"></script>
 </body>
 </html>

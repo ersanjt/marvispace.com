@@ -1926,45 +1926,73 @@ body:not(.is-logged-in) .admin-shell { display: none; }
   max-height: min(90vh, 760px);
 }
 
+.modal-dialog--bulk {
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: min(88vh, 720px);
+}
+
 #bulkEditModal .bulk-edit-form {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  padding: 0 22px 16px;
+  overflow: hidden;
+  padding: 0;
 }
 
-#bulkEditModal .modal-foot {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  margin-top: auto;
+#bulkEditModal .bulk-edit-body {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 4px 22px 18px;
+}
+
+#bulkEditModal .bulk-edit-foot {
+  position: static;
+  flex-shrink: 0;
+  margin: 0;
   padding: 14px 22px 18px;
   background: var(--surface);
   border-top: 1px solid var(--line);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: none;
 }
 
 .bulk-edit-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0;
 }
 
 .bulk-edit-lead {
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.7;
+  margin: 0 0 16px;
+  font-size: 12px;
+  line-height: 1.55;
   color: var(--muted);
+}
+
+.bulk-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 .bulk-fieldset {
   margin: 0;
-  padding: 12px;
+  padding: 14px 14px 12px;
   border: 1px solid var(--line);
+  background: #fafaf9;
   display: grid;
   gap: 10px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.bulk-fieldset:has(.bulk-enable input:checked) {
+  background: #fff;
+  border-color: var(--ink);
 }
 
 .bulk-enable {
@@ -1976,20 +2004,46 @@ body:not(.is-logged-in) .admin-shell { display: none; }
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
+  user-select: none;
+}
+
+.bulk-enable input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--ink);
 }
 
 .bulk-field-row {
   display: grid;
-  grid-template-columns: 1fr 120px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(88px, 0.7fr);
   gap: 8px;
+  align-items: center;
 }
 
-.bulk-fieldset .filter-select:disabled {
-  opacity: 0.45;
+.bulk-fieldset .filter-select,
+.bulk-fieldset .search-input,
+.bulk-field-full {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  box-sizing: border-box;
 }
 
+.bulk-fieldset .filter-select:disabled,
 .bulk-field-row .search-input:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f3f3f2;
+}
+
+@media (min-width: 640px) {
+  .bulk-edit-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bulk-fieldset--wide {
+    grid-column: 1 / -1;
+  }
 }
 
 /* ── Toast ── */
