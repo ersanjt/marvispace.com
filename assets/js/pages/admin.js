@@ -47,7 +47,7 @@ const productBulkBar = document.getElementById('productBulkBar');
 const productSelectionLabel = document.getElementById('productSelectionLabel');
 const productSelectAllVisible = document.getElementById('productSelectAllVisible');
 const productSelectAllFiltered = document.getElementById('productSelectAllFiltered');
-const bulkEditBtn = document.getElementById('bulkEditBtn');
+const bulkEditBtn = null;
 const openBulkEditBtn = document.getElementById('openBulkEditBtn');
 const clearProductSelectionBtn = document.getElementById('clearProductSelectionBtn');
 const bulkEditModal = document.getElementById('bulkEditModal');
@@ -133,7 +133,7 @@ const orderModalBody = document.getElementById('orderModalBody');
 const orderModalTitle = document.getElementById('orderModalTitle');
 const productForm = document.getElementById('productForm');
 const formTitle = document.getElementById('formTitle');
-const newProductBtn = document.getElementById('newProductBtn');
+const newProductBtn = null;
 const resetFormBtn = document.getElementById('resetFormBtn');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewImg = document.getElementById('imagePreviewImg');
@@ -1071,10 +1071,13 @@ function renderProducts() {
   const list = getFilteredProducts();
   lastFilteredProductIds = list.map(p => p.id);
   productsTableBody.innerHTML = '';
+  const tableWrap = productsTableBody?.closest('.table-wrap');
 
   if (productsCount) productsCount.textContent = `${products.length} products`;
   if (navProductCount) navProductCount.textContent = String(products.length);
   if (productsEmpty) productsEmpty.hidden = list.length > 0;
+  if (tableWrap) tableWrap.hidden = list.length === 0;
+  if (productBulkBar && list.length === 0) productBulkBar.hidden = true;
 
   list.forEach(product => {
     const row = document.createElement('tr');
@@ -1361,6 +1364,7 @@ function renderOrders() {
   renderOrderStats();
 
   const list = getFilteredOrders();
+  const tableWrap = ordersTableBody?.closest('.table-wrap');
   if (ordersCount) {
     ordersCount.textContent = list.length === orders.length
       ? `${orders.length} orders`
@@ -1372,15 +1376,18 @@ function renderOrders() {
   if (!orders.length) {
     if (ordersEmpty) ordersEmpty.hidden = false;
     if (ordersFilterEmpty) ordersFilterEmpty.hidden = true;
+    if (tableWrap) tableWrap.hidden = true;
     return;
   }
   if (ordersEmpty) ordersEmpty.hidden = true;
 
   if (!list.length) {
     if (ordersFilterEmpty) ordersFilterEmpty.hidden = false;
+    if (tableWrap) tableWrap.hidden = true;
     return;
   }
   if (ordersFilterEmpty) ordersFilterEmpty.hidden = true;
+  if (tableWrap) tableWrap.hidden = false;
 
   list.forEach(order => {
     const row = document.createElement('tr');

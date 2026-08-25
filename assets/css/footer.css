@@ -197,9 +197,10 @@ body.preview-open .newsletter-popup { display: none; }
 
 .footer-columns {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 28px 32px;
   width: 100%;
+  justify-items: start;
 }
 
 .footer-col {
@@ -378,6 +379,18 @@ body.preview-open .newsletter-popup { display: none; }
   }
 }
 
+body:has(.cookie-consent) .whatsapp-support {
+  bottom: 110px;
+}
+
+body:has(.newsletter-popup.is-visible) .whatsapp-support {
+  bottom: 220px;
+}
+
+body:has(.cookie-consent):has(.newsletter-popup.is-visible) .whatsapp-support {
+  bottom: 280px;
+}
+
 /* WhatsApp floating support */
 .whatsapp-support {
   position: fixed;
@@ -394,7 +407,7 @@ body.preview-open .newsletter-popup { display: none; }
   color: #fff;
   text-decoration: none;
   box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, bottom 0.25s ease;
 }
 
 .whatsapp-support:hover {

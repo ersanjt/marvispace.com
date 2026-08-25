@@ -215,6 +215,8 @@ function closeCart() {
 function renderCart() {
   const count = cartCount();
   cartCountEl.textContent = String(count);
+  cartBtn?.classList.toggle('has-items', count > 0);
+  cartBtn?.setAttribute('data-count', String(count));
 
   if (count === 0) {
     cartEmptyEl.hidden = false;
@@ -254,6 +256,16 @@ cartDiscountToggle?.addEventListener('click', () => {
   const open = cartDiscountForm.hidden;
   cartDiscountForm.hidden = !open;
   cartDiscountToggle.setAttribute('aria-expanded', String(open));
+});
+
+document.getElementById('cartDiscountApply')?.addEventListener('click', () => {
+  const input = document.getElementById('cartDiscountInput');
+  const code = (input?.value || '').trim();
+  if (!code) {
+    input?.focus();
+    return;
+  }
+  alert('Discount codes are not available yet.');
 });
 
 /* ════════════════════════════════════
@@ -525,8 +537,8 @@ function confirmSizeAdd() {
     szNameStack.dataset.alt = 'false';
     closeSizes();
     closePreview(false);
-    window.location.href = '/checkout';
-  }, 800);
+    openCart();
+  }, 450);
 }
 
 /* ════════════════════════════════════
@@ -849,12 +861,17 @@ pNext.addEventListener('click', () => stepGallery(1));
    Keyboard
    ════════════════════════════════════ */
 document.addEventListener('keydown', e => {
-  if (!isOpen) return;
   if (e.key === 'Escape') {
+    if (cartDrawer?.classList.contains('open')) {
+      closeCart();
+      return;
+    }
+    if (!isOpen) return;
     if (szOpen) { closeSizes(); return; }
     closePreview();
     return;
   }
+  if (!isOpen) return;
   if (e.key === 'ArrowLeft') stepGallery(-1);
   if (e.key === 'ArrowRight') stepGallery(1);
 });

@@ -84,8 +84,8 @@
 .cart-qty-btn {
   display: grid;
   place-items: center;
-  width: 12px;
-  height: 12px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 0;
   background: none;

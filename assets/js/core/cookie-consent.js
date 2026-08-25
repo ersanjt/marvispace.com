@@ -3,12 +3,22 @@
  */
 const CONSENT_KEY = 'marvispace_cookie_consent_v1';
 
-export function hasCookieConsent() {
+function getConsentValue() {
   try {
-    return localStorage.getItem(CONSENT_KEY) === 'accepted';
+    return localStorage.getItem(CONSENT_KEY) || '';
   } catch {
-    return false;
+    return '';
   }
+}
+
+/** True when user already chose accept or essential-only. */
+export function hasCookieDecision() {
+  const value = getConsentValue();
+  return value === 'accepted' || value === 'essential';
+}
+
+export function hasCookieConsent() {
+  return getConsentValue() === 'accepted';
 }
 
 export function acceptCookieConsent() {
@@ -71,6 +81,7 @@ export function initCookieConsent() {
     loadAnalytics();
     return;
   }
+  if (hasCookieDecision()) return;
   renderBanner();
 }
 
