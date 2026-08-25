@@ -42,6 +42,10 @@ export function createImageUploadUI({
     el.classList.toggle('is-error', isError);
   }
 
+  function getMainImageUrl() {
+    return (productImage?.value || productImageUrl?.value || '').trim();
+  }
+
   function setMainImage(url) {
     const value = (url || '').trim();
     if (productImage) productImage.value = value;
@@ -53,6 +57,7 @@ export function createImageUploadUI({
     if (!value || !imagePreview || !imagePreviewImg) {
       if (imagePreview) imagePreview.hidden = true;
       if (mainImageEmpty) mainImageEmpty.hidden = false;
+      renderGallery();
       return;
     }
 
@@ -60,10 +65,12 @@ export function createImageUploadUI({
     imagePreviewImg.onerror = () => {
       imagePreview.hidden = true;
       if (mainImageEmpty) mainImageEmpty.hidden = false;
+      renderGallery();
     };
     imagePreviewImg.onload = () => {
       imagePreview.hidden = false;
       if (mainImageEmpty) mainImageEmpty.hidden = true;
+      renderGallery();
     };
   }
 
@@ -96,19 +103,23 @@ export function createImageUploadUI({
     galleryGrid.hidden = false;
     const hint = document.getElementById('galleryHint');
     if (hint) hint.hidden = false;
+    const mainUrl = getMainImageUrl();
     galleryUrls.forEach((url, index) => {
       const item = document.createElement('div');
-      item.className = 'gallery-item';
+      const isMain = Boolean(mainUrl && url === mainUrl);
+      item.className = 'gallery-item' + (isMain ? ' is-main' : '');
       item.draggable = true;
       item.dataset.index = String(index);
       const safeUrl = url.replace(/"/g, '&quot;');
       item.innerHTML = `
         <span class="gallery-order">${index + 1}</span>
+        ${isMain ? '<span class="gallery-main-badge">Main</span>' : ''}
         <button type="button" class="gallery-handle" aria-label="Drag to reorder image ${index + 1}" tabindex="-1">⋮⋮</button>
         <img src="${safeUrl}" alt="" loading="lazy" draggable="false" />
         <div class="gallery-item-actions">
           <button type="button" class="gallery-move" data-dir="-1" data-index="${index}" aria-label="Move image ${index + 1} earlier"${index === 0 ? ' disabled' : ''}>‹</button>
           <button type="button" class="gallery-move" data-dir="1" data-index="${index}" aria-label="Move image ${index + 1} later"${index === galleryUrls.length - 1 ? ' disabled' : ''}>›</button>
+          ${isMain ? '' : `<button type="button" class="gallery-set-main" data-index="${index}" aria-label="Set image ${index + 1} as main">Main</button>`}
         </div>
         <button type="button" class="gallery-remove" data-index="${index}" aria-label="Remove image ${index + 1}">×</button>
       `;
@@ -181,7 +192,7 @@ export function createImageUploadUI({
     if (!zone) return;
 
     zone.addEventListener('click', e => {
-      if (e.target.closest('.upload-remove, .gallery-remove, .gallery-move, .gallery-handle, .gallery-item')) return;
+      if (e.target.closest('.upload-remove, .gallery-remove, .gallery-move, .gallery-handle, .gallery-set-main, .gallery-item')) return;
       const input = zone.querySelector('input[type="file"]');
       input?.click();
     });
@@ -267,6 +278,17 @@ export function createImageUploadUI({
   });
 
   galleryGrid?.addEventListener('click', e => {
+    const setMainBtn = e.target.closest('.gallery-set-main');
+    if (setMainBtn) {
+      e.stopPropagation();
+      const index = Number(setMainBtn.dataset.index);
+      if (!Number.isNaN(index) && galleryUrls[index]) {
+        setMainImage(galleryUrls[index]);
+        showToast?.('Main image set from gallery');
+      }
+      return;
+    }
+
     const moveBtn = e.target.closest('.gallery-move');
     if (moveBtn) {
       e.stopPropagation();

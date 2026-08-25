@@ -28,12 +28,12 @@ function socialNavHtml() {
 
   if (!links.length) return '';
   return `
-    <nav class="footer-col" aria-label="Social">
-      <p class="footer-col__title">Social</p>
+    <details class="footer-col">
+      <summary class="footer-col__title">Social</summary>
       <ul class="footer-nav">
         ${links.join('')}
       </ul>
-    </nav>
+    </details>
   `;
 }
 
@@ -45,31 +45,31 @@ const FOOTER_INNER_HTML = `
         <span>${SITE.name}</span>
       </a>
       <p class="footer-tagline">${SITE.tagline}</p>
+      <a class="footer-cta" href="/contact">Contact support</a>
     </div>
 
     <div class="footer-columns">
-      <nav class="footer-col" aria-label="Yasal">
-        <p class="footer-col__title">Yasal</p>
+      <details class="footer-col">
+        <summary class="footer-col__title">Yasal</summary>
         <ul class="footer-nav">
           <li><a href="/kvkk" class="nav-item">KVKK</a></li>
           <li><a href="/mesafeli-satis-sozlesmesi" class="nav-item">Mesafeli Satış</a></li>
           <li><a href="/on-bilgilendirme" class="nav-item">Ön Bilgilendirme</a></li>
           <li><a href="/iade-ve-iptal" class="nav-item">İade &amp; Cayma</a></li>
         </ul>
-      </nav>
+      </details>
 
-      <nav class="footer-col" aria-label="Help">
-        <p class="footer-col__title">Help</p>
+      <details class="footer-col">
+        <summary class="footer-col__title">Help</summary>
         <ul class="footer-nav">
           <li><a href="/contact" class="nav-item">Contact</a></li>
           <li><a href="/order-status" class="nav-item">Order Status</a></li>
           <li><a href="/terms" class="nav-item">Terms</a></li>
           <li><a href="/privacy" class="nav-item">Privacy</a></li>
-          <li><a href="/privacy-right-center" class="nav-item">Do Not Sell</a></li>
           <li><a href="/accessibility" class="nav-item">Accessibility</a></li>
           <li><button type="button" class="nav-item" data-cookies-btn>Cookies</button></li>
         </ul>
-      </nav>
+      </details>
 
       ${socialNavHtml()}
     </div>
@@ -113,6 +113,31 @@ const NEWSLETTER_HTML = `
 function bindCookiesButton(footer) {
   footer.querySelector('[data-cookies-btn]')?.addEventListener('click', () => {
     window.location.href = '/kvkk#cookies';
+  });
+}
+
+/** Mobile: accordion closed by default; desktop: always open */
+function syncFooterAccordions(footer) {
+  const cols = [...footer.querySelectorAll('details.footer-col')];
+  if (!cols.length) return;
+
+  const mq = window.matchMedia('(max-width: 768px)');
+  const apply = () => {
+    cols.forEach((col, i) => {
+      col.open = mq.matches ? i === 0 : true;
+    });
+  };
+
+  apply();
+  mq.addEventListener('change', apply);
+
+  cols.forEach(col => {
+    col.addEventListener('toggle', () => {
+      if (!mq.matches || !col.open) return;
+      cols.forEach(other => {
+        if (other !== col) other.open = false;
+      });
+    });
   });
 }
 
@@ -191,6 +216,7 @@ export function mountSiteFooter(root = document) {
       footer.innerHTML = FOOTER_INNER_HTML;
     }
     bindCookiesButton(footer);
+    syncFooterAccordions(footer);
   });
 
   mountNewsletterPopup();
