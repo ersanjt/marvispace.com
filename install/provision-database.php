@@ -67,15 +67,15 @@ $config['db'] = [
 $config['site'] = $config['site'] ?? ['url' => 'https://marvispace.com'];
 $config['admin'] = $config['admin'] ?? [];
 $config['mail'] = $config['mail'] ?? [
-    'from' => 'orders@marvispace.com',
-    'from_name' => 'MARVISPACE Orders',
+    'from' => 'support@marvispace.com',
+    'from_name' => 'MARVISPACE',
     'support' => 'support@marvispace.com',
-    'admin_notify' => getenv('MARVISPACE_ADMIN_EMAIL') ?: '',
+    'admin_notify' => getenv('MARVISPACE_ADMIN_EMAIL') ?: 'support@marvispace.com',
     'smtp' => [
-        'host' => 'mail.marvispace.com',
+        'host' => 'marvispace.com',
         'port' => 465,
         'secure' => 'ssl',
-        'user' => 'orders@marvispace.com',
+        'user' => 'support@marvispace.com',
         'pass' => '',
     ],
 ];

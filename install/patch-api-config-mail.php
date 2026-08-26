@@ -1,14 +1,20 @@
 <?php
 /**
- * Ensure api_config.php has mail settings for order notifications.
+ * Ensure api_config.php has mail settings for order + contact emails.
  *
- * Run on server:
+ * Run on server (use password from cPanel → Email Accounts → Connect Devices):
+ *
+ *   MARVISPACE_SMTP_USER='support@marvispace.com' \
+ *   MARVISPACE_SMTP_PASS='your-mailbox-password' \
+ *   MARVISPACE_SMTP_HOST='marvispace.com' \
+ *   MARVISPACE_SMTP_PORT=465 \
+ *   MARVISPACE_SMTP_SECURE=ssl \
  *   php install/patch-api-config-mail.php
  *
- * With SMTP password (recommended on cPanel):
- *   MARVISPACE_SMTP_PASS='your-orders-mailbox-password' php install/patch-api-config-mail.php
+ * Or with orders@ (also fine):
+ *   MARVISPACE_SMTP_USER='orders@marvispace.com' MARVISPACE_SMTP_PASS='...' php install/patch-api-config-mail.php
  *
- * Same-server cPanel (when mail.marvispace.com has no DNS yet):
+ * Same-server fallback:
  *   MARVISPACE_SMTP_HOST=localhost MARVISPACE_SMTP_PORT=587 MARVISPACE_SMTP_SECURE=tls \
  *   MARVISPACE_SMTP_PASS='...' php install/patch-api-config-mail.php
  */
@@ -79,9 +85,9 @@ if (!mail_host_resolves($smtpHost)) {
     if (!getenv('MARVISPACE_SMTP_SECURE')) {
         $smtpSecure = 'tls';
     }
-} elseif ($smtpHost === 'localhost' && !getenv('MARVISPACE_SMTP_HOST') && mail_host_resolves('mail.marvispace.com')) {
-    fwrite(STDERR, "NOTE: mail.marvispace.com resolves — switching SMTP host from localhost to mail.marvispace.com.\n");
-    $smtpHost = 'mail.marvispace.com';
+} elseif ($smtpHost === 'localhost' && !getenv('MARVISPACE_SMTP_HOST') && mail_host_resolves('marvispace.com')) {
+    fwrite(STDERR, "NOTE: marvispace.com resolves — switching SMTP host from localhost to marvispace.com:465.\n");
+    $smtpHost = 'marvispace.com';
     if (!getenv('MARVISPACE_SMTP_PORT')) {
         $smtpPort = 465;
     }
@@ -90,29 +96,34 @@ if (!mail_host_resolves($smtpHost)) {
     }
 }
 
+$smtpFrom = getenv('MARVISPACE_MAIL_FROM') ?: '';
+if ($smtpFrom === '') {
+    $smtpFrom = $smtpUser !== '' ? $smtpUser : (string) ($config['mail']['from'] ?? 'support@marvispace.com');
+}
+
 $config['mail'] = array_merge([
-    'from' => 'orders@marvispace.com',
-    'from_name' => 'MARVISPACE Orders',
+    'from' => 'support@marvispace.com',
+    'from_name' => 'MARVISPACE',
     'support' => 'support@marvispace.com',
-    'admin_notify' => $adminEmail,
+    'admin_notify' => $adminEmail !== '' ? $adminEmail : 'support@marvispace.com',
     'smtp' => [
         'host' => $recommended['host'],
         'port' => $recommended['port'],
         'secure' => $recommended['secure'],
-        'user' => 'orders@marvispace.com',
+        'user' => 'support@marvispace.com',
         'pass' => '',
     ],
 ], $config['mail'] ?? []);
 
-$config['mail']['from'] = $config['mail']['from'] ?: 'orders@marvispace.com';
+$config['mail']['from'] = $smtpFrom !== '' ? $smtpFrom : ($config['mail']['from'] ?: 'support@marvispace.com');
 $config['mail']['support'] = $config['mail']['support'] ?: 'support@marvispace.com';
-$config['mail']['admin_notify'] = $config['mail']['admin_notify'] ?: $adminEmail;
+$config['mail']['admin_notify'] = $config['mail']['admin_notify'] ?: ($adminEmail !== '' ? $adminEmail : 'support@marvispace.com');
 
 $existingSmtp = $config['mail']['smtp'] ?? [];
 $config['mail']['smtp'] = array_merge($existingSmtp, [
     'host' => $smtpHost,
-    'port' => $smtpPort > 0 ? $smtpPort : 587,
-    'secure' => $smtpSecure !== '' ? $smtpSecure : 'tls',
+    'port' => $smtpPort > 0 ? $smtpPort : 465,
+    'secure' => $smtpSecure !== '' ? $smtpSecure : 'ssl',
     'user' => $smtpUser !== '' ? $smtpUser : ($existingSmtp['user'] ?? $config['mail']['from']),
     'pass' => $smtpPass !== '' ? $smtpPass : (string) ($existingSmtp['pass'] ?? ''),
 ]);
@@ -143,9 +154,11 @@ if (!mail_host_resolves('mail.marvispace.com')) {
 }
 
 if ($config['mail']['smtp']['pass'] === '') {
-    echo "\n    WARNING: SMTP password not set. Order emails will fail.\n";
-    echo "    MARVISPACE_SMTP_PASS='orders-mailbox-password' php install/patch-api-config-mail.php\n";
+    echo "\n    WARNING: SMTP password not set. Outbound email will fail.\n";
+    echo "    Use the password from cPanel → Email Accounts → support@ → Connect Devices:\n";
+    echo "    MARVISPACE_SMTP_USER='support@marvispace.com' MARVISPACE_SMTP_PASS='...' \\\n";
+    echo "      MARVISPACE_SMTP_HOST='marvispace.com' MARVISPACE_SMTP_PORT=465 MARVISPACE_SMTP_SECURE=ssl \\\n";
+    echo "      php install/patch-api-config-mail.php\n";
 } else {
-    echo "\n    Next: bash deploy.sh   (sync mail settings to public_html)\n";
-    echo "    Test:  php install/test-mail.php --probe && php install/test-mail.php\n";
+    echo "\n    Test:  php install/test-mail.php --probe && php install/test-mail.php\n";
 }

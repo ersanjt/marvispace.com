@@ -24,11 +24,16 @@ function mail_host_resolves(string $host): bool
     return gethostbyname($host) !== $host;
 }
 
-/** cPanel: send via local Exim on localhost when mail.domain has no DNS yet */
+/** cPanel Secure SSL/TLS: host = domain, SMTP 465 (matches Connect Devices email). */
 function mail_recommended_smtp(): array
 {
     $domain = 'marvispace.com';
     $mailHost = 'mail.' . $domain;
+
+    // cPanel "Connect Devices" lists Outgoing Server as the domain itself.
+    if (mail_host_resolves($domain)) {
+        return ['host' => $domain, 'port' => 465, 'secure' => 'ssl'];
+    }
 
     if (mail_host_resolves($mailHost)) {
         return ['host' => $mailHost, 'port' => 465, 'secure' => 'ssl'];
@@ -51,7 +56,7 @@ function mail_config(): array
     }
 
     return [
-        'from' => (string) ($mail['from'] ?? 'orders@marvispace.com'),
+        'from' => (string) ($mail['from'] ?? 'support@marvispace.com'),
         'from_name' => (string) ($mail['from_name'] ?? 'MARVISPACE'),
         'admin_notify' => $adminNotify,
         'site_url' => rtrim((string) ($site['url'] ?? 'https://marvispace.com'), '/'),
@@ -60,7 +65,7 @@ function mail_config(): array
             'host' => (string) ($smtp['host'] ?? $recommended['host']),
             'port' => (int) ($smtp['port'] ?? $recommended['port']),
             'secure' => (string) ($smtp['secure'] ?? $recommended['secure']),
-            'user' => (string) ($smtp['user'] ?? ($mail['from'] ?? 'orders@marvispace.com')),
+            'user' => (string) ($smtp['user'] ?? ($mail['from'] ?? 'support@marvispace.com')),
             'pass' => (string) ($smtp['pass'] ?? ''),
         ],
     ];
@@ -95,12 +100,19 @@ function mail_build_headers(string $to, string $from, string $fromName, string $
     return $headers;
 }
 
-/** Alternate SMTP endpoint when primary host fails (cPanel localhost ↔ mail.domain). */
+/** Alternate SMTP endpoint when primary host fails (cPanel localhost ↔ domain ↔ mail.). */
 function mail_smtp_alternate(array $current): ?array
 {
     $host = strtolower((string) ($current['host'] ?? ''));
 
     if ($host === 'localhost' || $host === '127.0.0.1') {
+        if (mail_host_resolves('marvispace.com')) {
+            return array_merge($current, [
+                'host' => 'marvispace.com',
+                'port' => 465,
+                'secure' => 'ssl',
+            ]);
+        }
         if (mail_host_resolves('mail.marvispace.com')) {
             return array_merge($current, [
                 'host' => 'mail.marvispace.com',
@@ -111,7 +123,7 @@ function mail_smtp_alternate(array $current): ?array
         return null;
     }
 
-    if (str_contains($host, 'marvispace.com')) {
+    if ($host === 'marvispace.com' || str_contains($host, 'marvispace.com')) {
         return array_merge($current, [
             'host' => 'localhost',
             'port' => 587,
