@@ -112,6 +112,12 @@ function image_resize_mime(string $format): string
     return $format === 'webp' ? 'image/webp' : 'image/jpeg';
 }
 
+function image_resize_redirect_original(string $src): void
+{
+    header('Cache-Control: no-store');
+    header('Location: ' . $src, true, 302);
+}
+
 function image_resize_handle_request(): void
 {
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
@@ -121,11 +127,16 @@ function image_resize_handle_request(): void
         return;
     }
 
+    // Large camera JPEGs (8–12MB) need more RAM than default PHP limits.
+    @ini_set('memory_limit', '512M');
+    @ini_set('max_execution_time', '60');
+
+    $src = (string) ($_GET['src'] ?? '');
+
     if (!extension_loaded('gd')) {
-        $src = (string) ($_GET['src'] ?? '');
         $resolved = image_resize_resolve_source($src);
         if ($resolved) {
-            header('Location: ' . $src, true, 302);
+            image_resize_redirect_original($src);
             return;
         }
         http_response_code(503);
@@ -134,7 +145,6 @@ function image_resize_handle_request(): void
         return;
     }
 
-    $src = (string) ($_GET['src'] ?? '');
     $width = (int) ($_GET['w'] ?? 560);
     $width = max(48, min(1920, $width));
     $quality = (int) ($_GET['q'] ?? 85);
@@ -164,24 +174,35 @@ function image_resize_handle_request(): void
         return;
     }
 
-    $loaded = image_resize_load($sourcePath);
-    if ($loaded === null) {
-        http_response_code(415);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['ok' => false, 'error' => 'Unsupported image format']);
-        return;
+    // Prefer Imagick for huge sources when available (lower peak memory).
+    $bytes = image_resize_with_imagick($sourcePath, $width, $format, $quality);
+    if ($bytes === null) {
+        $info = @getimagesize($sourcePath);
+        $fileSize = (int) (@filesize($sourcePath) ?: 0);
+        $pixels = (int) (($info[0] ?? 0) * ($info[1] ?? 0));
+        // GD fatals (OOM) on large camera JPEGs — skip and serve original.
+        $tooLargeForGd = $fileSize > 3_500_000 || $pixels > 14_000_000;
+        if ($tooLargeForGd) {
+            image_resize_redirect_original($src);
+            return;
+        }
+
+        $loaded = image_resize_load($sourcePath);
+        if ($loaded === null) {
+            // Serve original instead of blank/500 so the storefront still shows the product.
+            image_resize_redirect_original($src);
+            return;
+        }
+
+        $resized = image_resize_fit_width($loaded, $width);
+        imagedestroy($loaded);
+
+        $bytes = image_resize_encode($resized, $format, $quality);
+        imagedestroy($resized);
     }
 
-    $resized = image_resize_fit_width($loaded, $width);
-    imagedestroy($loaded);
-
-    $bytes = image_resize_encode($resized, $format, $quality);
-    imagedestroy($resized);
-
     if ($bytes === null) {
-        http_response_code(500);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['ok' => false, 'error' => 'Could not encode image']);
+        image_resize_redirect_original($src);
         return;
     }
 
@@ -191,4 +212,39 @@ function image_resize_handle_request(): void
     header('Cache-Control: public, max-age=31536000, immutable');
     header('X-Image-Cache: MISS');
     echo $bytes;
+}
+
+/**
+ * Resize with Imagick when available — better for multi-megabyte camera JPEGs.
+ */
+function image_resize_with_imagick(string $sourcePath, int $width, string $format, int $quality): ?string
+{
+    if (!extension_loaded('imagick') || !class_exists('Imagick')) {
+        return null;
+    }
+
+    try {
+        $img = new Imagick($sourcePath);
+        if (method_exists($img, 'autoOrient')) {
+            $img->autoOrient();
+        }
+        $srcW = $img->getImageWidth();
+        if ($srcW > $width) {
+            $img->resizeImage($width, 0, Imagick::FILTER_LANCZOS, 1);
+        }
+        $img->stripImage();
+        if ($format === 'webp') {
+            $img->setImageFormat('webp');
+        } else {
+            $img->setImageFormat('jpeg');
+            $img->setImageCompression(Imagick::COMPRESSION_JPEG);
+        }
+        $img->setImageCompressionQuality($quality);
+        $bytes = $img->getImageBlob();
+        $img->clear();
+        $img->destroy();
+        return ($bytes !== false && $bytes !== '') ? $bytes : null;
+    } catch (Throwable) {
+        return null;
+    }
 }
