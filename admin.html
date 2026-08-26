@@ -583,7 +583,7 @@
                   <div class="settings-card settings-card--highlight">
                     <div class="settings-card__head">
                       <h3>Email alerts</h3>
-                      <p>Get notified when someone places an order or joins the newsletter.</p>
+                      <p>Order alerts, newsletter signups, and contact-form messages use your cPanel mailboxes.</p>
                     </div>
                     <div class="notify-status-grid" id="notifyStatusGrid">
                       <div class="notify-stat">
@@ -602,9 +602,9 @@
                     <form class="settings-form" id="notificationSettingsForm">
                       <label class="field">
                         <span>Your notification email</span>
-                        <input type="email" id="notifyAdminEmail" name="adminEmail" placeholder="you@marvispace.com" autocomplete="email" />
+                        <input type="email" id="notifyAdminEmail" name="adminEmail" placeholder="support@marvispace.com" autocomplete="email" />
                       </label>
-                      <p class="settings-hint">Order and signup alerts go here. Leave blank to use your admin account email or server config.</p>
+                      <p class="settings-hint">Order &amp; newsletter alerts go here. Contact form messages always go to <strong>support@marvispace.com</strong> (Reply-To = customer).</p>
                       <label class="checkbox-row notify-toggle">
                         <input type="checkbox" id="notifyOrders" name="notifyOrders" checked />
                         <span><strong>New order</strong> — email me when a customer completes checkout</span>

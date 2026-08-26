@@ -29,7 +29,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/fonts.css?v=20260825-seo" />
   <link rel="stylesheet" href="/assets/css/styles.css?v=20260825-mobile" />
-  <link rel="stylesheet" href="/assets/css/page.css?v=20260825-mobile" />
+  <link rel="stylesheet" href="/assets/css/page.css?v=20260826-contact" />
   <link rel="stylesheet" href="/assets/css/footer.css?v=20260825-mobile" />
 </head>
 <body>
@@ -56,18 +56,22 @@
     <form class="page-form" id="contactForm" novalidate>
       <label>
         <span>Ad / Name</span>
-        <input type="text" name="name" required autocomplete="name" />
+        <input type="text" name="name" required autocomplete="name" maxlength="120" />
       </label>
       <label>
         <span>E-posta / Email</span>
-        <input type="email" name="email" required autocomplete="email" />
+        <input type="email" name="email" required autocomplete="email" maxlength="255" />
       </label>
       <label>
         <span>Mesaj / Message</span>
-        <textarea name="message" rows="5" required></textarea>
+        <textarea name="message" rows="5" required maxlength="5000"></textarea>
+      </label>
+      <label class="contact-honeypot" aria-hidden="true">
+        <span>Website</span>
+        <input type="text" name="website" tabindex="-1" autocomplete="off" />
       </label>
       <p class="page-form-status" id="contactFormStatus" hidden role="status"></p>
-      <button type="submit" class="page-btn">Gönder / Send</button>
+      <button type="submit" class="page-btn" id="contactSubmitBtn">Gönder / Send</button>
     </form>
 
     <p class="page-note">Çalışma saatleri: Pazartesi–Cuma 09:00–18:00 (TR) · <a href="mailto:support@marvispace.com">support@marvispace.com</a></p>
@@ -76,37 +80,46 @@
   <footer data-site-footer></footer>
   <script type="module" src="/assets/js/core/legal-page.js"></script>
   <script type="module">
-    import { fetchSiteSettings } from '/assets/js/core/api-client.js';
+    import { fetchSiteSettings, submitContact } from '/assets/js/core/api-client.js?v=20260826-contact';
     import { initWhatsAppSupport } from '/assets/js/core/whatsapp-support.js';
-    import { SITE } from '/assets/js/config/site.js';
 
     initWhatsAppSupport();
 
     const form = document.getElementById('contactForm');
     const status = document.getElementById('contactFormStatus');
+    const submitBtn = document.getElementById('contactSubmitBtn');
 
-    form?.addEventListener('submit', e => {
+    function setStatus(text, isError = false) {
+      if (!status) return;
+      status.hidden = false;
+      status.textContent = text;
+      status.classList.toggle('is-error', isError);
+    }
+
+    form?.addEventListener('submit', async e => {
       e.preventDefault();
       const data = new FormData(form);
       const name = String(data.get('name') || '').trim();
       const email = String(data.get('email') || '').trim();
       const message = String(data.get('message') || '').trim();
+      const website = String(data.get('website') || '').trim();
 
       if (!name || !email || !message) {
-        if (status) {
-          status.hidden = false;
-          status.textContent = 'Lütfen tüm alanları doldurun.';
-        }
+        setStatus('Lütfen tüm alanları doldurun.', true);
         return;
       }
 
-      const subject = encodeURIComponent(`MARVISPACE contact — ${name}`);
-      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
-      window.location.href = `mailto:${SITE.supportEmail}?subject=${subject}&body=${body}`;
+      if (submitBtn) submitBtn.disabled = true;
+      setStatus('Gönderiliyor…');
 
-      if (status) {
-        status.hidden = false;
-        status.textContent = 'E-posta uygulamanız açılıyor…';
+      try {
+        await submitContact({ name, email, message, website });
+        form.reset();
+        setStatus('Mesajınız iletildi. En kısa sürede yanıt vereceğiz.');
+      } catch (err) {
+        setStatus(err.message || 'Gönderilemedi. Lütfen support@marvispace.com adresine yazın.', true);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
       }
     });
 

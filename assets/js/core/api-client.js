@@ -68,6 +68,13 @@ export async function subscribeNewsletter(email) {
   return request('/newsletter.php', { method: 'POST', body: { email } });
 }
 
+export async function submitContact({ name, email, message, website = '' }) {
+  return request('/contact.php', {
+    method: 'POST',
+    body: { name, email, message, website },
+  });
+}
+
 export async function fetchProduct(id) {
   return request(`/products.php?id=${encodeURIComponent(id)}`);
 }

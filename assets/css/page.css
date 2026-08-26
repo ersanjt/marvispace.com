@@ -228,6 +228,20 @@ body:has(.site-page) {
   color: #333;
 }
 
+.page-form-status.is-error {
+  color: #b91c1c;
+}
+
+.contact-honeypot {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .page-btn {
   align-self: flex-start;
   height: 42px;
