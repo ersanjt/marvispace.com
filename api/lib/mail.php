@@ -24,22 +24,16 @@ function mail_host_resolves(string $host): bool
     return gethostbyname($host) !== $host;
 }
 
-/** cPanel Secure SSL/TLS: host = domain, SMTP 465 (matches Connect Devices email). */
+/** Prefer localhost on cPanel — public domain SMTP often times out from the same server (hairpin). */
 function mail_recommended_smtp(): array
 {
-    $domain = 'marvispace.com';
-    $mailHost = 'mail.' . $domain;
-
-    // cPanel "Connect Devices" lists Outgoing Server as the domain itself.
-    if (mail_host_resolves($domain)) {
-        return ['host' => $domain, 'port' => 465, 'secure' => 'ssl'];
-    }
-
-    if (mail_host_resolves($mailHost)) {
-        return ['host' => $mailHost, 'port' => 465, 'secure' => 'ssl'];
-    }
-
     return ['host' => 'localhost', 'port' => 587, 'secure' => 'tls'];
+}
+
+/** Public host from cPanel Connect Devices — only as fallback / remote clients. */
+function mail_public_smtp(): array
+{
+    return ['host' => 'marvispace.com', 'port' => 465, 'secure' => 'ssl'];
 }
 
 function mail_config(): array
@@ -100,43 +94,17 @@ function mail_build_headers(string $to, string $from, string $fromName, string $
     return $headers;
 }
 
-/** Alternate SMTP endpoint when primary host fails (cPanel localhost ↔ domain ↔ mail.). */
+/** Alternate SMTP endpoint when primary host fails (cPanel localhost ↔ public domain). */
 function mail_smtp_alternate(array $current): ?array
 {
     $host = strtolower((string) ($current['host'] ?? ''));
 
     if ($host === 'localhost' || $host === '127.0.0.1') {
-        if (mail_host_resolves('marvispace.com')) {
-            return array_merge($current, [
-                'host' => 'marvispace.com',
-                'port' => 465,
-                'secure' => 'ssl',
-            ]);
-        }
-        if (mail_host_resolves('mail.marvispace.com')) {
-            return array_merge($current, [
-                'host' => 'mail.marvispace.com',
-                'port' => 465,
-                'secure' => 'ssl',
-            ]);
-        }
-        return null;
+        return array_merge($current, mail_public_smtp());
     }
 
-    if ($host === 'marvispace.com' || str_contains($host, 'marvispace.com')) {
-        return array_merge($current, [
-            'host' => 'localhost',
-            'port' => 587,
-            'secure' => 'tls',
-        ]);
-    }
-
-    $recommended = mail_recommended_smtp();
-    if ($host !== strtolower($recommended['host'])) {
-        return array_merge($current, $recommended);
-    }
-
-    return null;
+    // Public host timed out from the server — try local Exim.
+    return array_merge($current, mail_recommended_smtp());
 }
 
 function mail_send_html(string $to, string $subject, string $html, array $opts = []): bool
@@ -329,7 +297,7 @@ function mail_smtp_connect(string $host, int $port, string $secure)
         $remote,
         $errno,
         $errstr,
-        25,
+        8,
         STREAM_CLIENT_CONNECT,
         $context
     );
@@ -338,7 +306,7 @@ function mail_smtp_connect(string $host, int $port, string $secure)
         throw new RuntimeException("SMTP connect failed to {$remote}: {$errstr} ({$errno})");
     }
 
-    stream_set_timeout($fp, 25);
+    stream_set_timeout($fp, 15);
     return $fp;
 }
 

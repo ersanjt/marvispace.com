@@ -2,21 +2,16 @@
 /**
  * Ensure api_config.php has mail settings for order + contact emails.
  *
- * Run on server (use password from cPanel → Email Accounts → Connect Devices):
+ * On the cPanel server itself, use localhost (public SMTP host often times out):
  *
  *   MARVISPACE_SMTP_USER='support@marvispace.com' \
- *   MARVISPACE_SMTP_PASS='your-mailbox-password' \
- *   MARVISPACE_SMTP_HOST='marvispace.com' \
- *   MARVISPACE_SMTP_PORT=465 \
- *   MARVISPACE_SMTP_SECURE=ssl \
+ *   MARVISPACE_SMTP_PASS='your-NEW-mailbox-password' \
  *   php install/patch-api-config-mail.php
  *
- * Or with orders@ (also fine):
- *   MARVISPACE_SMTP_USER='orders@marvispace.com' MARVISPACE_SMTP_PASS='...' php install/patch-api-config-mail.php
- *
- * Same-server fallback:
+ * Explicit localhost (same as default):
  *   MARVISPACE_SMTP_HOST=localhost MARVISPACE_SMTP_PORT=587 MARVISPACE_SMTP_SECURE=tls \
- *   MARVISPACE_SMTP_PASS='...' php install/patch-api-config-mail.php
+ *   MARVISPACE_SMTP_USER='support@marvispace.com' MARVISPACE_SMTP_PASS='...' \
+ *   php install/patch-api-config-mail.php
  */
 declare(strict_types=1);
 
@@ -76,24 +71,22 @@ if ($smtpSecure === '') {
     $smtpSecure = (string) ($config['mail']['smtp']['secure'] ?? $recommended['secure']);
 }
 
+$forcePublic = (string) (getenv('MARVISPACE_SMTP_FORCE_PUBLIC') ?: '') === '1';
+$publicHosts = ['marvispace.com', 'mail.marvispace.com', 'www.marvispace.com'];
+
+// From the server itself, public SMTP host often times out. Use local Exim unless forced.
+if (!$forcePublic && in_array(strtolower($smtpHost), $publicHosts, true)) {
+    fwrite(STDERR, "NOTE: {$smtpHost} from this server often times out — using localhost:587 tls (cPanel local SMTP).\n");
+    $smtpHost = 'localhost';
+    $smtpPort = 587;
+    $smtpSecure = 'tls';
+}
+
 if (!mail_host_resolves($smtpHost)) {
     fwrite(STDERR, "NOTE: {$smtpHost} does not resolve — using localhost:587 (cPanel local mail).\n");
     $smtpHost = 'localhost';
-    if (!getenv('MARVISPACE_SMTP_PORT')) {
-        $smtpPort = 587;
-    }
-    if (!getenv('MARVISPACE_SMTP_SECURE')) {
-        $smtpSecure = 'tls';
-    }
-} elseif ($smtpHost === 'localhost' && !getenv('MARVISPACE_SMTP_HOST') && mail_host_resolves('marvispace.com')) {
-    fwrite(STDERR, "NOTE: marvispace.com resolves — switching SMTP host from localhost to marvispace.com:465.\n");
-    $smtpHost = 'marvispace.com';
-    if (!getenv('MARVISPACE_SMTP_PORT')) {
-        $smtpPort = 465;
-    }
-    if (!getenv('MARVISPACE_SMTP_SECURE')) {
-        $smtpSecure = 'ssl';
-    }
+    $smtpPort = 587;
+    $smtpSecure = 'tls';
 }
 
 $smtpFrom = getenv('MARVISPACE_MAIL_FROM') ?: '';
@@ -122,8 +115,8 @@ $config['mail']['admin_notify'] = $config['mail']['admin_notify'] ?: ($adminEmai
 $existingSmtp = $config['mail']['smtp'] ?? [];
 $config['mail']['smtp'] = array_merge($existingSmtp, [
     'host' => $smtpHost,
-    'port' => $smtpPort > 0 ? $smtpPort : 465,
-    'secure' => $smtpSecure !== '' ? $smtpSecure : 'ssl',
+    'port' => $smtpPort > 0 ? $smtpPort : 587,
+    'secure' => $smtpSecure !== '' ? $smtpSecure : 'tls',
     'user' => $smtpUser !== '' ? $smtpUser : ($existingSmtp['user'] ?? $config['mail']['from']),
     'pass' => $smtpPass !== '' ? $smtpPass : (string) ($existingSmtp['pass'] ?? ''),
 ]);

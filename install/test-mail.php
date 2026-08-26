@@ -66,16 +66,17 @@ if ($probe || $tryTls) {
 
     fwrite(STDERR, "\nERROR: " . ($result['error'] ?? 'SMTP probe failed') . "\n");
 
-    if (str_contains($result['error'] ?? '', 'getaddrinfo') || str_contains($result['error'] ?? '', 'Name or service not known')) {
-        fwrite(STDERR, "\n    mail.marvispace.com has no DNS record on this server.\n");
-        fwrite(STDERR, "    Fix: MARVISPACE_SMTP_HOST=localhost MARVISPACE_SMTP_PORT=587 MARVISPACE_SMTP_SECURE=tls \\\n");
-        fwrite(STDERR, "         MARVISPACE_SMTP_PASS='...' php install/patch-api-config-mail.php\n");
+    if (str_contains($result['error'] ?? '', 'timed out') || str_contains($result['error'] ?? '', 'Connection refused')) {
+        fwrite(STDERR, "\n    Public SMTP host often fails FROM the server. Use localhost:\n");
+        fwrite(STDERR, "    MARVISPACE_SMTP_HOST=localhost MARVISPACE_SMTP_PORT=587 MARVISPACE_SMTP_SECURE=tls \\\n");
+        fwrite(STDERR, "      MARVISPACE_SMTP_USER='support@marvispace.com' MARVISPACE_SMTP_PASS='...' \\\n");
+        fwrite(STDERR, "      php install/patch-api-config-mail.php\n");
     }
 
     fwrite(STDERR, "\nFix checklist:\n");
-    fwrite(STDERR, "  1. cPanel → Email Accounts → orders@marvispace.com → Connect Devices → copy password\n");
-    fwrite(STDERR, "  2. MARVISPACE_SMTP_PASS='mailbox-password' php install/patch-api-config-mail.php\n");
-    fwrite(STDERR, "  3. If SSL/465 fails: php install/test-mail.php --probe --tls\n");
+    fwrite(STDERR, "  1. cPanel → Email Accounts → support@ → reset password if needed\n");
+    fwrite(STDERR, "  2. Patch with localhost:587 tls (see above)\n");
+    fwrite(STDERR, "  3. php install/test-mail.php --probe\n");
     fwrite(STDERR, "  4. DNS: SPF + DKIM enabled for marvispace.com\n");
     exit(1);
 }

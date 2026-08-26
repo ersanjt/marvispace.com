@@ -72,9 +72,9 @@ $config['mail'] = $config['mail'] ?? [
     'support' => 'support@marvispace.com',
     'admin_notify' => getenv('MARVISPACE_ADMIN_EMAIL') ?: 'support@marvispace.com',
     'smtp' => [
-        'host' => 'marvispace.com',
-        'port' => 465,
-        'secure' => 'ssl',
+        'host' => 'localhost',
+        'port' => 587,
+        'secure' => 'tls',
         'user' => 'support@marvispace.com',
         'pass' => '',
     ],
