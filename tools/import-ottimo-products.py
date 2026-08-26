@@ -168,7 +168,9 @@ def parse_price(value: str) -> float | None:
 def map_category_from_row(row: dict[str, str]) -> str:
     cinsi = f"{row.get('Cinsi', '')} {row.get('AltTipi', '')}"
     text = normalize_key(cinsi)
-    if any(x in text for x in ("brs", "tkt", "bag", "belt", "hat", "aksesuar")):
+    tokens = set(text.split("_"))
+    # Whole tokens only — "belt" must not match "belted jacket"
+    if tokens & {"brs", "tkt", "bag", "belt", "hat", "aksesuar", "aksesuvar"}:
         return "accessories"
     if any(x in text for x in ("mont", "coat", "parka", "trench", "kurk")):
         return "coats"

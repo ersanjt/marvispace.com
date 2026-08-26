@@ -1,4 +1,6 @@
-/* MARVISPACE — multilingual typography */
+/* MARVISPACE — multilingual typography (self-hosted; see assets/fonts/faces.css) */
+@import url("../fonts/faces.css");
+
 :root {
   --font-en: 'Syne', system-ui, -apple-system, sans-serif;
   --font-fa: 'Vazirmatn', 'Tahoma', sans-serif;
