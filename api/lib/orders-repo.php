@@ -113,7 +113,7 @@ function order_normalize_items(PDO $pdo, array $rawItems, bool $decrementStock =
         }
 
         $stmt = $pdo->prepare(
-            'SELECT id, label, image, price, stock, in_stock FROM products WHERE id = ? FOR UPDATE'
+            'SELECT id, label, image, price, discount_percent, stock, in_stock FROM products WHERE id = ? FOR UPDATE'
         );
         $stmt->execute([$pid]);
         $product = $stmt->fetch();
@@ -127,7 +127,7 @@ function order_normalize_items(PDO $pdo, array $rawItems, bool $decrementStock =
             throw new InvalidArgumentException('Insufficient stock for ' . $product['label']);
         }
 
-        $price = (float) $product['price'];
+        $price = product_unit_price($product);
         $computedTotal += $price * $qty;
 
         if ($decrementStock) {

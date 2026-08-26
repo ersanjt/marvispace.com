@@ -3,6 +3,7 @@
  * @project MARVISPACE
  */
 import { fetchSiteSettings } from './api-client.js';
+import { t } from './i18n.js';
 
 const WHATSAPP_ICON = `
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -27,8 +28,8 @@ function renderButton(url) {
   link.href = url;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
-  link.setAttribute('aria-label', 'WhatsApp support');
-  link.innerHTML = `${WHATSAPP_ICON}<span class="whatsapp-support__label">Support</span>`;
+  link.setAttribute('aria-label', t('whatsappAria'));
+  link.innerHTML = `${WHATSAPP_ICON}<span class="whatsapp-support__label">${t('whatsapp')}</span>`;
   document.body.append(link);
 }
 

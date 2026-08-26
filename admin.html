@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="developer" content="Ersan JT" />
   <title>Admin — MARVISPACE</title>
   <meta name="description" content="MARVISPACE store administration — products, inventory, and orders." />
@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/fonts.css" />
-  <link rel="stylesheet" href="/assets/css/admin.css?v=20260825-gallery-main" />
+  <link rel="stylesheet" href="/assets/css/admin.css?v=20260826-sale" />
 </head>
 <body>
 
@@ -190,9 +190,15 @@
 
     <div class="admin-main">
       <header class="topbar">
-        <div class="topbar-title">
-          <h1 id="pageTitle">Dashboard</h1>
-          <p id="pageSubtitle">Store overview</p>
+        <div class="topbar-row">
+          <div class="topbar-title">
+            <h1 id="pageTitle">Dashboard</h1>
+            <p id="pageSubtitle">Store overview</p>
+          </div>
+          <div class="topbar-util" aria-label="Quick links">
+            <a href="/" class="topbar-util-link">Store</a>
+            <button type="button" class="topbar-util-link topbar-util-link--btn" id="topbarLogoutBtn">Sign out</button>
+          </div>
         </div>
         <div class="topbar-actions">
           <button type="button" class="btn btn-primary" id="topNewProductBtn" hidden>+ New product</button>
@@ -271,6 +277,7 @@
                   <option value="in">In stock</option>
                   <option value="out">Out of stock</option>
                   <option value="low">Low stock (≤5)</option>
+                  <option value="sale">On sale</option>
                 </select>
               </div>
             </div>
@@ -284,7 +291,7 @@
                 <button type="button" class="btn btn-ghost btn-sm" id="clearProductSelectionBtn">Clear</button>
               </div>
             </div>
-            <div class="table-wrap">
+            <div class="table-wrap" id="productsTableWrap">
               <table class="data-table" id="productsTable">
                 <thead>
                   <tr>
@@ -302,21 +309,23 @@
                 <tbody id="productsTableBody"></tbody>
               </table>
             </div>
+            <div class="products-cards" id="productsCards" hidden aria-label="Products list"></div>
             <p class="empty-state" id="productsEmpty" hidden>No products found.</p>
           </div>
         </section>
 
         <section class="view-panel" id="ordersPanel" data-view="orders">
           <div class="orders-stats" id="ordersStats" aria-label="Order summary"></div>
+          <div class="orders-quick-filters" id="ordersQuickFilters" role="toolbar" aria-label="Quick filters"></div>
 
-          <div class="card">
+          <div class="card card--orders">
             <div class="card-head card-head--stack">
               <div class="card-head-start">
                 <h2>Orders</h2>
                 <span class="muted" id="ordersCount">0 orders</span>
               </div>
               <div class="card-head-actions orders-toolbar">
-                <input type="search" class="search-input" id="orderSearch" placeholder="Search ID, name, email…" />
+                <input type="search" class="search-input" id="orderSearch" placeholder="Search ID, name, email…" autocomplete="off" />
                 <select class="filter-select" id="orderStatusFilter" aria-label="Filter by status">
                   <option value="all">All statuses</option>
                   <option value="pending">Pending</option>
@@ -339,10 +348,11 @@
                   <option value="total-desc">Highest total</option>
                   <option value="total-asc">Lowest total</option>
                 </select>
+                <button type="button" class="btn btn-ghost btn-sm" id="clearOrderFiltersBtn" hidden>Clear filters</button>
                 <button type="button" class="btn btn-ghost btn-sm" id="exportOrdersBtn">Export CSV</button>
               </div>
             </div>
-            <div class="table-wrap">
+            <div class="table-wrap" id="ordersTableWrap">
               <table class="data-table data-table--orders" id="ordersTable">
                 <thead>
                   <tr>
@@ -358,8 +368,15 @@
                 <tbody id="ordersTableBody"></tbody>
               </table>
             </div>
-            <p class="empty-state" id="ordersEmpty" hidden>No orders yet.</p>
-            <p class="empty-state" id="ordersFilterEmpty" hidden>No orders match your filters.</p>
+            <div class="orders-cards" id="ordersCards" hidden aria-label="Orders list"></div>
+            <p class="empty-state empty-state--orders" id="ordersEmpty" hidden>
+              <strong>No orders yet</strong>
+              <span>When customers checkout, orders appear here.</span>
+            </p>
+            <p class="empty-state empty-state--orders" id="ordersFilterEmpty" hidden>
+              <strong>No matching orders</strong>
+              <span>Try a different search or clear your filters.</span>
+            </p>
           </div>
         </section>
 
@@ -391,6 +408,7 @@
                 <tbody id="usersTableBody"></tbody>
               </table>
             </div>
+            <div class="users-cards" id="usersCards" hidden aria-label="Admin users list"></div>
             <p class="empty-state" id="usersEmpty" hidden>No admin users yet.</p>
           </div>
         </section>
@@ -671,12 +689,13 @@
       <div class="modal-foot order-modal-foot">
         <div class="order-modal-foot__left">
           <label class="order-status-field">
-            <span>Status</span>
+            <span>Update status</span>
             <select class="filter-select" id="orderModalStatus"></select>
           </label>
-          <button type="button" class="btn btn-primary btn-sm" id="orderModalSaveStatus">Update status</button>
+          <button type="button" class="btn btn-primary btn-sm" id="orderModalSaveStatus">Save</button>
         </div>
         <div class="order-modal-foot__right">
+          <button type="button" class="btn btn-ghost btn-sm" id="orderModalCopyId">Copy ID</button>
           <a class="btn btn-ghost btn-sm" id="orderModalEmail" href="#">Email customer</a>
           <button type="button" class="btn btn-ghost" data-close-order-modal>Close</button>
         </div>
@@ -777,6 +796,11 @@
           <label class="field">
             <span>Price (USD)</span>
             <input type="number" id="productPrice" min="0" step="1" required />
+          </label>
+          <label class="field">
+            <span>Sale discount (%)</span>
+            <input type="number" id="productDiscount" min="0" max="90" step="1" value="0" />
+            <small class="field-hint">0 = no sale. 10 puts the product on SALE at 10% off.</small>
           </label>
           <label class="field">
             <span>Stock quantity</span>
@@ -924,6 +948,14 @@
               </select>
             </fieldset>
 
+            <fieldset class="bulk-fieldset">
+              <label class="bulk-enable">
+                <input type="checkbox" id="bulkEnableDiscount" />
+                <span>Sale discount (%)</span>
+              </label>
+              <input type="number" id="bulkDiscountValue" class="search-input bulk-field-full" min="0" max="90" step="1" placeholder="e.g. 10" disabled />
+            </fieldset>
+
             <fieldset class="bulk-fieldset bulk-fieldset--wide">
               <label class="bulk-enable">
                 <input type="checkbox" id="bulkEnableVisibility" />
@@ -947,6 +979,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script type="module" src="/assets/js/pages/admin.js?v=20260825-gallery-main"></script>
+  <script type="module" src="/assets/js/pages/admin.js?v=20260826-sale"></script>
 </body>
 </html>

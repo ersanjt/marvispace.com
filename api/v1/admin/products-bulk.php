@@ -38,6 +38,9 @@ if (array_key_exists('gender', $body)) {
 if (array_key_exists('inStock', $body)) {
     $patch['inStock'] = !empty($body['inStock']);
 }
+if (array_key_exists('discountPercent', $body)) {
+    $patch['discountPercent'] = (int) $body['discountPercent'];
+}
 
 if (!$patch) {
     json_error('Choose at least one change to apply', 400);

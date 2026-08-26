@@ -22,6 +22,9 @@
   RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
   RewriteRule ^index\.html$ / [R=301,L,NC]
 
+  RewriteCond %{THE_REQUEST} \s/+index\.php[\s?] [NC]
+  RewriteRule ^index\.php$ / [R=301,L,NC,QSA]
+
   RewriteCond %{THE_REQUEST} \s/+checkout\.html[\s?] [NC]
   RewriteRule ^checkout\.html$ /checkout [R=301,L,NC]
 
@@ -62,6 +65,11 @@
   RewriteRule ^iade-ve-iptal\.html$ /iade-ve-iptal [R=301,L,NC]
 
   # Clean URL routes (internal rewrite — no redirect)
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
+  RewriteRule ^api/v1/geo/?$ api/v1/geo.php [L,QSA]
+  RewriteRule ^(tr|en)/?$ index.php?hl=$1 [L,QSA]
+  RewriteRule ^(tr|en)/product/([^/]+)/?$ product.php?hl=$1&slug=$2 [L,QSA]
+  RewriteRule ^product/([^/]+)/?$ product.php?slug=$1 [L,QSA]
   RewriteRule ^checkout/?$ checkout.html [L,NC]
   RewriteRule ^admin/?$ admin.html [L,NC]
   RewriteRule ^contact/?$ contact.html [L,NC]
@@ -137,7 +145,7 @@ FileETag None
   Header unset ETag
 </IfModule>
 
-DirectoryIndex index.html
+DirectoryIndex index.php index.html
 
 # ES modules + UTF-8 (keeps comments readable in browser)
 <IfModule mod_mime.c>

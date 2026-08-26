@@ -62,6 +62,7 @@ export function normalizeProduct(product) {
     images: Array.isArray(product.images) ? product.images.filter(Boolean) : [],
     galleryCount: product.galleryCount || 0,
     price: Number(product.price) || 0,
+    discountPercent: Math.max(0, Math.min(90, Math.round(Number(product.discountPercent) || 0))),
     category: product.category || 'jackets',
     gender: product.gender || 'mens',
     inStock: product.inStock !== false,
@@ -70,6 +71,18 @@ export function normalizeProduct(product) {
       ? product.sizes.map(String)
       : [...DEFAULT_SIZES],
   };
+}
+
+export function discountPercent(product) {
+  const n = Math.round(Number(product?.discountPercent) || 0);
+  return Math.max(0, Math.min(90, n));
+}
+
+export function salePrice(product) {
+  const price = Number(product?.price) || 0;
+  const pct = discountPercent(product);
+  if (pct <= 0) return Math.round(price * 100) / 100;
+  return Math.round(price * (1 - pct / 100) * 100) / 100;
 }
 
 function getProductsLocal(seed = []) {
@@ -343,9 +356,9 @@ function applyStockPatch(stock, patch) {
   return Math.max(0, Math.round(next));
 }
 
-export async function bulkUpdateProducts({ ids, price, stock, category, gender, inStock }) {
+export async function bulkUpdateProducts({ ids, price, stock, category, gender, inStock, discountPercent }) {
   if (await requireDatabase()) {
-    return api.adminBulkUpdateProducts({ ids, price, stock, category, gender, inStock });
+    return api.adminBulkUpdateProducts({ ids, price, stock, category, gender, inStock, discountPercent });
   }
 
   const idSet = new Set(ids);
@@ -357,6 +370,7 @@ export async function bulkUpdateProducts({ ids, price, stock, category, gender, 
     if (category !== undefined) next.category = category;
     if (gender !== undefined) next.gender = gender;
     if (inStock !== undefined) next.inStock = Boolean(inStock);
+    if (discountPercent !== undefined) next.discountPercent = discountPercent;
     return normalizeProduct(next);
   });
   saveProductsLocal(products);

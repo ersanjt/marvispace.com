@@ -7,6 +7,7 @@ import { DEVELOPER } from '../config/site.js';
 import { mountSiteFooter } from './site-footer.js';
 import { initCookieConsent } from './cookie-consent.js';
 import { initWhatsAppSupport } from './whatsapp-support.js';
+import { initI18n, applyDomI18n, t } from './i18n.js';
 
 export function createDeveloperCreditElement() {
   const credit = document.createElement('aside');
@@ -60,10 +61,12 @@ function mountPageCredit(root) {
   return true;
 }
 
-export function mountDeveloperCredit(root = document) {
+export async function mountDeveloperCredit(root = document) {
+  await initI18n();
+  applyDomI18n(root);
   mountSiteFooter(root);
   initCookieConsent();
-  initWhatsAppSupport();
+  initWhatsAppSupport({ message: t('whatsappHello') });
 
   if (root.querySelector('[data-developer-credit]')) return;
 
@@ -73,5 +76,5 @@ export function mountDeveloperCredit(root = document) {
 }
 
 if (document.currentScript?.type === 'module') {
-  mountDeveloperCredit();
+  void mountDeveloperCredit();
 }

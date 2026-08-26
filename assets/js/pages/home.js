@@ -1,7 +1,9 @@
-import { loadCart, loadProducts, resetApiHealthCache, saveCart } from '../core/storage.js';
+import { loadCart, loadProducts, resetApiHealthCache, saveCart, discountPercent, salePrice } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { SITE } from '../config/site.js';
+import { buildSlugMap, productPath, productUrl } from '../core/product-seo.js';
+import { initI18n, applyDomI18n, t, homePath } from '../core/i18n.js';
 import {
   appendOptimizedPicture,
   prefetchGalleryImages,
@@ -75,6 +77,7 @@ const CODE_PREFIX = {
 };
 
 let productCodes = {};
+let slugMap = {};
 
 /* ════════════════════════════════════
    State
@@ -182,6 +185,27 @@ function mkPictureFromUrl(imageUrl, item, eager = true) {
 function fmt(p) { return `$${p}`; }
 function fmtMoney(p) { return `$${p.toFixed(2)}`; }
 
+function setPriceText(el, item) {
+  if (!el) return;
+  const pct = discountPercent(item);
+  const now = salePrice(item);
+  if (pct > 0) {
+    el.replaceChildren();
+    const was = document.createElement('s');
+    was.className = 'p-price-was';
+    was.textContent = fmt(item.price);
+    const current = document.createElement('span');
+    current.className = 'p-price-now';
+    current.textContent = fmt(now);
+    const off = document.createElement('span');
+    off.className = 'p-price-off';
+    off.textContent = `-${pct}%`;
+    el.append(was, ' ', current, ' ', off);
+    return;
+  }
+  el.textContent = fmt(item.price);
+}
+
 function cartCount() {
   return cartItems.reduce((s, ci) => s + ci.qty, 0);
 }
@@ -288,7 +312,7 @@ function syncGridMode() {
   menuBtn.dataset.grid = gridMode;
   menuBtn.setAttribute(
     'aria-label',
-    gridMode === 'sparse' ? 'Show more products per row' : 'Show fewer products per row'
+    gridMode === 'sparse' ? t('morePerRow') : t('fewerPerRow')
   );
 }
 
@@ -330,7 +354,7 @@ function filtered(key) {
   else if (key === 'womens') list = products.filter(p => p.gender === 'womens');
   else if (key === 'footwear') list = products.filter(p => ['jackets', 'coats'].includes(p.category));
   else if (key === 'accessories') list = products.filter(p => p.category === 'accessories');
-  else if (key === 'sale') list = products.filter(p => ['shirts', 'bottoms'].includes(p.category));
+  else if (key === 'sale') list = products.filter(p => discountPercent(p) > 0);
   return list.filter(p => p.inStock !== false);
 }
 
@@ -339,7 +363,7 @@ function applyFilter(key) {
   filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === key));
   visible = filtered(key);
   renderGrid(visible);
-  injectProductSchema(visible);
+  if (!window.__MARVISPACE_OPEN_PRODUCT__) injectProductSchema(visible);
   updateCols();
 }
 
@@ -350,7 +374,7 @@ function absoluteUrl(path) {
 }
 
 function productShareUrl(product) {
-  return `${SITE.url}/?product=${encodeURIComponent(product.id)}`;
+  return productUrl(product, slugMap, SITE.url);
 }
 
 function injectProductSchema(items) {
@@ -379,7 +403,7 @@ function injectProductSchema(items) {
           '@type': 'Offer',
           url: productShareUrl(p),
           priceCurrency: 'USD',
-          price: String(p.price),
+          price: String(salePrice(p)),
           availability: p.inStock === false
             ? 'https://schema.org/OutOfStock'
             : 'https://schema.org/InStock',
@@ -410,11 +434,15 @@ function renderGrid(items) {
   grid.innerHTML = '';
   gridBtns = [];
   items.forEach((item, i) => {
-    const btn = document.createElement('button');
+    const btn = document.createElement('a');
     btn.className = 'product-btn';
-    btn.type = 'button';
-    btn.setAttribute('aria-label', `${item.label} — $${item.price}`);
-    btn.title = `${item.label} — $${item.price}`;
+    btn.href = productPath(item, slugMap);
+    const now = salePrice(item);
+    const pct = discountPercent(item);
+    btn.setAttribute('aria-label', pct > 0
+      ? `${item.label} — $${now} (-${pct}%)`
+      : `${item.label} — $${item.price}`);
+    btn.title = pct > 0 ? `${item.label} — -${pct}%` : `${item.label} — $${item.price}`;
     btn.dataset.id = item.id;
     btn.dataset.i = String(i);
 
@@ -427,13 +455,20 @@ function renderGrid(items) {
     const lbl = document.createElement('span');
     lbl.className = 'prod-label';
     lbl.textContent = productDisplayName(item);
-    const price = document.createElement('span');
-    price.className = 'prod-price';
-    price.textContent = fmt(item.price);
-    meta.append(lbl, price);
+    meta.append(lbl);
+    if (pct > 0) {
+      const sale = document.createElement('span');
+      sale.className = 'prod-sale';
+      sale.textContent = `-${pct}%`;
+      meta.append(sale);
+    }
 
     btn.append(wrap, meta);
-    btn.addEventListener('click', () => openPreview(i));
+    btn.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      openPreview(i);
+    });
     btn.addEventListener('mouseenter', () => prefetchGalleryImages(getGallery(item), 0), { passive: true });
     btn.addEventListener('focusin', () => prefetchGalleryImages(getGallery(item), 0));
     grid.append(btn);
@@ -463,7 +498,7 @@ function renderSizes() {
     chip.type = 'button';
     const oos = item?.inStock === false || (item?.stock !== undefined && item.stock <= 0);
     if (oos) { chip.classList.add('out-of-stock'); chip.disabled = true; }
-    chip.setAttribute('aria-label', `Size US ${sz.us}`);
+    chip.setAttribute('aria-label', `${t('sizeUs')} ${sz.us}`);
 
     const col = chipIndex % 7;
     const row = Math.floor(chipIndex / 7);
@@ -529,8 +564,11 @@ function confirmSizeAdd() {
   if (!item) return;
   szNameStack.dataset.alt = 'true';
   const existing = cartItems.find(ci => ci.id === item.id && ci.size === selectedSize);
-  if (existing) existing.qty += 1;
-  else cartItems.push({ id: item.id, label: item.label, price: item.price, size: selectedSize, image: item.image, qty: 1 });
+  if (existing) {
+    existing.qty += 1;
+    existing.price = salePrice(item);
+  }
+  else cartItems.push({ id: item.id, label: item.label, price: salePrice(item), size: selectedSize, image: item.image, qty: 1 });
   renderCart();
   persistCart();
   setTimeout(() => {
@@ -636,7 +674,7 @@ function buildDots(n, active) {
     const d = document.createElement('button');
     d.type = 'button';
     d.setAttribute('role','tab');
-    d.setAttribute('aria-label', `Image ${i+1}`);
+    d.setAttribute('aria-label', `${t('imageN')} ${i+1}`);
     d.classList.toggle('active', i === active);
     d.addEventListener('click', () => setGalleryImage(i));
     previewDots.append(d);
@@ -715,14 +753,14 @@ function loadPreviewContent(idx, { keepSizes = false } = {}) {
   const gallery = getGallery(item);
 
   pNameEl.textContent = productDisplayName(item);
-  pPriceEl.textContent = fmt(item.price);
-  szNameTxt.textContent = 'SELECT SIZE';
-  szPriceTxt.textContent = fmt(item.price);
+  setPriceText(pPriceEl, item);
+  szNameTxt.textContent = t('selectSize');
+  setPriceText(szPriceTxt, item);
   szNameStack.dataset.alt = 'false';
   szPriceStack.dataset.alt = 'false';
   descVisible = false;
   euMode = false;
-  pDesc.textContent = `${item.label}\n100% PREMIUM MATERIALS\nSHIPS 3-5 BUSINESS DAYS`;
+  pDesc.textContent = `${item.label}\n${t('materials')}\n${t('ships')}`;
   pDesc.classList.remove('show');
   if (!keepSizes) closeSizes();
   renderSizes();
@@ -734,8 +772,8 @@ function loadPreviewContent(idx, { keepSizes = false } = {}) {
 
 function setPreviewNav(open) {
   menuBtn.dataset.preview = open ? 'true' : 'false';
-  menuBtn.setAttribute('aria-label', open ? 'Back' : (
-    gridMode === 'sparse' ? 'Show more products per row' : 'Show fewer products per row'
+  menuBtn.setAttribute('aria-label', open ? t('back') : (
+    gridMode === 'sparse' ? t('morePerRow') : t('fewerPerRow')
   ));
 }
 
@@ -771,10 +809,11 @@ function openPreview(idx) {
 
 function syncProductDeepLink(product) {
   try {
-    const url = new URL(window.location.href);
-    if (product?.id) url.searchParams.set('product', product.id);
-    else url.searchParams.delete('product');
-    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    const next = product?.id ? productPath(product, slugMap) : homePath();
+    const current = window.location.pathname.replace(/\/index\.(html|php)$/i, '/') || '/';
+    if (current !== next) {
+      window.history.replaceState({}, '', next);
+    }
   } catch {
     /* ignore */
   }
@@ -989,6 +1028,11 @@ if (document.fonts?.ready) {
 }
 
 (async () => {
+  await initI18n();
+  applyDomI18n(document);
+  syncGridMode();
+  await mountDeveloperCredit();
+
   async function fetchSeedProducts() {
     try {
       const res = await fetch('/install/products.json', { cache: 'no-store' });
@@ -1003,15 +1047,29 @@ if (document.fonts?.ready) {
   async function bootStore() {
     products = await loadProducts(await fetchSeedProducts());
     productCodes = buildProductCodes(products);
+    slugMap = buildSlugMap(products);
     cartItems = await loadCart();
     renderCart();
     applyFilter('new');
-    openProductFromQuery();
+    openProductFromDeepLink();
   }
 
-  function openProductFromQuery() {
+  function deepLinkProductId() {
+    const boot = window.__MARVISPACE_OPEN_PRODUCT__;
+    if (boot?.id) return String(boot.id);
+    const queryId = new URLSearchParams(window.location.search).get('product');
+    if (queryId) return queryId;
+    const pathMatch = window.location.pathname.match(/^\/(?:tr|en)\/product\/([^/]+)\/?$/)
+      || window.location.pathname.match(/^\/product\/([^/]+)\/?$/);
+    if (!pathMatch) return '';
+    const slug = decodeURIComponent(pathMatch[1]);
+    const bySlug = products.find(p => slugMap[p.id] === slug);
+    return bySlug?.id || slug;
+  }
+
+  function openProductFromDeepLink() {
     try {
-      const id = new URLSearchParams(window.location.search).get('product');
+      const id = deepLinkProductId();
       if (!id) return;
       const found = products.find(p => p.id === id && p.inStock !== false);
       if (!found) return;
@@ -1020,7 +1078,7 @@ if (document.fonts?.ready) {
       if (idx < 0) {
         visible = products.filter(p => p.inStock !== false);
         renderGrid(visible);
-        injectProductSchema(visible);
+        if (!window.__MARVISPACE_OPEN_PRODUCT__) injectProductSchema(visible);
         updateCols();
         idx = visible.findIndex(p => p.id === id);
       }
@@ -1038,9 +1096,7 @@ if (document.fonts?.ready) {
       await bootStore();
     } catch (retryErr) {
       console.error(retryErr);
-      grid.innerHTML = '<p class="empty-state">Store is temporarily unavailable.</p>';
+      grid.innerHTML = `<p class="empty-state">${t('storeUnavailable')}</p>`;
     }
   }
 })();
-
-mountDeveloperCredit();

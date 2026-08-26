@@ -5,6 +5,7 @@
 
 import { subscribeNewsletter } from './api-client.js';
 import { SITE, SOCIAL } from '../config/site.js';
+import { t, getLang, switchLang } from './i18n.js';
 
 const NEWSLETTER_DISMISS_KEY = 'marvispace_newsletter_dismissed';
 
@@ -29,7 +30,7 @@ function socialNavHtml() {
   if (!links.length) return '';
   return `
     <details class="footer-col">
-      <summary class="footer-col__title">Social</summary>
+      <summary class="footer-col__title">${t('social')}</summary>
       <ul class="footer-nav">
         ${links.join('')}
       </ul>
@@ -37,37 +38,58 @@ function socialNavHtml() {
   `;
 }
 
-const FOOTER_INNER_HTML = `
-  <div class="footer-inner">
-    <div class="footer-brand-block">
-      <a class="footer-brand" href="/" aria-label="${SITE.name} home">
-        <img src="${SITE.brand.mark}" width="36" height="36" alt="" decoding="async" />
-        <span>${SITE.name}</span>
-      </a>
-      <p class="footer-tagline">${SITE.tagline}</p>
-      <a class="footer-cta" href="/contact">Contact support</a>
-    </div>
-
-    <div class="footer-columns">
+function legalNavHtml() {
+  const lang = getLang();
+  if (lang === 'tr') {
+    return `
       <details class="footer-col">
-        <summary class="footer-col__title">Yasal</summary>
+        <summary class="footer-col__title">${t('legal')}</summary>
         <ul class="footer-nav">
           <li><a href="/kvkk" class="nav-item">KVKK</a></li>
           <li><a href="/mesafeli-satis-sozlesmesi" class="nav-item">Mesafeli Satış</a></li>
           <li><a href="/on-bilgilendirme" class="nav-item">Ön Bilgilendirme</a></li>
-          <li><a href="/iade-ve-iptal" class="nav-item">İade &amp; Cayma</a></li>
+          <li><a href="/iade-ve-iptal" class="nav-item">${t('returns')}</a></li>
         </ul>
       </details>
+    `;
+  }
+  return `
+    <details class="footer-col">
+      <summary class="footer-col__title">${t('legal')}</summary>
+      <ul class="footer-nav">
+        <li><a href="/terms" class="nav-item">${t('terms')}</a></li>
+        <li><a href="/privacy" class="nav-item">${t('privacy')}</a></li>
+        <li><a href="/iade-ve-iptal" class="nav-item">${t('returns')}</a></li>
+        <li><a href="/kvkk" class="nav-item">KVKK</a></li>
+      </ul>
+    </details>
+  `;
+}
+
+function footerInnerHtml() {
+  const lang = getLang();
+  return `
+  <div class="footer-inner">
+    <div class="footer-brand-block">
+      <a class="footer-brand" href="/${lang}/" aria-label="${SITE.name} ${t('homeAria')}">
+        <img src="${SITE.brand.mark}" width="36" height="36" alt="" decoding="async" />
+        <span>${SITE.name}</span>
+      </a>
+      <p class="footer-tagline">${t('tagline')}</p>
+      <a class="footer-cta" href="/contact">${t('contactSupport')}</a>
+    </div>
+
+    <div class="footer-columns">
+      ${legalNavHtml()}
 
       <details class="footer-col">
-        <summary class="footer-col__title">Help</summary>
+        <summary class="footer-col__title">${t('help')}</summary>
         <ul class="footer-nav">
-          <li><a href="/contact" class="nav-item">Contact</a></li>
-          <li><a href="/order-status" class="nav-item">Order Status</a></li>
-          <li><a href="/terms" class="nav-item">Terms</a></li>
-          <li><a href="/privacy" class="nav-item">Privacy</a></li>
-          <li><a href="/accessibility" class="nav-item">Accessibility</a></li>
-          <li><button type="button" class="nav-item" data-cookies-btn>Cookies</button></li>
+          <li><a href="/contact" class="nav-item">${t('contact')}</a></li>
+          <li><a href="/order-status" class="nav-item">${t('orderStatus')}</a></li>
+          <li><a href="/privacy" class="nav-item">${t('privacy')}</a></li>
+          <li><a href="/accessibility" class="nav-item">${t('accessibility')}</a></li>
+          <li><button type="button" class="nav-item" data-cookies-btn>${t('cookies')}</button></li>
         </ul>
       </details>
 
@@ -75,48 +97,63 @@ const FOOTER_INNER_HTML = `
     </div>
 
     <div class="footer-meta">
-      <p class="footer-trust">14-day returns · Secure 3D payment · <a href="mailto:${SITE.supportEmail}">${SITE.supportEmail}</a></p>
-      <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">ETBİS Kayıt</a> · <a href="/iade-ve-iptal">İade &amp; Cayma</a></p>
+      <p class="footer-trust">${t('trust')} · <a href="mailto:${SITE.supportEmail}">${SITE.supportEmail}</a></p>
+      <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">${t('etbis')}</a> · <a href="/iade-ve-iptal">${t('returns')}</a></p>
+      <p class="footer-lang" aria-label="Language">
+        <button type="button" class="footer-lang__btn${lang === 'tr' ? ' is-active' : ''}" data-lang-switch="tr">${t('langTr')}</button>
+        <span aria-hidden="true">/</span>
+        <button type="button" class="footer-lang__btn${lang === 'en' ? ' is-active' : ''}" data-lang-switch="en">${t('langEn')}</button>
+      </p>
     </div>
   </div>
 `;
+}
 
-const NEWSLETTER_HTML = `
-  <div class="newsletter-card" role="dialog" aria-label="Receive website updates">
-    <button type="button" class="newsletter-close" data-newsletter-close aria-label="Close">
+function newsletterHtml() {
+  return `
+  <div class="newsletter-card" role="dialog" aria-label="${t('newsletterAria')}">
+    <button type="button" class="newsletter-close" data-newsletter-close aria-label="${t('newsletterClose')}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <line x1="6" y1="6" x2="18" y2="18"/>
         <line x1="18" y1="6" x2="6" y2="18"/>
       </svg>
     </button>
-    <h2 class="newsletter-title">Receive website updates</h2>
+    <h2 class="newsletter-title">${t('newsletterTitle')}</h2>
     <form class="newsletter-form" data-newsletter-form novalidate>
       <input
         type="email"
         name="email"
         class="newsletter-input"
-        placeholder="Email Address"
+        placeholder="${t('newsletterPlaceholder')}"
         autocomplete="email"
-        aria-label="Email address"
+        aria-label="${t('newsletterEmail')}"
         required
       />
       <p class="newsletter-consent">
-        I consent to receive MARVISPACE email marketing. Consent is not required for purchase.
-        Read our <a href="/privacy">privacy policy</a> to learn about your rights and our use of your personal information.
+        ${t('newsletterConsent')}
+        <a href="${getLang() === 'tr' ? '/kvkk' : '/privacy'}">${t('newsletterPrivacy')}</a>
       </p>
-      <button type="submit" class="newsletter-btn">Subscribe</button>
+      <button type="submit" class="newsletter-btn">${t('subscribe')}</button>
       <p class="newsletter-msg" data-newsletter-msg hidden></p>
     </form>
   </div>
 `;
+}
 
 function bindCookiesButton(footer) {
   footer.querySelector('[data-cookies-btn]')?.addEventListener('click', () => {
-    window.location.href = '/kvkk#cookies';
+    window.location.href = getLang() === 'tr' ? '/kvkk#cookies' : '/privacy#cookies';
   });
 }
 
-/** Mobile: accordion closed by default; desktop: always open */
+function bindLangSwitch(footer) {
+  footer.querySelectorAll('[data-lang-switch]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchLang(btn.getAttribute('data-lang-switch'));
+    });
+  });
+}
+
 function syncFooterAccordions(footer) {
   const cols = [...footer.querySelectorAll('details.footer-col')];
   if (!cols.length) return;
@@ -165,7 +202,7 @@ export function mountNewsletterPopup() {
 
   const popup = document.createElement('aside');
   popup.className = 'newsletter-popup';
-  popup.innerHTML = NEWSLETTER_HTML;
+  popup.innerHTML = newsletterHtml();
   document.body.append(popup);
 
   requestAnimationFrame(() => popup.classList.add('is-visible'));
@@ -190,7 +227,7 @@ export function mountNewsletterPopup() {
     e.preventDefault();
     const email = (input?.value || '').trim();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showMessage('Please enter a valid email address.', false);
+      showMessage(t('newsletterInvalid'), false);
       input?.focus();
       return;
     }
@@ -199,10 +236,10 @@ export function mountNewsletterPopup() {
     try {
       await subscribeNewsletter(email);
       form.reset();
-      showMessage('Thanks — you are subscribed.', true);
+      showMessage(t('newsletterThanks'), true);
       setTimeout(() => dismissNewsletter(popup), 1600);
     } catch (err) {
-      showMessage(err.message || 'Could not subscribe. Please try again.', false);
+      showMessage(err.message || t('newsletterError'), false);
     } finally {
       if (button) button.disabled = false;
     }
@@ -211,11 +248,10 @@ export function mountNewsletterPopup() {
 
 export function mountSiteFooter(root = document) {
   root.querySelectorAll('[data-site-footer], .site-footer').forEach(footer => {
-    if (!footer.querySelector('.footer-inner')) {
-      footer.classList.add('site-footer');
-      footer.innerHTML = FOOTER_INNER_HTML;
-    }
+    footer.classList.add('site-footer');
+    footer.innerHTML = footerInnerHtml();
     bindCookiesButton(footer);
+    bindLangSwitch(footer);
     syncFooterAccordions(footer);
   });
 

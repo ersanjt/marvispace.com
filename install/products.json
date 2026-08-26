@@ -1918,7 +1918,7 @@
     ],
     "galleryCount": 8,
     "price": 120.0,
-    "category": "accessories",
+    "category": "jackets",
     "gender": "womens",
     "inStock": true,
     "stock": 12
@@ -2123,7 +2123,7 @@
     "galleryCount": 6,
     "price": 313,
     "category": "shirts",
-    "gender": "womens",
+    "gender": "mens",
     "inStock": true,
     "stock": 12
   },
@@ -2313,7 +2313,7 @@
     "galleryCount": 6,
     "price": 517,
     "category": "jackets",
-    "gender": "mens",
+    "gender": "womens",
     "inStock": true,
     "stock": 12
   },

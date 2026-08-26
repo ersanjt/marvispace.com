@@ -1,6 +1,8 @@
 /**
  * KVKK cookie consent — analytics loads only after acceptance.
  */
+import { t, getLang } from './i18n.js';
+
 const CONSENT_KEY = 'marvispace_cookie_consent_v1';
 
 function getConsentValue() {
@@ -44,17 +46,19 @@ function renderBanner() {
   const banner = document.createElement('aside');
   banner.className = 'cookie-consent';
   banner.setAttribute('role', 'dialog');
-  banner.setAttribute('aria-label', 'Çerez bildirimi');
+  banner.setAttribute('aria-label', t('cookieAria'));
+  const privacyHref = getLang() === 'tr' ? '/kvkk' : '/privacy';
   banner.innerHTML = `
     <div class="cookie-consent__inner">
       <p class="cookie-consent__text">
-        Bu site, hizmet kalitesi ve trafik analizi için çerezler kullanır.
-        Detaylar için <a href="/kvkk">KVKK Aydınlatma Metni</a> ve
-        <a href="/privacy#cookies">Çerez Politikası</a>.
+        ${t('cookieText')}
+        <a href="${privacyHref}">${t('cookiePrivacy')}</a>
+        ·
+        <a href="${privacyHref}#cookies">${t('cookiePolicy')}</a>.
       </p>
       <div class="cookie-consent__actions">
-        <button type="button" class="cookie-consent__btn cookie-consent__btn--accept" data-cookie-accept>Kabul Et</button>
-        <button type="button" class="cookie-consent__btn cookie-consent__btn--reject" data-cookie-reject>Sadece Zorunlu</button>
+        <button type="button" class="cookie-consent__btn cookie-consent__btn--accept" data-cookie-accept>${t('cookieAccept')}</button>
+        <button type="button" class="cookie-consent__btn cookie-consent__btn--reject" data-cookie-reject>${t('cookieReject')}</button>
       </div>
     </div>
   `;

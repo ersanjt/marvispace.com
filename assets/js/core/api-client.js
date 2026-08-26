@@ -126,13 +126,14 @@ export async function adminDeleteProduct(id) {
   return request(`/admin/products.php?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
 }
 
-export async function adminBulkUpdateProducts({ ids, price, stock, category, gender, inStock }) {
+export async function adminBulkUpdateProducts({ ids, price, stock, category, gender, inStock, discountPercent }) {
   const body = { ids };
   if (price) body.price = price;
   if (stock) body.stock = stock;
   if (category !== undefined) body.category = category;
   if (gender !== undefined) body.gender = gender;
   if (inStock !== undefined) body.inStock = inStock;
+  if (discountPercent !== undefined) body.discountPercent = discountPercent;
   return request('/admin/products/bulk', { method: 'POST', body });
 }
 

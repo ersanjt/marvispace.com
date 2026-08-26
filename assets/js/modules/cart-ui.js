@@ -4,6 +4,7 @@
  * @author Ersan JT <https://github.com/ersanjt>
  */
 import { cartImageUrl, bindImageReveal, CART_SIZES, CART_WIDTHS, buildSrcset } from '../core/image-url.js';
+import { t } from '../core/i18n.js';
 
 export { cartImageUrl } from '../core/image-url.js';
 
@@ -85,22 +86,22 @@ export function buildCartLineItem(item, index, onChangeQty, { checkout = false }
   const qtyControls = document.createElement('div');
   qtyControls.className = 'cart-qty-controls';
 
-  const plus = qtyBtn('+', `Increase quantity of ${item.label}`);
+  const plus = qtyBtn('+', `${t('qty')} + ${item.label}`);
   plus.addEventListener('click', () => onChangeQty(index, 1));
 
   const qtyVal = document.createElement('span');
   qtyVal.className = 'cart-qty-val';
   qtyVal.textContent = String(item.qty);
 
-  const minus = qtyBtn('−', `Decrease quantity of ${item.label}`);
+  const minus = qtyBtn('−', `${t('qty')} − ${item.label}`);
   minus.addEventListener('click', () => onChangeQty(index, -1));
 
   qtyControls.append(plus, qtyVal, minus);
 
   body.append(
     nameRow,
-    lineRow(checkout ? 'Size' : 'Size', sizeVal),
-    lineRow(checkout ? 'Qty' : 'Qty', qtyControls),
+    lineRow(t('size'), sizeVal),
+    lineRow(t('qty'), qtyControls),
   );
 
   inner.append(thumb, body);
@@ -108,14 +109,14 @@ export function buildCartLineItem(item, index, onChangeQty, { checkout = false }
   return line;
 }
 
-export function renderTotalsBlock(container, { subtotal, taxes = 0, shippingLabel = 'CALCULATED AT NEXT STEP' }) {
+export function renderTotalsBlock(container, { subtotal, taxes = 0, shippingLabel = t('shippingNext') }) {
   const total = subtotal + taxes;
   container.innerHTML = `
     <div class="cart-totals-block">
-      <div class="cart-totals-row"><span>Subtotal</span><span>${fmtMoney(subtotal)}</span></div>
-      <div class="cart-totals-row"><span>Shipping</span><span class="cart-totals-muted">${shippingLabel}</span></div>
-      <div class="cart-totals-row"><span>Taxes</span><span>${fmtMoney(taxes)}</span></div>
+      <div class="cart-totals-row"><span>${t('subtotal')}</span><span>${fmtMoney(subtotal)}</span></div>
+      <div class="cart-totals-row"><span>${t('shipping')}</span><span class="cart-totals-muted">${shippingLabel}</span></div>
+      <div class="cart-totals-row"><span>${t('taxes')}</span><span>${fmtMoney(taxes)}</span></div>
     </div>
-    <div class="cart-totals-grand"><span>Total</span><span>${fmtMoney(total)}</span></div>
+    <div class="cart-totals-grand"><span>${t('total')}</span><span>${fmtMoney(total)}</span></div>
   `;
 }

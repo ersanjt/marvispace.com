@@ -5,6 +5,8 @@ import {
   loadOrders,
   loadProducts,
   normalizeProduct,
+  discountPercent,
+  salePrice,
   removeProduct,
   saveProduct,
   bulkUpdateProducts,
@@ -31,6 +33,7 @@ import { createImageUploadUI } from '../modules/admin-upload.js';
 const loginScreen = document.getElementById('loginScreen');
 const adminApp = document.getElementById('adminApp');
 const logoutBtn = document.getElementById('logoutBtn');
+const topbarLogoutBtn = document.getElementById('topbarLogoutBtn');
 const navItems = [...document.querySelectorAll('.nav-item')];
 const viewPanels = [...document.querySelectorAll('.view-panel')];
 const pageTitle = document.getElementById('pageTitle');
@@ -39,6 +42,8 @@ const topNewProductBtn = document.getElementById('topNewProductBtn');
 const topNewUserBtn = document.getElementById('topNewUserBtn');
 
 const productsTableBody = document.getElementById('productsTableBody');
+const productsTableWrap = document.getElementById('productsTableWrap');
+const productsCards = document.getElementById('productsCards');
 const productsEmpty = document.getElementById('productsEmpty');
 const productsCount = document.getElementById('productsCount');
 const productSearch = document.getElementById('productSearch');
@@ -65,10 +70,13 @@ const bulkEnableCategory = document.getElementById('bulkEnableCategory');
 const bulkCategory = document.getElementById('bulkCategory');
 const bulkEnableGender = document.getElementById('bulkEnableGender');
 const bulkGender = document.getElementById('bulkGender');
-const bulkEnableVisibility = document.getElementById('bulkEnableVisibility');
-const bulkVisibility = document.getElementById('bulkVisibility');
+const bulkEnableDiscount = document.getElementById('bulkEnableDiscount');
+const bulkDiscountValue = document.getElementById('bulkDiscountValue');
 
 const ordersTableBody = document.getElementById('ordersTableBody');
+const ordersTableWrap = document.getElementById('ordersTableWrap');
+const ordersCards = document.getElementById('ordersCards');
+const ordersQuickFilters = document.getElementById('ordersQuickFilters');
 const ordersCount = document.getElementById('ordersCount');
 const ordersEmpty = document.getElementById('ordersEmpty');
 const ordersFilterEmpty = document.getElementById('ordersFilterEmpty');
@@ -77,16 +85,19 @@ const orderSearch = document.getElementById('orderSearch');
 const orderStatusFilter = document.getElementById('orderStatusFilter');
 const orderPaymentFilter = document.getElementById('orderPaymentFilter');
 const orderSort = document.getElementById('orderSort');
+const clearOrderFiltersBtn = document.getElementById('clearOrderFiltersBtn');
 const exportOrdersBtn = document.getElementById('exportOrdersBtn');
 const orderModalStatus = document.getElementById('orderModalStatus');
 const orderModalSaveStatus = document.getElementById('orderModalSaveStatus');
 const orderModalEmail = document.getElementById('orderModalEmail');
+const orderModalCopyId = document.getElementById('orderModalCopyId');
 
 const navProductCount = document.getElementById('navProductCount');
 const navOrderCount = document.getElementById('navOrderCount');
 const navUserCount = document.getElementById('navUserCount');
 
 const usersTableBody = document.getElementById('usersTableBody');
+const usersCards = document.getElementById('usersCards');
 const usersCount = document.getElementById('usersCount');
 const usersEmpty = document.getElementById('usersEmpty');
 const usersApiNotice = document.getElementById('usersApiNotice');
@@ -143,6 +154,7 @@ const fields = {
   id: document.getElementById('productId'),
   label: document.getElementById('productLabel'),
   price: document.getElementById('productPrice'),
+  discount: document.getElementById('productDiscount'),
   stock: document.getElementById('productStock'),
   category: document.getElementById('productCategory'),
   gender: document.getElementById('productGender'),
@@ -194,6 +206,16 @@ let activeSettingsTab = 'brand';
 let activeTab = 'dashboard';
 let toastTimer;
 let activeOrderId = null;
+let orderQuickFilter = 'all';
+
+const ORDER_QUICK_FILTERS = [
+  { id: 'all', label: 'All' },
+  { id: 'action', label: 'Needs action' },
+  { id: 'progress', label: 'In progress' },
+  { id: 'paid', label: 'Paid' },
+  { id: 'unpaid', label: 'Unpaid' },
+  { id: 'completed', label: 'Completed' },
+];
 
 const ORDER_STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending' },
@@ -206,6 +228,12 @@ const ORDER_STATUS_OPTIONS = [
 
 function money(value) {
   return `$${Number(value).toFixed(2)}`;
+}
+
+function priceCell(product) {
+  const pct = discountPercent(product);
+  if (pct <= 0) return money(product.price);
+  return `${money(salePrice(product))} <span class="muted">-${pct}%</span>`;
 }
 
 function fmtDate(iso) {
@@ -223,9 +251,233 @@ function fmtDateShort(iso) {
   }
 }
 
+function fmtRelativeTime(iso) {
+  if (!iso) return '';
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return '';
+  } catch {
+    return '';
+  }
+}
+
 function shortOrderId(id) {
   if (!id) return '—';
   return id.length > 12 ? `${id.slice(0, 12)}…` : id;
+}
+
+function orderNeedsAttention(order) {
+  const status = order.status || 'pending';
+  const pay = (order.paymentStatus || 'unpaid').toLowerCase();
+  return status === 'pending'
+    || status === 'awaiting_payment'
+    || pay === 'failed'
+    || pay === 'unpaid';
+}
+
+function orderMatchesQuickFilter(order) {
+  if (orderQuickFilter === 'all') return true;
+  const status = order.status || 'pending';
+  const pay = (order.paymentStatus || 'unpaid').toLowerCase();
+  if (orderQuickFilter === 'action') {
+    return status === 'pending' || status === 'awaiting_payment' || pay === 'failed';
+  }
+  if (orderQuickFilter === 'progress') {
+    return status === 'processing' || status === 'shipped';
+  }
+  if (orderQuickFilter === 'paid') return pay === 'paid';
+  if (orderQuickFilter === 'unpaid') return pay === 'unpaid' || pay === 'failed' || pay === 'pending';
+  if (orderQuickFilter === 'completed') return status === 'completed';
+  return true;
+}
+
+function ordersFiltersActive() {
+  return Boolean(
+    (orderSearch?.value || '').trim()
+    || (orderStatusFilter?.value || 'all') !== 'all'
+    || (orderPaymentFilter?.value || 'all') !== 'all'
+    || orderQuickFilter !== 'all',
+  );
+}
+
+function clearOrderFilters() {
+  orderQuickFilter = 'all';
+  if (orderSearch) orderSearch.value = '';
+  if (orderStatusFilter) orderStatusFilter.value = 'all';
+  if (orderPaymentFilter) orderPaymentFilter.value = 'all';
+  if (orderSort) orderSort.value = 'newest';
+  renderOrders();
+}
+
+function renderOrderQuickFilters() {
+  if (!ordersQuickFilters) return;
+  ordersQuickFilters.innerHTML = ORDER_QUICK_FILTERS.map(f => `
+    <button
+      type="button"
+      class="orders-chip${orderQuickFilter === f.id ? ' is-active' : ''}"
+      data-order-quick="${f.id}"
+    >${f.label}</button>
+  `).join('');
+}
+
+function orderRowHtml(order) {
+  const customer = order.customer || {};
+  const pay = paymentStatusLabel(order.paymentStatus);
+  const st = orderStatusLabel(order.status);
+  const itemCount = orderItemCount(order);
+  const relative = fmtRelativeTime(order.createdAt);
+
+  return `
+    <td>
+      <div class="order-stack">
+        <button type="button" class="order-id-btn" data-copy-order-id="${esc(order.id)}" title="Copy order ID">
+          <code dir="ltr">${esc(shortOrderId(order.id))}</code>
+        </button>
+        <span class="order-date">${fmtDateShort(order.createdAt)}${relative ? ` · ${relative}` : ''}</span>
+      </div>
+    </td>
+    <td>
+      <div class="order-stack">
+        <span class="order-customer-name">${esc(customerName(customer))}</span>
+        <span class="muted order-email" dir="ltr">${esc(customer.email || '—')}</span>
+      </div>
+    </td>
+    <td>
+      <div class="order-items-compact">
+        <span class="order-items-count">${itemCount} item${itemCount === 1 ? '' : 's'}</span>
+        <span class="order-items-preview">${esc(orderItemsPreview(order))}</span>
+      </div>
+    </td>
+    <td dir="ltr"><strong class="order-total">${money(order.total)}</strong></td>
+    <td><span class="status-pill ${pay.cls}">${pay.label}</span></td>
+    <td>
+      <div class="order-status-cell">
+        <span class="status-pill ${st.cls}">${st.label}</span>
+        <select class="filter-select order-status-select" data-order-status data-order-id="${esc(order.id)}" aria-label="Change order status">
+          ${orderStatusOptionsHtml(order.status || 'pending')}
+        </select>
+      </div>
+    </td>
+    <td>
+      <div class="row-actions">
+        <button type="button" class="btn btn-ghost" data-order-view data-order-id="${esc(order.id)}">View</button>
+        ${customer.email ? `<a class="btn btn-ghost" href="mailto:${esc(customer.email)}?subject=${encodeURIComponent(`Order ${order.id}`)}">Email</a>` : ''}
+      </div>
+    </td>
+  `;
+}
+
+function orderCardHtml(order) {
+  const customer = order.customer || {};
+  const pay = paymentStatusLabel(order.paymentStatus);
+  const st = orderStatusLabel(order.status);
+  const itemCount = orderItemCount(order);
+  const relative = fmtRelativeTime(order.createdAt);
+
+  return `
+    <article class="order-card${orderNeedsAttention(order) ? ' order-card--attention' : ''}" data-order-id="${esc(order.id)}">
+      <div class="order-card__head">
+        <button type="button" class="order-id-btn" data-copy-order-id="${esc(order.id)}" title="Copy order ID">
+          <code dir="ltr">${esc(shortOrderId(order.id))}</code>
+        </button>
+        <strong class="order-card__total" dir="ltr">${money(order.total)}</strong>
+      </div>
+      <div class="order-card__meta">
+        <span class="order-customer-name">${esc(customerName(customer))}</span>
+        <span class="muted order-email" dir="ltr">${esc(customer.email || '—')}</span>
+      </div>
+      <p class="order-card__items">${itemCount} item${itemCount === 1 ? '' : 's'} · ${esc(orderItemsPreview(order, 1))}</p>
+      <div class="order-card__badges">
+        <span class="status-pill ${pay.cls}">${pay.label}</span>
+        <span class="status-pill ${st.cls}">${st.label}</span>
+      </div>
+      <div class="order-card__foot">
+        <span class="order-date">${fmtDateShort(order.createdAt)}${relative ? ` · ${relative}` : ''}</span>
+        <button type="button" class="btn btn-ghost btn-sm" data-order-view data-order-id="${esc(order.id)}">View</button>
+      </div>
+    </article>
+  `;
+}
+
+function productCardHtml(product) {
+  const st = stockStatus(product);
+  const thumb = product.image
+    ? `<img class="product-card__thumb" src="${esc(product.image)}" alt="${esc(product.label)}" loading="lazy" />`
+    : `<div class="product-card__thumb product-card__thumb--empty">—</div>`;
+  const checked = selectedProductIds.has(product.id) ? 'checked' : '';
+  const selected = selectedProductIds.has(product.id) ? ' is-selected' : '';
+
+  return `
+    <article class="product-card${selected}" data-product-id="${esc(product.id)}">
+      <div class="product-card__head">
+        <label class="product-card__check">
+          <input type="checkbox" class="product-select" data-id="${esc(product.id)}" aria-label="Select ${esc(product.label)}" ${checked} />
+        </label>
+        ${thumb}
+        <div class="product-card__meta">
+          <strong>${esc(product.label)}</strong>
+          <span class="muted">${categoryLabel(product.category)} · ${genderLabel(product.gender)}</span>
+        </div>
+        <span class="status-pill ${st.cls}">${st.label}</span>
+      </div>
+      <div class="product-card__stats">
+        <span dir="ltr"><strong>${priceCell(product)}</strong></span>
+        <span class="muted" dir="ltr">Stock ${product.stock}</span>
+      </div>
+      <div class="product-card__actions row-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-action="edit" data-id="${esc(product.id)}">Edit</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-action="toggle" data-id="${esc(product.id)}">
+          ${product.inStock ? 'Hide' : 'Publish'}
+        </button>
+        <button type="button" class="btn btn-ghost btn-sm btn-danger" data-action="delete" data-id="${esc(product.id)}">Delete</button>
+      </div>
+    </article>
+  `;
+}
+
+function userCardHtml(user, { ownerCount, isSelf, canEdit, canDelete, emailOk }) {
+  const email = String(user.email || '');
+  const displayName = user.name?.trim() || '—';
+
+  let actions = '<span class="muted">—</span>';
+  if (canEdit || canDelete) {
+    actions = '<div class="row-actions">';
+    if (canEdit) {
+      actions += `<button type="button" class="btn btn-ghost btn-sm" data-user-edit="${user.id}">Edit access</button>`;
+    }
+    if (canDelete) {
+      actions += `<button type="button" class="btn btn-ghost btn-sm btn-danger" data-user-delete="${user.id}">Delete</button>`;
+    }
+    actions += '</div>';
+  } else if (isSelf) {
+    actions = '<span class="muted">You</span>';
+  } else if (user.isOwner) {
+    actions = '<span class="muted">Protected</span>';
+  }
+
+  return `
+    <article class="user-card">
+      <div class="user-card__head">
+        <div class="user-name-cell">
+          <strong>${esc(displayName)}</strong>
+          ${isSelf ? '<span class="muted">(you)</span>' : ''}
+          ${user.isOwner ? '<span class="permission-badge permission-badge--owner">Owner</span>' : ''}
+        </div>
+        <span class="muted user-card__date">${fmtDate(user.createdAt)}</span>
+      </div>
+      <p class="user-card__email${emailOk ? '' : ' user-email--invalid'}" dir="ltr">${esc(email || '—')}</p>
+      ${emailOk ? '' : '<span class="user-email-warn">Invalid email</span>'}
+      <div class="user-card__access"><div class="permission-badges">${formatPermissionBadges(user)}</div></div>
+      <div class="user-card__actions">${actions}</div>
+    </article>
+  `;
 }
 
 function orderStatusOptionsHtml(selected = 'pending') {
@@ -588,18 +840,27 @@ function renderUsers() {
     if (usersCount) usersCount.textContent = '0 users';
     if (navUserCount) navUserCount.textContent = '0';
     if (usersTableBody) usersTableBody.innerHTML = '';
+    if (usersCards) {
+      usersCards.innerHTML = '';
+      usersCards.hidden = true;
+    }
     return;
   }
 
   if (usersCount) usersCount.textContent = `${adminUsers.length} user${adminUsers.length === 1 ? '' : 's'}`;
   if (navUserCount) navUserCount.textContent = String(adminUsers.length);
   if (usersTableBody) usersTableBody.innerHTML = '';
+  if (usersCards) usersCards.innerHTML = '';
 
   if (!adminUsers.length) {
     if (usersEmpty) usersEmpty.hidden = false;
+    if (usersTableWrap) usersTableWrap.hidden = true;
+    if (usersCards) usersCards.hidden = true;
     return;
   }
   if (usersEmpty) usersEmpty.hidden = true;
+  if (usersTableWrap) usersTableWrap.hidden = false;
+  if (usersCards) usersCards.hidden = false;
 
   adminUsers.forEach(user => {
     const row = document.createElement('tr');
@@ -645,6 +906,12 @@ function renderUsers() {
       <td>${actions}</td>
     `;
     usersTableBody.append(row);
+
+    if (usersCards) {
+      const card = document.createElement('div');
+      card.innerHTML = userCardHtml(user, { ownerCount, isSelf, canEdit, canDelete, emailOk });
+      usersCards.append(card.firstElementChild);
+    }
   });
 }
 
@@ -894,6 +1161,7 @@ function resetForm() {
   productForm?.reset();
   if (fields.id) fields.id.value = '';
   if (fields.inStock) fields.inStock.checked = true;
+  if (fields.discount) fields.discount.value = '0';
   if (fields.sizes) fields.sizes.value = DEFAULT_SIZES.join(',');
   if (formTitle) formTitle.textContent = 'Add product';
   imageUpload.reset();
@@ -903,6 +1171,7 @@ function fillForm(product) {
   fields.id.value = product.id;
   fields.label.value = product.label;
   fields.price.value = String(product.price);
+  fields.discount.value = String(discountPercent(product));
   fields.stock.value = String(product.stock);
   fields.category.value = product.category;
   fields.gender.value = product.gender;
@@ -926,6 +1195,7 @@ function readForm() {
     id: fields.id.value || createId(),
     label: fields.label.value.trim(),
     price: Number(fields.price.value),
+    discountPercent: Number(fields.discount.value || 0),
     stock: Number(fields.stock.value),
     category: fields.category.value,
     gender: fields.gender.value,
@@ -951,6 +1221,7 @@ function getFilteredProducts() {
     if (filter === 'in') matchF = p.inStock;
     else if (filter === 'out') matchF = !p.inStock;
     else if (filter === 'low') matchF = p.stock <= 5;
+    else if (filter === 'sale') matchF = discountPercent(p) > 0;
 
     return matchQ && matchF;
   });
@@ -960,6 +1231,75 @@ function stockStatus(product) {
   if (!product.inStock) return { cls: 'off', label: 'Out of stock' };
   if (product.stock <= 5) return { cls: 'low', label: 'Low stock' };
   return { cls: 'on', label: 'In stock' };
+}
+
+function handleProductSelectChange(checkbox) {
+  toggleProductSelection(checkbox.dataset.id, checkbox.checked);
+  checkbox.closest('tr')?.classList.toggle('is-selected', checkbox.checked);
+  checkbox.closest('.product-card')?.classList.toggle('is-selected', checkbox.checked);
+}
+
+async function handleProductAction(btn) {
+  const id = btn.dataset.id;
+  const product = products.find(item => item.id === id);
+  if (!product) return;
+
+  if (btn.dataset.action === 'edit') {
+    fillForm(product);
+    return;
+  }
+
+  if (btn.dataset.action === 'toggle') {
+    product.inStock = !product.inStock;
+    try {
+      await saveProduct(product);
+      await refreshData();
+      showToast(product.inStock ? 'Product published' : 'Product hidden from store');
+    } catch (err) {
+      showToast(err.message || 'Could not update product');
+    }
+    return;
+  }
+
+  if (btn.dataset.action === 'delete') {
+    if (!confirm(`Delete product "${product.label}"?`)) return;
+    try {
+      await removeProduct(id);
+      selectedProductIds.delete(id);
+      await refreshData();
+      showToast('Product deleted');
+    } catch (err) {
+      showToast(err.message || 'Could not delete product');
+    }
+  }
+}
+
+async function handleUserCardClick(e) {
+  const editBtn = e.target.closest('button[data-user-edit]');
+  if (editBtn) {
+    const id = Number(editBtn.dataset.userEdit);
+    const user = adminUsers.find(item => item.id === id);
+    if (user) openUserModal(user);
+    return;
+  }
+
+  const btn = e.target.closest('button[data-user-delete]');
+  if (!btn) return;
+
+  const id = Number(btn.dataset.userDelete);
+  const user = adminUsers.find(item => item.id === id);
+  if (!user) return;
+
+  if (!confirm(`Delete admin user "${user.email}"?`)) return;
+
+  try {
+    await adminDeleteUser(id);
+    await loadAdminUsers();
+    renderUsers();
+    showToast('User deleted');
+  } catch (err) {
+    showToast(err.message || 'Could not delete user');
+  }
 }
 
 function updateProductSelectionUi() {
@@ -1013,6 +1353,7 @@ function resetBulkEditForm() {
   if (bulkCategory) bulkCategory.disabled = true;
   if (bulkGender) bulkGender.disabled = true;
   if (bulkVisibility) bulkVisibility.disabled = true;
+  if (bulkDiscountValue) bulkDiscountValue.disabled = true;
   if (bulkPriceMode) bulkPriceMode.disabled = true;
   if (bulkPriceValue) bulkPriceValue.disabled = true;
   if (bulkStockMode) bulkStockMode.disabled = true;
@@ -1063,6 +1404,9 @@ function readBulkEditPayload() {
   if (bulkEnableVisibility?.checked) {
     payload.inStock = bulkVisibility?.value === '1';
   }
+  if (bulkEnableDiscount?.checked) {
+    payload.discountPercent = Number(bulkDiscountValue?.value || 0);
+  }
 
   return payload;
 }
@@ -1071,12 +1415,14 @@ function renderProducts() {
   const list = getFilteredProducts();
   lastFilteredProductIds = list.map(p => p.id);
   productsTableBody.innerHTML = '';
-  const tableWrap = productsTableBody?.closest('.table-wrap');
+  if (productsCards) productsCards.innerHTML = '';
+  const tableWrap = productsTableWrap || productsTableBody?.closest('.table-wrap');
 
   if (productsCount) productsCount.textContent = `${products.length} products`;
   if (navProductCount) navProductCount.textContent = String(products.length);
   if (productsEmpty) productsEmpty.hidden = list.length > 0;
   if (tableWrap) tableWrap.hidden = list.length === 0;
+  if (productsCards) productsCards.hidden = list.length === 0;
   if (productBulkBar && list.length === 0) productBulkBar.hidden = true;
 
   list.forEach(product => {
@@ -1096,7 +1442,7 @@ function renderProducts() {
       <td><strong>${esc(product.label)}</strong></td>
       <td>${categoryLabel(product.category)}</td>
       <td>${genderLabel(product.gender)}</td>
-      <td dir="ltr">${money(product.price)}</td>
+      <td dir="ltr">${priceCell(product)}</td>
       <td dir="ltr">${product.stock}</td>
       <td><span class="status-pill ${st.cls}">${st.label}</span></td>
       <td>
@@ -1110,6 +1456,12 @@ function renderProducts() {
       </td>
     `;
     productsTableBody.append(row);
+
+    if (productsCards) {
+      const card = document.createElement('div');
+      card.innerHTML = productCardHtml(product);
+      productsCards.append(card.firstElementChild);
+    }
   });
 
   updateProductSelectionUi();
@@ -1182,7 +1534,7 @@ function openOrderModal(order) {
   const customer = order.customer || {};
   const st = orderStatusLabel(order.status);
   const pay = paymentStatusLabel(order.paymentStatus);
-  if (orderModalTitle) orderModalTitle.textContent = `Order ${order.id}`;
+  if (orderModalTitle) orderModalTitle.textContent = `Order ${shortOrderId(order.id)}`;
 
   if (orderModalStatus) {
     orderModalStatus.innerHTML = orderStatusOptionsHtml(order.status || 'pending');
@@ -1191,6 +1543,9 @@ function openOrderModal(order) {
     const email = customer.email || '';
     orderModalEmail.href = email ? `mailto:${email}?subject=${encodeURIComponent(`Order ${order.id}`)}` : '#';
     orderModalEmail.hidden = !email;
+  }
+  if (orderModalCopyId) {
+    orderModalCopyId.dataset.orderId = order.id;
   }
 
   const itemsHtml = (order.items || []).map(item => `
@@ -1205,6 +1560,19 @@ function openOrderModal(order) {
   `).join('');
 
   orderModalBody.innerHTML = `
+    <div class="order-modal-hero">
+      <div class="order-modal-hero__main">
+        <p class="order-modal-hero__customer">${esc(customerName(customer))}</p>
+        <p class="order-modal-hero__email muted" dir="ltr">${esc(customer.email || '—')}</p>
+      </div>
+      <div class="order-modal-hero__side">
+        <strong class="order-modal-hero__total" dir="ltr">${money(order.total)}</strong>
+        <div class="order-modal-hero__badges">
+          <span class="status-pill ${st.cls}">${st.label}</span>
+          <span class="status-pill ${pay.cls}">${pay.label}</span>
+        </div>
+      </div>
+    </div>
     <div class="order-detail-grid">
       <section class="order-detail-section">
         <h3>Order</h3>
@@ -1277,8 +1645,9 @@ function getFilteredOrders() {
     const matchStatus = statusFilter === 'all' || order.status === statusFilter;
     const pay = (order.paymentStatus || 'unpaid').toLowerCase();
     const matchPayment = paymentFilter === 'all' || pay === paymentFilter;
+    const matchQuick = orderMatchesQuickFilter(order);
 
-    return matchQ && matchStatus && matchPayment;
+    return matchQ && matchStatus && matchPayment && matchQuick;
   });
 
   list = [...list].sort((a, b) => {
@@ -1294,31 +1663,31 @@ function getFilteredOrders() {
 function renderOrderStats() {
   if (!ordersStats) return;
 
-  const pending = orders.filter(o => o.status === 'pending' || o.status === 'awaiting_payment').length;
+  const action = orders.filter(o => orderNeedsAttention(o)).length;
   const processing = orders.filter(o => o.status === 'processing' || o.status === 'shipped').length;
   const completed = orders.filter(o => o.status === 'completed').length;
   const revenue = orders
     .filter(o => o.status !== 'cancelled')
     .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
 
-  ordersStats.innerHTML = `
-    <div class="orders-stat">
-      <span class="orders-stat__label">Open</span>
-      <strong class="orders-stat__value">${pending}</strong>
-    </div>
-    <div class="orders-stat">
-      <span class="orders-stat__label">In progress</span>
-      <strong class="orders-stat__value">${processing}</strong>
-    </div>
-    <div class="orders-stat">
-      <span class="orders-stat__label">Completed</span>
-      <strong class="orders-stat__value">${completed}</strong>
-    </div>
-    <div class="orders-stat orders-stat--accent">
-      <span class="orders-stat__label">Revenue</span>
-      <strong class="orders-stat__value" dir="ltr">${money(revenue)}</strong>
-    </div>
+  const statBtn = (filter, label, value, accent = false) => `
+    <button
+      type="button"
+      class="orders-stat${accent ? ' orders-stat--accent' : ''}${orderQuickFilter === filter ? ' is-active' : ''}"
+      data-order-stat="${filter}"
+      aria-pressed="${orderQuickFilter === filter}"
+    >
+      <span class="orders-stat__label">${label}</span>
+      <strong class="orders-stat__value"${accent ? ' dir="ltr"' : ''}>${accent ? money(revenue) : value}</strong>
+    </button>
   `;
+
+  ordersStats.innerHTML = [
+    statBtn('action', 'Needs action', action),
+    statBtn('progress', 'In progress', processing),
+    statBtn('completed', 'Completed', completed),
+    statBtn('all', 'Revenue', money(revenue), true),
+  ].join('');
 }
 
 function exportOrdersCsv() {
@@ -1362,9 +1731,13 @@ function exportOrdersCsv() {
 
 function renderOrders() {
   renderOrderStats();
+  renderOrderQuickFilters();
 
   const list = getFilteredOrders();
-  const tableWrap = ordersTableBody?.closest('.table-wrap');
+  const tableWrap = ordersTableWrap || ordersTableBody?.closest('.table-wrap');
+  const filtersActive = ordersFiltersActive();
+  if (clearOrderFiltersBtn) clearOrderFiltersBtn.hidden = !filtersActive;
+
   if (ordersCount) {
     ordersCount.textContent = list.length === orders.length
       ? `${orders.length} orders`
@@ -1372,11 +1745,13 @@ function renderOrders() {
   }
   if (navOrderCount) navOrderCount.textContent = String(orders.length);
   ordersTableBody.innerHTML = '';
+  if (ordersCards) ordersCards.innerHTML = '';
 
   if (!orders.length) {
     if (ordersEmpty) ordersEmpty.hidden = false;
     if (ordersFilterEmpty) ordersFilterEmpty.hidden = true;
     if (tableWrap) tableWrap.hidden = true;
+    if (ordersCards) ordersCards.hidden = true;
     return;
   }
   if (ordersEmpty) ordersEmpty.hidden = true;
@@ -1384,53 +1759,25 @@ function renderOrders() {
   if (!list.length) {
     if (ordersFilterEmpty) ordersFilterEmpty.hidden = false;
     if (tableWrap) tableWrap.hidden = true;
+    if (ordersCards) ordersCards.hidden = true;
     return;
   }
   if (ordersFilterEmpty) ordersFilterEmpty.hidden = true;
   if (tableWrap) tableWrap.hidden = false;
+  if (ordersCards) ordersCards.hidden = false;
 
   list.forEach(order => {
     const row = document.createElement('tr');
-    const customer = order.customer || {};
-    const pay = paymentStatusLabel(order.paymentStatus);
-    const itemCount = orderItemCount(order);
-
-    row.innerHTML = `
-      <td>
-        <div class="order-stack">
-          <button type="button" class="order-id-btn" data-copy-order-id="${esc(order.id)}" title="Copy order ID">
-            <code dir="ltr">${esc(shortOrderId(order.id))}</code>
-          </button>
-          <span class="order-date">${fmtDateShort(order.createdAt)}</span>
-        </div>
-      </td>
-      <td>
-        <div class="order-stack">
-          <span class="order-customer-name">${esc(customerName(customer))}</span>
-          <span class="muted order-email" dir="ltr">${esc(customer.email || '—')}</span>
-        </div>
-      </td>
-      <td>
-        <div class="order-items-compact">
-          <span class="order-items-count">${itemCount} item${itemCount === 1 ? '' : 's'}</span>
-          <span class="order-items-preview">${esc(orderItemsPreview(order))}</span>
-        </div>
-      </td>
-      <td dir="ltr"><strong class="order-total">${money(order.total)}</strong></td>
-      <td><span class="status-pill ${pay.cls}">${pay.label}</span></td>
-      <td>
-        <select class="filter-select order-status-select" data-order-status data-order-id="${esc(order.id)}" aria-label="Order status">
-          ${orderStatusOptionsHtml(order.status || 'pending')}
-        </select>
-      </td>
-      <td>
-        <div class="row-actions">
-          <button type="button" class="btn btn-ghost" data-order-view data-order-id="${esc(order.id)}">View</button>
-          ${customer.email ? `<a class="btn btn-ghost" href="mailto:${esc(customer.email)}?subject=${encodeURIComponent(`Order ${order.id}`)}">Email</a>` : ''}
-        </div>
-      </td>
-    `;
+    row.className = orderNeedsAttention(order) ? 'order-row order-row--attention' : 'order-row';
+    row.dataset.orderId = order.id;
+    row.innerHTML = orderRowHtml(order);
     ordersTableBody.append(row);
+
+    if (ordersCards) {
+      const card = document.createElement('div');
+      card.innerHTML = orderCardHtml(order);
+      ordersCards.append(card.firstElementChild);
+    }
   });
 }
 
@@ -1583,33 +1930,8 @@ userForm?.addEventListener('submit', async e => {
   }
 });
 
-usersTableBody?.addEventListener('click', async e => {
-  const editBtn = e.target.closest('button[data-user-edit]');
-  if (editBtn) {
-    const id = Number(editBtn.dataset.userEdit);
-    const user = adminUsers.find(item => item.id === id);
-    if (user) openUserModal(user);
-    return;
-  }
-
-  const btn = e.target.closest('button[data-user-delete]');
-  if (!btn) return;
-
-  const id = Number(btn.dataset.userDelete);
-  const user = adminUsers.find(item => item.id === id);
-  if (!user) return;
-
-  if (!confirm(`Delete admin user "${user.email}"?`)) return;
-
-  try {
-    await adminDeleteUser(id);
-    await loadAdminUsers();
-    renderUsers();
-    showToast('User deleted');
-  } catch (err) {
-    showToast(err.message || 'Could not delete user');
-  }
-});
+usersTableBody?.addEventListener('click', handleUserCardClick);
+usersCards?.addEventListener('click', handleUserCardClick);
 
 resetFormBtn?.addEventListener('click', closeModal);
 
@@ -1641,6 +1963,9 @@ bulkEnableGender?.addEventListener('change', e => {
 bulkEnableVisibility?.addEventListener('change', e => {
   if (bulkVisibility) bulkVisibility.disabled = !e.target.checked;
 });
+bulkEnableDiscount?.addEventListener('change', e => {
+  if (bulkDiscountValue) bulkDiscountValue.disabled = !e.target.checked;
+});
 bulkEnablePrice?.addEventListener('change', e => {
   const on = e.target.checked;
   if (bulkPriceMode) bulkPriceMode.disabled = !on;
@@ -1664,7 +1989,7 @@ bulkEditForm?.addEventListener('submit', async e => {
   }
 
   const payload = readBulkEditPayload();
-  const changeCount = ['price', 'stock', 'category', 'gender', 'inStock']
+  const changeCount = ['price', 'stock', 'category', 'gender', 'inStock', 'discountPercent']
     .filter(key => key in payload).length;
   if (!changeCount) {
     showToast('Enable at least one field to update');
@@ -1678,6 +2003,7 @@ bulkEditForm?.addEventListener('submit', async e => {
   if (payload.category) summary.push('category');
   if (payload.gender) summary.push('gender');
   if (payload.inStock !== undefined) summary.push('visibility');
+  if (payload.discountPercent !== undefined) summary.push('sale discount');
 
   if (!confirm(`Apply ${summary.join(', ')} changes to ${count} product${count === 1 ? '' : 's'}?`)) {
     return;
@@ -1700,8 +2026,13 @@ bulkEditForm?.addEventListener('submit', async e => {
 productsTableBody?.addEventListener('change', e => {
   const checkbox = e.target.closest('.product-select');
   if (!checkbox) return;
-  toggleProductSelection(checkbox.dataset.id, checkbox.checked);
-  checkbox.closest('tr')?.classList.toggle('is-selected', checkbox.checked);
+  handleProductSelectChange(checkbox);
+});
+
+productsCards?.addEventListener('change', e => {
+  const checkbox = e.target.closest('.product-select');
+  if (!checkbox) return;
+  handleProductSelectChange(checkbox);
 });
 
 productForm?.addEventListener('submit', async e => {
@@ -1743,39 +2074,13 @@ productForm?.addEventListener('submit', async e => {
 productsTableBody?.addEventListener('click', async e => {
   const btn = e.target.closest('button[data-action]');
   if (!btn) return;
+  await handleProductAction(btn);
+});
 
-  const id = btn.dataset.id;
-  const product = products.find(item => item.id === id);
-  if (!product) return;
-
-  if (btn.dataset.action === 'edit') {
-    fillForm(product);
-    return;
-  }
-
-  if (btn.dataset.action === 'toggle') {
-    product.inStock = !product.inStock;
-    try {
-      await saveProduct(product);
-      await refreshData();
-      showToast(product.inStock ? 'Product published' : 'Product hidden from store');
-    } catch (err) {
-      showToast(err.message || 'Could not update product');
-    }
-    return;
-  }
-
-  if (btn.dataset.action === 'delete') {
-    if (!confirm(`Delete product "${product.label}"?`)) return;
-    try {
-      await removeProduct(id);
-      selectedProductIds.delete(id);
-      await refreshData();
-      showToast('Product deleted');
-    } catch (err) {
-      showToast(err.message || 'Could not delete product');
-    }
-  }
+productsCards?.addEventListener('click', async e => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  await handleProductAction(btn);
 });
 
 async function applyOrderStatus(orderId, status) {
@@ -1797,6 +2102,34 @@ async function applyOrderStatus(orderId, status) {
 }
 
 ordersTableBody?.addEventListener('click', async e => {
+  if (e.target.closest('select, a, button[data-copy-order-id], button[data-order-view]')) {
+    const viewBtn = e.target.closest('button[data-order-view]');
+    if (viewBtn) {
+      const order = orders.find(item => item.id === viewBtn.dataset.orderId);
+      if (order) openOrderModal(order);
+    }
+
+    const copyBtn = e.target.closest('[data-copy-order-id]');
+    if (copyBtn) {
+      const id = copyBtn.dataset.copyOrderId;
+      try {
+        await navigator.clipboard.writeText(id);
+        showToast('Order ID copied');
+      } catch {
+        showToast(id);
+      }
+    }
+    return;
+  }
+
+  const row = e.target.closest('tr.order-row');
+  if (row?.dataset.orderId) {
+    const order = orders.find(item => item.id === row.dataset.orderId);
+    if (order) openOrderModal(order);
+  }
+});
+
+ordersCards?.addEventListener('click', async e => {
   const viewBtn = e.target.closest('button[data-order-view]');
   if (viewBtn) {
     const order = orders.find(item => item.id === viewBtn.dataset.orderId);
@@ -1813,6 +2146,40 @@ ordersTableBody?.addEventListener('click', async e => {
     } catch {
       showToast(id);
     }
+    return;
+  }
+
+  const card = e.target.closest('.order-card');
+  if (card?.dataset.orderId) {
+    const order = orders.find(item => item.id === card.dataset.orderId);
+    if (order) openOrderModal(order);
+  }
+});
+
+ordersStats?.addEventListener('click', e => {
+  const btn = e.target.closest('[data-order-stat]');
+  if (!btn) return;
+  orderQuickFilter = btn.dataset.orderStat || 'all';
+  renderOrders();
+});
+
+ordersQuickFilters?.addEventListener('click', e => {
+  const btn = e.target.closest('[data-order-quick]');
+  if (!btn) return;
+  orderQuickFilter = btn.dataset.orderQuick || 'all';
+  renderOrders();
+});
+
+clearOrderFiltersBtn?.addEventListener('click', clearOrderFilters);
+
+orderModalCopyId?.addEventListener('click', async () => {
+  const id = orderModalCopyId.dataset.orderId || activeOrderId;
+  if (!id) return;
+  try {
+    await navigator.clipboard.writeText(id);
+    showToast('Order ID copied');
+  } catch {
+    showToast(id);
   }
 });
 
@@ -2007,5 +2374,6 @@ document.getElementById('whatsappSettingsForm')?.addEventListener('submit', asyn
 });
 
 logoutBtn?.addEventListener('click', signOutAdmin);
+topbarLogoutBtn?.addEventListener('click', signOutAdmin);
 
 mountAdminLogin({ onSuccess: showApp });

@@ -439,9 +439,14 @@ a { color: inherit; text-decoration: none; }
 /* Product card button */
 .product-btn {
   position: relative;
+  display: block;
   min-width: 0;
   outline: none;
   cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+  text-align: inherit;
   transition: opacity var(--dur) ease;
 }
 .product-btn.active { z-index: 5; opacity: 1 !important; }
@@ -498,6 +503,16 @@ a { color: inherit; text-decoration: none; }
 }
 .prod-price {
   display: none;
+}
+.prod-sale {
+  display: block;
+  margin-top: 2px;
+  font-size: clamp(8px, 0.85vw, 10px);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #111;
+  text-align: center;
 }
 .product-grid.is-open .product-btn.active .prod-meta { opacity: 0; }
 
@@ -788,6 +803,17 @@ a { color: inherit; text-decoration: none; }
   font-size: 16px;
   font-weight: 400;
   margin-top: 2px;
+}
+.p-price-was {
+  color: #999;
+  text-decoration: line-through;
+}
+.p-price-now {
+  margin-left: 6px;
+}
+.p-price-off {
+  margin-left: 6px;
+  letter-spacing: 0.08em;
 }
 .p-add {
   font-size: 28px;
@@ -1308,6 +1334,10 @@ body.preview-open .product-grid {
   .prod-label {
     font-size: 10px;
     letter-spacing: 0.06em;
+  }
+
+  .prod-sale {
+    font-size: 10px;
   }
 
   .site-nav.preview-open {

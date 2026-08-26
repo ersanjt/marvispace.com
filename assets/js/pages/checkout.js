@@ -13,9 +13,9 @@ import {
   startZiraatPayment,
 } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock, setStoreCurrency } from '../modules/cart-ui.js';
-import { initCookieConsent } from '../core/cookie-consent.js';
 import { initWhatsAppSupport } from '../core/whatsapp-support.js';
 import { mountDeveloperCredit } from '../core/credits.js';
+import { initI18n, applyDomI18n, t, homePath } from '../core/i18n.js';
 
 const checkoutPage = document.getElementById('checkoutPage');
 const checkoutLoadingMsg = document.getElementById('checkoutLoadingMsg');
@@ -92,7 +92,7 @@ function changeQty(index, delta) {
   item.qty += delta;
   if (item.qty <= 0) cartItems.splice(index, 1);
   if (!cartItems.length) {
-    window.location.replace('/');
+    window.location.replace(homePath());
     return;
   }
   persistCart();
@@ -121,7 +121,7 @@ function renderSummary() {
   }
   if (summaryMobileCount) {
     const n = cartQtyTotal();
-    summaryMobileCount.textContent = n === 1 ? '1 item' : `${n} items`;
+    summaryMobileCount.textContent = n === 1 ? t('checkoutItemOne') : t('checkoutItems').replace('{n}', String(n));
   }
 
   if (empty) {
@@ -173,15 +173,15 @@ function selectPayment(method) {
 function updatePlaceOrderLabel() {
   if (!placeOrderBtn) return;
   if (isProductionHost() && !cardPaymentsEnabled) {
-    placeOrderBtn.textContent = 'Payment unavailable';
+    placeOrderBtn.textContent = t('checkoutPayUnavailable');
     return;
   }
   if (!selectedPayment) {
-    placeOrderBtn.textContent = 'Complete details to pay';
+    placeOrderBtn.textContent = t('checkoutCompleteDetails');
   } else if (selectedPayment === 'card' && cardPaymentsEnabled && !cardDetailsValid()) {
-    placeOrderBtn.textContent = 'Enter card details';
+    placeOrderBtn.textContent = t('checkoutEnterCard');
   } else {
-    placeOrderBtn.textContent = 'Place order';
+    placeOrderBtn.textContent = t('checkoutPlace');
   }
 }
 
@@ -265,7 +265,7 @@ function updatePaymentState() {
     clearPaymentSelection();
     if (placeOrderBtn) {
       placeOrderBtn.disabled = true;
-      placeOrderBtn.textContent = 'Payment unavailable';
+      placeOrderBtn.textContent = t('checkoutPayUnavailable');
     }
     return;
   }
@@ -486,8 +486,10 @@ checkoutForm.addEventListener('submit', async e => {
 });
 
 (async () => {
-  initCookieConsent();
-  initWhatsAppSupport({ message: 'Merhaba, MARVISPACE siparişim hakkında yardım istiyorum.' });
+  await initI18n();
+  applyDomI18n(document);
+  await mountDeveloperCredit();
+  initWhatsAppSupport({ message: t('whatsappHello') });
   setCheckoutReady(false);
 
   const params = new URLSearchParams(window.location.search);
@@ -503,14 +505,14 @@ checkoutForm.addEventListener('submit', async e => {
     cartItems = await loadCart();
   } catch (err) {
     if (checkoutLoadingMsg) {
-      checkoutLoadingMsg.textContent = err.message || 'Could not load cart.';
+      checkoutLoadingMsg.textContent = err.message || t('checkoutCartError');
     }
-    setTimeout(() => window.location.replace('/'), 1800);
+    setTimeout(() => window.location.replace(homePath()), 1800);
     return;
   }
 
   if (!cartItems.length) {
-    window.location.replace('/');
+    window.location.replace(homePath());
     return;
   }
 
@@ -558,10 +560,8 @@ checkoutForm.addEventListener('submit', async e => {
       /* fall through */
     }
     if (checkoutLoadingMsg) {
-      checkoutLoadingMsg.textContent = err.message || 'Could not load checkout.';
+      checkoutLoadingMsg.textContent = err.message || t('checkoutLoadError');
     }
-    setTimeout(() => window.location.replace('/'), 2500);
+    setTimeout(() => window.location.replace(homePath()), 2500);
   }
 })();
-
-mountDeveloperCredit();

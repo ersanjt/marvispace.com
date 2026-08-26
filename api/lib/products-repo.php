@@ -3,6 +3,22 @@ declare(strict_types=1);
 
 const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
+function product_discount_percent(array $product): int
+{
+    $pct = (int) ($product['discountPercent'] ?? $product['discount_percent'] ?? 0);
+    return max(0, min(90, $pct));
+}
+
+function product_unit_price(array $product): float
+{
+    $price = (float) ($product['price'] ?? 0);
+    $pct = product_discount_percent($product);
+    if ($pct <= 0) {
+        return round($price, 2);
+    }
+    return round($price * (1 - $pct / 100), 2);
+}
+
 function product_row_to_array(array $row): array
 {
     $images = json_decode($row['images'] ?? '[]', true);
@@ -21,6 +37,7 @@ function product_row_to_array(array $row): array
         'images' => $images,
         'galleryCount' => (int) ($row['gallery_count'] ?? count($images)),
         'price' => (float) $row['price'],
+        'discountPercent' => product_discount_percent($row),
         'category' => $row['category'],
         'gender' => $row['gender'],
         'inStock' => (bool) $row['in_stock'],
@@ -64,14 +81,15 @@ function product_save(PDO $pdo, array $product): array
     }
 
     $stmt = $pdo->prepare(
-        'INSERT INTO products (id, label, image, images, gallery_count, price, category, gender, in_stock, stock, sizes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        'INSERT INTO products (id, label, image, images, gallery_count, price, discount_percent, category, gender, in_stock, stock, sizes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE
            label = VALUES(label),
            image = VALUES(image),
            images = VALUES(images),
            gallery_count = VALUES(gallery_count),
            price = VALUES(price),
+           discount_percent = VALUES(discount_percent),
            category = VALUES(category),
            gender = VALUES(gender),
            in_stock = VALUES(in_stock),
@@ -86,6 +104,7 @@ function product_save(PDO $pdo, array $product): array
         json_encode($images, JSON_UNESCAPED_SLASHES),
         (int) ($product['galleryCount'] ?? count($images)),
         (float) $product['price'],
+        product_discount_percent($product),
         $product['category'],
         $product['gender'],
         !empty($product['inStock']) ? 1 : 0,
@@ -177,6 +196,13 @@ function products_bulk_update(PDO $pdo, array $ids, array $patch): array
         }
     }
 
+    if (array_key_exists('discountPercent', $patch)) {
+        $pct = product_discount_percent(['discountPercent' => $patch['discountPercent']]);
+        $stmt = $pdo->prepare("UPDATE products SET discount_percent = ? WHERE id IN ($placeholder)");
+        $stmt->execute(array_merge([$pct], $ids));
+        $updated = max($updated, $stmt->rowCount());
+    }
+
     if (array_key_exists('inStock', $patch)) {
         $inStock = !empty($patch['inStock']) ? 1 : 0;
         $stmt = $pdo->prepare("UPDATE products SET in_stock = ? WHERE id IN ($placeholder)");
@@ -206,6 +232,7 @@ function products_normalize_input(array $input): array
         'images' => $images,
         'galleryCount' => (int) ($input['galleryCount'] ?? count($images)),
         'price' => (float) ($input['price'] ?? 0),
+        'discountPercent' => product_discount_percent($input),
         'category' => trim((string) ($input['category'] ?? 'jackets')),
         'gender' => trim((string) ($input['gender'] ?? 'mens')),
         'inStock' => !empty($input['inStock']),

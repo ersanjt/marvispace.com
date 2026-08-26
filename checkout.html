@@ -24,8 +24,8 @@
 
   <div class="checkout-shell" id="checkout">
     <header class="checkout-nav">
-      <a class="back-link" href="/" aria-label="Back to store" title="Back to store">‹</a>
-      <a class="checkout-brand" href="/" aria-label="MARVISPACE home">
+      <a class="back-link" href="/" data-i18n-home data-i18n-aria="backAria" aria-label="Back to store" title="Back to store">‹</a>
+      <a class="checkout-brand" href="/" data-i18n-home data-i18n-aria="homeAria" aria-label="MARVISPACE home">
         <img src="/assets/images/brand/mark.svg" width="18" height="18" alt="" decoding="async" />
         MARVISPACE
       </a>
@@ -40,7 +40,7 @@
       </div>
     </header>
 
-    <p class="checkout-loading-msg" id="checkoutLoadingMsg" aria-live="polite">Loading your cart…</p>
+    <p class="checkout-loading-msg" id="checkoutLoadingMsg" aria-live="polite" data-i18n="checkoutLoading">Loading your cart…</p>
 
     <main class="checkout-page" id="checkoutPage" hidden>
       <div class="checkout-layout">
@@ -48,7 +48,7 @@
         <section class="checkout-form-col">
           <details class="summary-mobile" id="summaryMobile">
             <summary class="summary-mobile-toggle">
-              <span class="summary-mobile-toggle-label">Order summary</span>
+              <span class="summary-mobile-toggle-label" data-i18n="orderSummary">Order summary</span>
               <span class="summary-mobile-toggle-meta">
                 <span id="summaryMobileCount"></span>
                 <span class="summary-mobile-total" id="summaryMobileTotal">$0.00</span>
@@ -57,69 +57,69 @@
             <div class="summary-mobile-body">
               <div class="cart-lines" id="summaryItemsMobile"></div>
               <div id="summaryTotalsMobile" hidden></div>
-              <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false">MARVISPACE code</button>
+              <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false" data-i18n="discountCode">MARVISPACE code</button>
               <div class="cart-discount-form" data-discount-form hidden>
-                <input type="text" placeholder="Enter code" aria-label="Discount code" />
-                <button type="button">Apply</button>
+                <input type="text" data-i18n-placeholder="discountPlaceholder" data-i18n-aria="discountAria" placeholder="Enter code" aria-label="Discount code" />
+                <button type="button" data-i18n="apply">Apply</button>
               </div>
             </div>
           </details>
 
           <form class="checkout-form" id="checkoutForm">
             <fieldset class="form-block">
-              <legend>Contact Information</legend>
+              <legend data-i18n="checkoutContact">Contact Information</legend>
               <label>
-                <span>Email Address</span>
+                <span data-i18n="checkoutEmail">Email Address</span>
                 <input type="email" id="email" name="email" required autocomplete="email" />
               </label>
               <label class="checkbox-row">
                 <input type="checkbox" id="subscribe" name="subscribe" />
-                <span>Subscribe to updates and notifications</span>
+                <span data-i18n="checkoutSubscribe">Subscribe to updates and notifications</span>
               </label>
             </fieldset>
 
             <fieldset class="form-block">
-              <legend>Shipping Address</legend>
+              <legend data-i18n="checkoutShipping">Shipping Address</legend>
               <div class="field-row">
                 <label>
-                  <span>First Name</span>
+                  <span data-i18n="checkoutFirst">First Name</span>
                   <input type="text" id="firstName" name="firstName" required autocomplete="given-name" />
                 </label>
                 <label>
-                  <span>Last Name</span>
+                  <span data-i18n="checkoutLast">Last Name</span>
                   <input type="text" id="lastName" name="lastName" required autocomplete="family-name" />
                 </label>
               </div>
               <label>
-                <span>Address</span>
-                <input type="text" id="address" name="address" placeholder="START TYPING YOUR ADDRESS..." required autocomplete="street-address" />
+                <span data-i18n="checkoutAddress">Address</span>
+                <input type="text" id="address" name="address" data-i18n-placeholder="checkoutAddressPh" placeholder="START TYPING YOUR ADDRESS..." required autocomplete="street-address" />
               </label>
               <label>
-                <span>Apartment, Suite, Unit, etc. (Optional)</span>
-                <input type="text" id="address2" name="address2" placeholder="APARTMENT, SUITE, UNIT, FLOOR, ETC." autocomplete="address-line2" />
+                <span data-i18n="checkoutAddress2">Apartment, Suite, Unit, etc. (Optional)</span>
+                <input type="text" id="address2" name="address2" data-i18n-placeholder="checkoutAddress2Ph" placeholder="APARTMENT, SUITE, UNIT, FLOOR, ETC." autocomplete="address-line2" />
               </label>
               <div class="field-row">
                 <label>
-                  <span>City</span>
+                  <span data-i18n="checkoutCity">City</span>
                   <input type="text" id="city" name="city" required autocomplete="address-level2" />
                 </label>
                 <label>
-                  <span>Country</span>
+                  <span data-i18n="checkoutCountry">Country</span>
                   <select id="country" name="country" required autocomplete="country"></select>
                 </label>
               </div>
               <div class="field-row">
                 <label id="stateField">
-                  <span>State / Province</span>
+                  <span data-i18n="checkoutState">State / Province</span>
                   <input type="text" id="state" name="state" autocomplete="address-level1" />
                 </label>
                 <label>
-                  <span>Zip / Postal Code</span>
+                  <span data-i18n="checkoutZip">Zip / Postal Code</span>
                   <input type="text" id="zip" name="zip" required autocomplete="postal-code" />
                 </label>
               </div>
               <label>
-                <span>Phone Number</span>
+                <span data-i18n="checkoutPhone">Phone Number</span>
                 <div class="phone-row">
                   <div class="phone-code-wrap">
                     <button type="button" class="phone-code-btn" id="phoneCodeBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="phoneCode">
@@ -139,54 +139,54 @@
               </label>
               <div id="taxFields" hidden>
                 <label>
-                  <span>Tax ID (Optional)</span>
+                  <span data-i18n="checkoutTaxId">Tax ID (Optional)</span>
                   <input type="text" id="taxId" name="taxId" placeholder="ENTER YOUR TAX ID" />
                 </label>
-                <p class="form-note">Turkish ID number (TCKN) or VAT number required</p>
+                <p class="form-note" data-i18n="checkoutTaxNote">Turkish ID number (TCKN) or VAT number required</p>
                 <div class="tax-warn" id="taxNote">
-                  <p>You must include tax ID for your order to ship. If you do not include it now, we will send an email requesting it before your order is released.</p>
+                  <p data-i18n="checkoutTaxWarn">You must include tax ID for your order to ship. If you do not include it now, we will send an email requesting it before your order is released.</p>
                 </div>
               </div>
             </fieldset>
 
             <fieldset class="form-block payment-block" id="paymentBlock">
-              <legend>Payment</legend>
+              <legend data-i18n="checkoutPayment">Payment</legend>
               <div class="payment-unavailable" id="paymentUnavailable" hidden>
-                <p class="payment-unavailable__title">Card payment is not available yet</p>
-                <p class="payment-unavailable__text">We are finishing payment setup. Please check back soon or email support if you need help.</p>
+                <p class="payment-unavailable__title" data-i18n="checkoutCardUnavailable">Card payment is not available yet</p>
+                <p class="payment-unavailable__text" data-i18n="checkoutCardUnavailableText">We are finishing payment setup. Please check back soon or email support if you need help.</p>
               </div>
-              <p class="payment-notice" id="paymentPlaceholder">Complete your shipping details above to continue to payment.</p>
+              <p class="payment-notice" id="paymentPlaceholder" data-i18n="checkoutPaymentNotice">Complete your shipping details above to continue to payment.</p>
               <div class="payment-methods payment-methods--locked" id="paymentOptions">
                 <button type="button" class="payment-method-btn payment-method-btn--solo" data-payment="card" disabled>
                   <span class="payment-method-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
                   </span>
                   <span class="payment-method-copy">
-                    <strong>Credit / Debit Card</strong>
+                    <strong data-i18n="checkoutCard">Credit / Debit Card</strong>
                     <small id="cardGatewayLabel">Ziraat Bank — 3D Secure</small>
                   </span>
                 </button>
               </div>
               <div class="card-form" id="cardForm" hidden>
                 <label>
-                  <span>Cardholder name</span>
+                  <span data-i18n="checkoutCardHolder">Cardholder name</span>
                   <input type="text" id="cardHolder" name="cardHolder" autocomplete="cc-name" inputmode="text" />
                 </label>
                 <label>
-                  <span>Card number</span>
+                  <span data-i18n="checkoutCardNumber">Card number</span>
                   <input type="text" id="cardPan" name="cardPan" autocomplete="cc-number" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000" />
                 </label>
                 <div class="field-row">
                   <label>
-                    <span>Expiry month</span>
+                    <span data-i18n="checkoutExpiryMonth">Expiry month</span>
                     <input type="text" id="cardMonth" name="cardMonth" autocomplete="cc-exp-month" inputmode="numeric" maxlength="2" placeholder="MM" />
                   </label>
                   <label>
-                    <span>Expiry year</span>
+                    <span data-i18n="checkoutExpiryYear">Expiry year</span>
                     <input type="text" id="cardYear" name="cardYear" autocomplete="cc-exp-year" inputmode="numeric" maxlength="4" placeholder="YYYY" />
                   </label>
                   <label>
-                    <span>Security code</span>
+                    <span data-i18n="checkoutSecurity">Security code</span>
                     <input type="text" id="cardCvc" name="cardCvc" autocomplete="cc-csc" inputmode="numeric" maxlength="4" placeholder="CVC" />
                   </label>
                 </div>
@@ -196,16 +196,16 @@
             </fieldset>
 
             <fieldset class="form-block">
-              <legend>Billing Address</legend>
-              <p class="billing-warn">Billing address must match that on file with your card issuer to successfully proceed.</p>
+              <legend data-i18n="checkoutBilling">Billing Address</legend>
+              <p class="billing-warn" data-i18n="checkoutBillingWarn">Billing address must match that on file with your card issuer to successfully proceed.</p>
               <label class="checkbox-row billing-same-row">
                 <input type="checkbox" id="billingSame" name="billingSame" checked />
-                <span>Use shipping address as billing address</span>
+                <span data-i18n="checkoutBillingSame">Use shipping address as billing address</span>
               </label>
             </fieldset>
 
             <fieldset class="form-block legal-consent-block">
-              <legend>Yasal Onaylar</legend>
+              <legend data-i18n="checkoutLegal">Yasal Onaylar</legend>
               <label class="checkbox-row">
                 <input type="checkbox" id="acceptOnBilgilendirme" name="acceptOnBilgilendirme" required />
                 <span><a href="/on-bilgilendirme" target="_blank" rel="noopener">Ön Bilgilendirme Formu</a>'nu okudum ve kabul ediyorum.</span>
@@ -221,20 +221,20 @@
             </fieldset>
 
             <div class="checkout-actions" id="checkoutActions">
-              <button type="submit" class="place-order-btn" id="placeOrderBtn" disabled>Complete details to pay</button>
+              <button type="submit" class="place-order-btn" id="placeOrderBtn" disabled data-i18n="checkoutCompleteDetails">Complete details to pay</button>
             </div>
           </form>
         </section>
 
         <aside class="checkout-summary-col" aria-label="Order summary">
           <div class="summary-panel">
-            <h2 class="cart-summary-heading">Order Summary</h2>
+            <h2 class="cart-summary-heading" data-i18n="orderSummary">Order Summary</h2>
             <div class="cart-lines" id="summaryItems"></div>
             <div id="summaryTotals" hidden></div>
-            <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false">MARVISPACE code</button>
+            <button type="button" class="cart-discount-link" data-discount-toggle aria-expanded="false" data-i18n="discountCode">MARVISPACE code</button>
             <div class="cart-discount-form" data-discount-form hidden>
-              <input type="text" placeholder="Enter code" aria-label="Discount code" />
-              <button type="button">Apply</button>
+              <input type="text" data-i18n-placeholder="discountPlaceholder" data-i18n-aria="discountAria" placeholder="Enter code" aria-label="Discount code" />
+              <button type="button" data-i18n="apply">Apply</button>
             </div>
           </div>
         </aside>
@@ -243,6 +243,6 @@
     </main>
   </div>
 
-  <script type="module" src="/assets/js/pages/checkout.js"></script>
+  <script type="module" src="/assets/js/pages/checkout.js?v=20260826-i18n"></script>
 </body>
 </html>
