@@ -370,7 +370,7 @@ function seo_apply_home_itemlist(string $html, array $products, array $slugMap, 
 
     $inject = seo_hreflang_tags($enHome, $trHome) . "\n"
         . '  <script type="application/ld+json">' . seo_json(seo_itemlist_jsonld($products, $slugMap, $lang)) . "</script>\n"
-        . '  <script>window.__MARVISPACE_LANG__="' . $lang . '";</script>\n';
+        . '  <script>window.__MARVISPACE_LANG__="' . $lang . '";</script>' . "\n";
     $html = str_replace('<!-- SEO_INJECT -->', $inject . '  <!-- SEO_INJECT -->', $html);
 
     $items = '';
