@@ -1,9 +1,10 @@
-import { loadCart, loadProducts, resetApiHealthCache, saveCart, discountPercent, salePrice } from '../core/storage.js';
-import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
+import { loadCart, loadProducts, loadSiteSettings, resetApiHealthCache, saveCart, discountPercent, salePrice } from '../core/storage.js';
+import { buildCartLineItem, renderTotalsBlock, setStoreCurrency } from '../modules/cart-ui.js?v=20260829-store';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { SITE } from '../config/site.js';
 import { buildSlugMap, productPath, productUrl } from '../core/product-seo.js';
 import { initI18n, applyDomI18n, t, homePath } from '../core/i18n.js';
+import { trackAddToCart, trackViewItem } from '../core/analytics-events.js?v=20260829-store';
 import {
   appendOptimizedPicture,
   prefetchGalleryImages,
@@ -11,7 +12,7 @@ import {
   PREVIEW_WIDTHS,
   GRID_SIZES,
   GRID_WIDTHS,
-} from '../core/image-url.js';
+} from '../core/image-url.js?v=20260829-store';
 
 /* ════════════════════════════════════
    DOM refs
@@ -125,13 +126,14 @@ function persistCart() {
   void saveCart(cartItems).catch(() => {});
 }
 
-function mkPicture(item, eager) {
+function mkPicture(item, eager, priority = false) {
   const pic = document.createElement('picture');
   appendOptimizedPicture(pic, {
     src: item.image,
     alt: item.label,
     className: 'prod-img',
     eager,
+    priority,
     widths: GRID_WIDTHS,
     sizes: GRID_SIZES,
     quality: 88,
@@ -163,9 +165,11 @@ function mkPreviewPicture(imageUrl, item, eager = true) {
   const pic = document.createElement('picture');
   appendOptimizedPicture(pic, {
     src: imageUrl,
+    fallbackSrc: item.image || imageUrl,
     alt: item.label || productDisplayName(item),
     className: 'preview-img',
     eager,
+    priority: eager,
     widths: PREVIEW_WIDTHS,
     sizes: PREVIEW_SIZES,
     quality: 90,
@@ -365,6 +369,21 @@ function applyFilter(key) {
   renderGrid(visible);
   if (!window.__MARVISPACE_OPEN_PRODUCT__) injectProductSchema(visible);
   updateCols();
+  scrollActiveFilterIntoView();
+}
+
+function scrollActiveFilterIntoView() {
+  const scroller = document.querySelector('.filter-row');
+  const chip = filterBtns.find(b => b.classList.contains('active'));
+  if (!scroller || !chip || scroller.scrollWidth <= scroller.clientWidth) return;
+  const pad = 12;
+  const left = chip.offsetLeft - pad;
+  const right = chip.offsetLeft + chip.offsetWidth + pad;
+  if (left < scroller.scrollLeft) {
+    scroller.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+  } else if (right > scroller.scrollLeft + scroller.clientWidth) {
+    scroller.scrollTo({ left: right - scroller.clientWidth, behavior: 'smooth' });
+  }
 }
 
 function absoluteUrl(path) {
@@ -448,7 +467,7 @@ function renderGrid(items) {
 
     const wrap = document.createElement('div');
     wrap.className = 'prod-img-wrap';
-    wrap.append(mkPicture(item, i < 6));
+    wrap.append(mkPicture(item, i < 12, i < 4));
 
     const meta = document.createElement('div');
     meta.className = 'prod-meta';
@@ -569,6 +588,7 @@ function confirmSizeAdd() {
     existing.price = salePrice(item);
   }
   else cartItems.push({ id: item.id, label: item.label, price: salePrice(item), size: selectedSize, image: item.image, qty: 1 });
+  trackAddToCart({ ...item, price: salePrice(item) }, { quantity: 1, variant: selectedSize });
   renderCart();
   persistCart();
   setTimeout(() => {
@@ -760,8 +780,8 @@ function loadPreviewContent(idx, { keepSizes = false } = {}) {
   szPriceStack.dataset.alt = 'false';
   descVisible = false;
   euMode = false;
-  pDesc.textContent = `${item.label}\n${t('materials')}\n${t('ships')}`;
-  pDesc.classList.remove('show');
+  pDesc.textContent = `${t('materials')}\n${t('ships')}`;
+  pDesc.classList.add('show');
   if (!keepSizes) closeSizes();
   renderSizes();
   buildDots(gallery.length, 0);
@@ -795,6 +815,7 @@ function openPreview(idx) {
 
   loadPreviewContent(idx);
   syncProductDeepLink(visible[idx]);
+  trackViewItem({ ...visible[idx], price: salePrice(visible[idx]) });
 
   const z = zoomGrid(gridBtns[idx], true);
   flyInInverse(z, false);
@@ -1045,6 +1066,12 @@ if (document.fonts?.ready) {
   }
 
   async function bootStore() {
+    try {
+      const settings = await loadSiteSettings();
+      setStoreCurrency(settings?.currency || 'USD');
+    } catch {
+      /* keep default currency */
+    }
     products = await loadProducts(await fetchSeedProducts());
     productCodes = buildProductCodes(products);
     slugMap = buildSlugMap(products);

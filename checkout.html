@@ -14,8 +14,8 @@
   <meta name="theme-color" content="#0a0a0a" />
   <script type="module" src="/assets/js/core/favicon-loader.js"></script>
   <link rel="stylesheet" href="/assets/css/fonts.css?v=20260827-localfonts" />
-  <link rel="stylesheet" href="/assets/css/cart-ui.css" />
-  <link rel="stylesheet" href="/assets/css/checkout.css" />
+  <link rel="stylesheet" href="/assets/css/cart-ui.css?v=20260829-store" />
+  <link rel="stylesheet" href="/assets/css/checkout.css?v=20260829-store" />
 </head>
 <body class="checkout-loading">
 
@@ -145,6 +145,7 @@
                 </div>
               </div>
             </fieldset>
+            <p class="form-note" data-i18n="checkoutDeliveryNote">Turkey cargo, 3–7 business days from our Istanbul workshop. Prices include VAT.</p>
 
             <fieldset class="form-block payment-block" id="paymentBlock">
               <legend data-i18n="checkoutPayment">Payment</legend>
@@ -202,18 +203,18 @@
             </fieldset>
 
             <fieldset class="form-block legal-consent-block">
-              <legend data-i18n="checkoutLegal">Yasal Onaylar</legend>
+              <legend data-i18n="checkoutLegal">Legal consents</legend>
               <label class="checkbox-row">
                 <input type="checkbox" id="acceptOnBilgilendirme" name="acceptOnBilgilendirme" required />
-                <span><a href="/on-bilgilendirme" target="_blank" rel="noopener">Ön Bilgilendirme Formu</a>'nu okudum ve kabul ediyorum.</span>
+                <span><a href="/en/pre-contract" data-i18n-preinfo data-i18n="legalPreInfo" target="_blank" rel="noopener">Pre-contract information</a> <span data-i18n="checkoutAcceptRead">— I have read and accept.</span></span>
               </label>
               <label class="checkbox-row">
                 <input type="checkbox" id="acceptMesafeliSatis" name="acceptMesafeliSatis" required />
-                <span><a href="/mesafeli-satis-sozlesmesi" target="_blank" rel="noopener">Mesafeli Satış Sözleşmesi</a>'ni okudum ve kabul ediyorum.</span>
+                <span><a href="/en/distance-sales" data-i18n-distance data-i18n="legalDistanceSales" target="_blank" rel="noopener">Distance sales</a> <span data-i18n="checkoutAcceptRead">— I have read and accept.</span></span>
               </label>
               <label class="checkbox-row">
                 <input type="checkbox" id="acceptKvkk" name="acceptKvkk" required />
-                <span><a href="/kvkk" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>'ni okudum; kişisel verilerimin işlenmesine onay veriyorum.</span>
+                <span><a href="/en/kvkk" data-i18n-kvkk data-i18n="privacyKvkkLink" target="_blank" rel="noopener">KVKK privacy notice</a> <span data-i18n="checkoutAcceptKvkk">— I have read this notice and consent to processing of my personal data.</span></span>
               </label>
             </fieldset>
 
@@ -240,6 +241,6 @@
     </main>
   </div>
 
-  <script type="module" src="/assets/js/pages/checkout.js?v=20260826-i18n"></script>
+  <script type="module" src="/assets/js/pages/checkout.js?v=20260829-store"></script>
 </body>
 </html>

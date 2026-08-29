@@ -3,15 +3,19 @@
  * @project MARVISPACE
  * @author Ersan JT <https://github.com/ersanjt>
  */
-import { cartImageUrl, bindImageReveal, CART_SIZES, CART_WIDTHS, buildSrcset } from '../core/image-url.js';
+import { cartImageUrl, bindImageReveal, CART_SIZES, CART_WIDTHS, buildSrcset } from '../core/image-url.js?v=20260829-store';
 import { t } from '../core/i18n.js';
 
-export { cartImageUrl } from '../core/image-url.js';
+export { cartImageUrl } from '../core/image-url.js?v=20260829-store';
 
 let storeCurrency = 'USD';
 
 export function setStoreCurrency(code) {
   if (code) storeCurrency = String(code).toUpperCase();
+}
+
+export function getStoreCurrency() {
+  return storeCurrency;
 }
 
 export function fmtMoney(value) {
@@ -109,13 +113,14 @@ export function buildCartLineItem(item, index, onChangeQty, { checkout = false }
   return line;
 }
 
-export function renderTotalsBlock(container, { subtotal, taxes = 0, shippingLabel = t('shippingNext') }) {
+export function renderTotalsBlock(container, { subtotal, taxes = 0, shippingLabel = t('shippingPromise') }) {
   const total = subtotal + taxes;
+  const taxDisplay = taxes > 0 ? fmtMoney(taxes) : t('vatIncluded');
   container.innerHTML = `
     <div class="cart-totals-block">
-      <div class="cart-totals-row"><span>${t('subtotal')}</span><span>${fmtMoney(subtotal)}</span></div>
       <div class="cart-totals-row"><span>${t('shipping')}</span><span class="cart-totals-muted">${shippingLabel}</span></div>
-      <div class="cart-totals-row"><span>${t('taxes')}</span><span>${fmtMoney(taxes)}</span></div>
+      <div class="cart-totals-row"><span>${t('subtotal')}</span><span>${fmtMoney(subtotal)}</span></div>
+      <div class="cart-totals-row"><span>${t('taxes')}</span><span class="cart-totals-muted">${taxDisplay}</span></div>
     </div>
     <div class="cart-totals-grand"><span>${t('total')}</span><span>${fmtMoney(total)}</span></div>
   `;

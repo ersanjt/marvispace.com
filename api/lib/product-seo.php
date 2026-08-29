@@ -95,6 +95,71 @@ function seo_home_path(?string $lang = null): string
     return '/' . seo_lang($lang) . '/';
 }
 
+function seo_i18n_page_path(string $page, ?string $lang = null): string
+{
+    if (function_exists('i18n_page_path')) {
+        return i18n_page_path($page, $lang);
+    }
+    $lang = seo_lang($lang);
+    $slugs = [
+        'contact' => ['en' => '/en/contact', 'tr' => '/tr/iletisim'],
+        'privacy' => ['en' => '/en/privacy', 'tr' => '/tr/gizlilik'],
+        'accessibility' => ['en' => '/en/accessibility', 'tr' => '/tr/erisilebilirlik'],
+        'cookies' => ['en' => '/en/cookies', 'tr' => '/tr/cerez-politikasi'],
+        'terms' => ['en' => '/en/terms', 'tr' => '/tr/kullanim-kosullari'],
+        'returns' => ['en' => '/en/returns', 'tr' => '/tr/iade-ve-iptal'],
+        'kvkk' => ['en' => '/en/kvkk', 'tr' => '/tr/kvkk'],
+        'distance' => ['en' => '/en/distance-sales', 'tr' => '/tr/mesafeli-satis-sozlesmesi'],
+        'preinfo' => ['en' => '/en/pre-contract', 'tr' => '/tr/on-bilgilendirme'],
+    ];
+    return $slugs[$page][$lang] ?? ('/' . $lang . '/' . $page);
+}
+
+function seo_contact_path(?string $lang = null): string
+{
+    return seo_i18n_page_path('contact', $lang);
+}
+
+function seo_privacy_path(?string $lang = null): string
+{
+    return seo_i18n_page_path('privacy', $lang);
+}
+
+function seo_accessibility_path(?string $lang = null): string
+{
+    return seo_i18n_page_path('accessibility', $lang);
+}
+
+function seo_cookies_path(?string $lang = null): string
+{
+    return seo_i18n_page_path('cookies', $lang);
+}
+
+function seo_terms_path(?string $lang = null): string
+{
+    return seo_i18n_page_path('terms', $lang);
+}
+
+function seo_returns_path(?string $lang = null): string
+{
+    return seo_i18n_page_path('returns', $lang);
+}
+
+function seo_kvkk_path(?string $lang = null): string
+{
+    return seo_i18n_page_path('kvkk', $lang);
+}
+
+function seo_distance_path(?string $lang = null): string
+{
+    return seo_i18n_page_path('distance', $lang);
+}
+
+function seo_preinfo_path(?string $lang = null): string
+{
+    return seo_i18n_page_path('preinfo', $lang);
+}
+
 function seo_product_path(array $product, array $slugMap, ?string $lang = null): string
 {
     $id = (string) ($product['id'] ?? '');
@@ -340,6 +405,101 @@ function seo_apply_product_head(string $html, array $product, array $slugMap, ?s
     $html = str_replace('<!-- SEO_NOSCRIPT -->', $noscript, $html);
 
     return $html;
+}
+
+function seo_i18n_page_jsonld(string $page, string $lang): array
+{
+    $lang = seo_lang($lang);
+    $url = seo_site_url() . seo_i18n_page_path($page, $lang);
+    $meta = function_exists('i18n_page_meta') ? i18n_page_meta($page, $lang) : ['title' => 'MARVISPACE'];
+    $type = $page === 'contact' ? 'ContactPage' : 'WebPage';
+    return [
+        '@context' => 'https://schema.org',
+        '@type' => $type,
+        'url' => $url,
+        'name' => $meta['title'] ?? 'MARVISPACE',
+        'inLanguage' => $lang,
+        'isPartOf' => ['@id' => seo_site_url() . '/#website'],
+        'about' => ['@id' => seo_site_url() . '/#organization'],
+    ];
+}
+
+function seo_apply_i18n_page(string $html, string $page, ?string $lang = null): string
+{
+    $lang = seo_lang($lang);
+    $fallback = [
+        'title' => 'MARVISPACE',
+        'ogTitle' => 'MARVISPACE',
+        'description' => 'MARVISPACE',
+        'h1' => 'MARVISPACE',
+    ];
+    $meta = function_exists('i18n_page_meta') ? i18n_page_meta($page, $lang) : $fallback;
+    $url = seo_site_url() . seo_i18n_page_path($page, $lang);
+    $enUrl = seo_site_url() . seo_i18n_page_path($page, 'en');
+    $trUrl = seo_site_url() . seo_i18n_page_path($page, 'tr');
+    $ogLocale = $lang === 'tr' ? 'tr_TR' : 'en_US';
+    $ogAltLocale = $lang === 'tr' ? 'en_US' : 'tr_TR';
+
+    $html = seo_apply_html_lang($html, $lang);
+    $html = seo_replace_tagged($html, 'title', $meta['title'], 'title');
+    $html = seo_replace_tagged($html, 'description', $meta['description']);
+    $html = seo_replace_tagged($html, 'canonical', $url, 'href');
+    $html = seo_replace_tagged($html, 'og-title', $meta['ogTitle']);
+    $html = seo_replace_tagged($html, 'og-description', $meta['description']);
+    $html = seo_replace_tagged($html, 'og-url', $url);
+    $html = seo_replace_tagged($html, 'og-locale', $ogLocale);
+    $html = seo_replace_tagged($html, 'og-locale-alt', $ogAltLocale);
+    $html = seo_replace_tagged($html, 'twitter-title', $meta['ogTitle']);
+    $html = seo_replace_tagged($html, 'twitter-description', $meta['description']);
+    $html = seo_replace_tagged($html, 'h1', $meta['h1'], 'text');
+
+    $inject = seo_hreflang_tags($enUrl, $trUrl) . "\n"
+        . '  <script type="application/ld+json">' . seo_json(seo_i18n_page_jsonld($page, $lang)) . "</script>\n"
+        . '  <script>window.__MARVISPACE_LANG__="' . $lang . '";</script>' . "\n";
+    return str_replace('<!-- SEO_INJECT -->', $inject . '  <!-- SEO_INJECT -->', $html);
+}
+
+function seo_apply_contact_page(string $html, ?string $lang = null): string
+{
+    return seo_apply_i18n_page($html, 'contact', $lang);
+}
+
+function seo_serve_i18n_page(string $page, string $htmlFile): void
+{
+    $hl = function_exists('i18n_from_query') ? i18n_from_query() : '';
+    $slug = strtolower(trim((string) ($_GET['slug'] ?? '')));
+
+    if ($hl === '') {
+        $lang = function_exists('i18n_lang') ? i18n_lang() : 'en';
+        if (function_exists('i18n_persist')) {
+            i18n_persist($lang);
+        }
+        header('Location: ' . seo_site_url() . seo_i18n_page_path($page, $lang), true, 302);
+        exit;
+    }
+
+    $lang = function_exists('i18n_normalize') ? i18n_normalize($hl) : seo_lang($hl);
+    if (function_exists('i18n_persist')) {
+        i18n_persist($lang);
+    }
+
+    $expected = function_exists('i18n_page_expected_slug')
+        ? i18n_page_expected_slug($page, $lang)
+        : $page;
+    if ($slug !== '' && $slug !== $expected) {
+        header('Location: ' . seo_site_url() . seo_i18n_page_path($page, $lang), true, 301);
+        exit;
+    }
+
+    $html = is_readable($htmlFile) ? file_get_contents($htmlFile) : false;
+    if (!is_string($html) || $html === '') {
+        http_response_code(500);
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!doctype html><title>MARVISPACE</title><p>Page unavailable.</p>';
+        exit;
+    }
+
+    seo_send_html(seo_apply_i18n_page($html, $page, $lang));
 }
 
 function seo_apply_home_itemlist(string $html, array $products, array $slugMap, ?string $lang = null): string

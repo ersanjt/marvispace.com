@@ -250,8 +250,45 @@ body.preview-open .newsletter-popup { display: none; }
   display: none;
 }
 
-/* Desktop: details look like static columns */
+/* Desktop footer — brand | columns | meta */
 @media (min-width: 769px) {
+  .footer-inner {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.6fr);
+    grid-template-areas:
+      "brand cols"
+      "meta meta";
+    align-items: start;
+    justify-items: stretch;
+    gap: 36px 56px;
+    max-width: 1120px;
+    padding: 56px 40px 40px;
+    text-align: left;
+  }
+
+  .footer-brand-block {
+    grid-area: brand;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .footer-columns {
+    grid-area: cols;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-items: start;
+    gap: 24px 32px;
+    width: 100%;
+  }
+
+  .footer-meta {
+    grid-area: meta;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
   .footer-col > .footer-col__title {
     pointer-events: none;
     cursor: default;

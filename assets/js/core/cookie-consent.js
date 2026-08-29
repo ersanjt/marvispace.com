@@ -1,7 +1,7 @@
 /**
  * KVKK cookie consent — analytics loads only after acceptance.
  */
-import { t, getLang } from './i18n.js';
+import { t, getLang, privacyPath, cookiesPath, kvkkPath } from './i18n.js';
 
 const CONSENT_KEY = 'marvispace_cookie_consent_v1';
 
@@ -47,14 +47,15 @@ function renderBanner() {
   banner.className = 'cookie-consent';
   banner.setAttribute('role', 'dialog');
   banner.setAttribute('aria-label', t('cookieAria'));
-  const privacyHref = getLang() === 'tr' ? '/kvkk' : '/privacy';
+  const privacyHref = getLang() === 'tr' ? kvkkPath() : privacyPath();
+  const cookieHref = cookiesPath();
   banner.innerHTML = `
     <div class="cookie-consent__inner">
       <p class="cookie-consent__text">
         ${t('cookieText')}
         <a href="${privacyHref}">${t('cookiePrivacy')}</a>
         ·
-        <a href="${privacyHref}#cookies">${t('cookiePolicy')}</a>.
+        <a href="${cookieHref}">${t('cookiePolicy')}</a>.
       </p>
       <div class="cookie-consent__actions">
         <button type="button" class="cookie-consent__btn cookie-consent__btn--accept" data-cookie-accept>${t('cookieAccept')}</button>

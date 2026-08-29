@@ -178,6 +178,256 @@ function i18n_og_locale(string $lang = ''): string
     return i18n_normalize($lang ?: i18n_lang()) === 'tr' ? 'tr_TR' : 'en_US';
 }
 
+function i18n_page_slugs(): array
+{
+    return [
+        'contact' => ['en' => 'contact', 'tr' => 'iletisim'],
+        'privacy' => ['en' => 'privacy', 'tr' => 'gizlilik'],
+        'accessibility' => ['en' => 'accessibility', 'tr' => 'erisilebilirlik'],
+        'cookies' => ['en' => 'cookies', 'tr' => 'cerez-politikasi'],
+        'terms' => ['en' => 'terms', 'tr' => 'kullanim-kosullari'],
+        'returns' => ['en' => 'returns', 'tr' => 'iade-ve-iptal'],
+        'kvkk' => ['en' => 'kvkk', 'tr' => 'kvkk'],
+        'distance' => ['en' => 'distance-sales', 'tr' => 'mesafeli-satis-sozlesmesi'],
+        'preinfo' => ['en' => 'pre-contract', 'tr' => 'on-bilgilendirme'],
+    ];
+}
+
+/** HTML templates for bilingual pages (relative to site root). */
+function i18n_page_templates(): array
+{
+    return [
+        'contact' => 'templates/contact.html',
+        'privacy' => 'templates/privacy.html',
+        'accessibility' => 'templates/accessibility.html',
+        'cookies' => 'templates/cookies.html',
+        'terms' => 'templates/terms.html',
+        'returns' => 'templates/returns.html',
+        'kvkk' => 'templates/kvkk.html',
+        'distance' => 'templates/distance.html',
+        'preinfo' => 'templates/preinfo.html',
+    ];
+}
+
+function i18n_page_template(string $page): string
+{
+    return i18n_page_templates()[$page] ?? '';
+}
+
+function i18n_page_from_slug(string $slug): string
+{
+    $slug = strtolower(trim($slug));
+    if ($slug === '') {
+        return '';
+    }
+    foreach (i18n_page_slugs() as $page => $langs) {
+        if (($langs['en'] ?? '') === $slug || ($langs['tr'] ?? '') === $slug) {
+            return $page;
+        }
+    }
+    return '';
+}
+
+function i18n_page_path(string $page, ?string $lang = null): string
+{
+    $lang = i18n_normalize($lang);
+    $slugs = i18n_page_slugs()[$page] ?? ['en' => $page, 'tr' => $page];
+    return '/' . $lang . '/' . ($slugs[$lang] ?? $page);
+}
+
+function i18n_page_expected_slug(string $page, string $lang): string
+{
+    $slugs = i18n_page_slugs()[$page] ?? ['en' => $page, 'tr' => $page];
+    return $slugs[i18n_normalize($lang)] ?? $page;
+}
+
+function i18n_contact_path(?string $lang = null): string
+{
+    return i18n_page_path('contact', $lang);
+}
+
+function i18n_privacy_path(?string $lang = null): string
+{
+    return i18n_page_path('privacy', $lang);
+}
+
+function i18n_contact_meta(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            'title' => 'İletişim — MARVISPACE',
+            'ogTitle' => 'İletişim — MARVISPACE',
+            'description' => 'MARVISPACE iletişim. İstanbul Kağıthane deri atölyesi, Alanya ve Antalya mağazaları. Sipariş, iade ve müşteri hizmetleri — 1–2 iş günü içinde yanıt.',
+            'h1' => 'İletişim',
+        ];
+    }
+    return [
+        'title' => 'Contact — MARVISPACE',
+        'ogTitle' => 'Contact — MARVISPACE',
+        'description' => 'Contact MARVISPACE. Istanbul Kağıthane leather workshop, Alanya and Antalya showrooms. Orders, returns, and customer support — we reply within 1–2 business days.',
+        'h1' => 'Contact',
+    ];
+}
+
+function i18n_privacy_meta(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            'title' => 'Gizlilik — MARVISPACE',
+            'ogTitle' => 'Gizlilik — MARVISPACE',
+            'description' => 'MARVISPACE gizlilik ve KVKK aydınlatma metni. İşlenen veriler, saklama, aktarım, haklar ve çerezler — support@marvispace.com.',
+            'h1' => 'Gizlilik',
+        ];
+    }
+    return [
+        'title' => 'Privacy — MARVISPACE',
+        'ogTitle' => 'Privacy — MARVISPACE',
+        'description' => 'MARVISPACE privacy policy and KVKK notice. Data we process, retention, transfers, your rights, and cookies — support@marvispace.com.',
+        'h1' => 'Privacy',
+    ];
+}
+
+function i18n_accessibility_meta(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            'title' => 'Erişilebilirlik — MARVISPACE',
+            'ogTitle' => 'Erişilebilirlik — MARVISPACE',
+            'description' => 'MARVISPACE erişilebilirlik. Klavye ile gezinme, okunabilir yazı ve semantik sayfa yapısı. Engel bildirimi: support@marvispace.com.',
+            'h1' => 'Erişilebilirlik',
+        ];
+    }
+    return [
+        'title' => 'Accessibility — MARVISPACE',
+        'ogTitle' => 'Accessibility — MARVISPACE',
+        'description' => 'MARVISPACE accessibility. Keyboard navigation, readable typography, and semantic page structure. Report barriers to support@marvispace.com.',
+        'h1' => 'Accessibility',
+    ];
+}
+
+function i18n_cookies_meta(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            'title' => 'Çerez Politikası — MARVISPACE',
+            'ogTitle' => 'Çerez Politikası — MARVISPACE',
+            'description' => 'MARVISPACE çerez politikası. Zorunlu çerezler sepet ve oturum içindir; analitik çerezler yalnızca kabul sonrası yüklenir.',
+            'h1' => 'Çerez Politikası',
+        ];
+    }
+    return [
+        'title' => 'Cookie Policy — MARVISPACE',
+        'ogTitle' => 'Cookie Policy — MARVISPACE',
+        'description' => 'MARVISPACE cookie policy. Essential cookies for cart and session; analytics cookies load only after you accept the banner.',
+        'h1' => 'Cookie Policy',
+    ];
+}
+
+function i18n_terms_meta(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            'title' => 'Kullanım Koşulları — MARVISPACE',
+            'ogTitle' => 'Kullanım Koşulları — MARVISPACE',
+            'description' => 'MARVISPACE kullanım koşulları. Güvenli ödeme, KDV dahil fiyatlar, 3D Secure. Türkiye mesafeli satış metinleri ayrıca yayımlanır.',
+            'h1' => 'Kullanım Koşulları',
+        ];
+    }
+    return [
+        'title' => 'Terms — MARVISPACE',
+        'ogTitle' => 'Terms — MARVISPACE',
+        'description' => 'MARVISPACE terms of service. Secure checkout, VAT-inclusive prices, 3D Secure. Distance-sale documents for Turkey are published separately.',
+        'h1' => 'Terms',
+    ];
+}
+
+function i18n_returns_meta(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            'title' => 'İade ve Cayma Hakkı — MARVISPACE',
+            'ogTitle' => 'İade ve Cayma Hakkı — MARVISPACE',
+            'description' => 'MARVISPACE iade, iptal ve 14 gün cayma hakkı. Süreç, istisnalar ve ayıplı ürün — support@marvispace.com.',
+            'h1' => 'İade ve Cayma Hakkı',
+        ];
+    }
+    return [
+        'title' => 'Returns & Withdrawal — MARVISPACE',
+        'ogTitle' => 'Returns & Withdrawal — MARVISPACE',
+        'description' => 'MARVISPACE returns, cancellation, and 14-day withdrawal. Process, exceptions, and damaged goods — support@marvispace.com.',
+        'h1' => 'Returns & Withdrawal',
+    ];
+}
+
+function i18n_kvkk_meta(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            'title' => 'KVKK Aydınlatma Metni — MARVISPACE',
+            'ogTitle' => 'KVKK Aydınlatma Metni — MARVISPACE',
+            'description' => 'MARVISPACE KVKK aydınlatma metni. İşlenen kişisel veriler, amaç, aktarım, saklama ve haklar — 6698 sayılı Kanun, support@marvispace.com.',
+            'h1' => 'KVKK Aydınlatma Metni',
+        ];
+    }
+    return [
+        'title' => 'KVKK Privacy Notice — MARVISPACE',
+        'ogTitle' => 'KVKK Privacy Notice — MARVISPACE',
+        'description' => 'MARVISPACE KVKK privacy notice. Personal data we process, purpose, transfers, retention, and your rights under Turkish Law No. 6698.',
+        'h1' => 'KVKK Privacy Notice',
+    ];
+}
+
+function i18n_distance_meta(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            'title' => 'Mesafeli Satış Sözleşmesi — MARVISPACE',
+            'ogTitle' => 'Mesafeli Satış Sözleşmesi — MARVISPACE',
+            'description' => 'MARVISPACE mesafeli satış sözleşmesi. Teslimat 3–7 iş günü, KDV dahil fiyat, 14 gün cayma hakkı — 6502 sayılı Kanun.',
+            'h1' => 'Mesafeli Satış Sözleşmesi',
+        ];
+    }
+    return [
+        'title' => 'Distance Sales Agreement — MARVISPACE',
+        'ogTitle' => 'Distance Sales Agreement — MARVISPACE',
+        'description' => 'MARVISPACE distance sales agreement. Delivery 3–7 business days, VAT-inclusive prices, 14-day withdrawal — Turkish Law No. 6502.',
+        'h1' => 'Distance Sales Agreement',
+    ];
+}
+
+function i18n_preinfo_meta(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            'title' => 'Ön Bilgilendirme Formu — MARVISPACE',
+            'ogTitle' => 'Ön Bilgilendirme Formu — MARVISPACE',
+            'description' => 'MARVISPACE ön bilgilendirme formu. Fiyat, kargo, ödeme, teslimat ve cayma hakkı — sipariş öncesi zorunlu bilgiler.',
+            'h1' => 'Ön Bilgilendirme Formu',
+        ];
+    }
+    return [
+        'title' => 'Pre-contract Information — MARVISPACE',
+        'ogTitle' => 'Pre-contract Information — MARVISPACE',
+        'description' => 'MARVISPACE pre-contract information. Price, shipping, payment, delivery, and withdrawal rights before you order.',
+        'h1' => 'Pre-contract Information',
+    ];
+}
+
+function i18n_page_meta(string $page, string $lang): array
+{
+    return match ($page) {
+        'privacy' => i18n_privacy_meta($lang),
+        'accessibility' => i18n_accessibility_meta($lang),
+        'cookies' => i18n_cookies_meta($lang),
+        'terms' => i18n_terms_meta($lang),
+        'returns' => i18n_returns_meta($lang),
+        'kvkk' => i18n_kvkk_meta($lang),
+        'distance' => i18n_distance_meta($lang),
+        'preinfo' => i18n_preinfo_meta($lang),
+        default => i18n_contact_meta($lang),
+    };
+}
+
 function i18n_home_meta(string $lang): array
 {
     if (i18n_normalize($lang) === 'tr') {

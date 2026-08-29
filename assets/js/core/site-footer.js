@@ -6,7 +6,7 @@
 import { subscribeNewsletter } from './api-client.js';
 import { SITE, SOCIAL } from '../config/site.js';
 import { MERCHANT_PHONE, MERCHANT_PHONE_HREF } from '../config/legal.js';
-import { t, getLang, switchLang } from './i18n.js';
+import { t, getLang, switchLang, contactPath, privacyPath, accessibilityPath, cookiesPath, termsPath, returnsPath, kvkkPath, distancePath, preinfoPath } from './i18n.js';
 
 const NEWSLETTER_DISMISS_KEY = 'marvispace_newsletter_dismissed';
 
@@ -46,10 +46,12 @@ function legalNavHtml() {
       <details class="footer-col">
         <summary class="footer-col__title">${t('legal')}</summary>
         <ul class="footer-nav">
-          <li><a href="/kvkk" class="nav-item">KVKK</a></li>
-          <li><a href="/mesafeli-satis-sozlesmesi" class="nav-item">Mesafeli Satış</a></li>
-          <li><a href="/on-bilgilendirme" class="nav-item">Ön Bilgilendirme</a></li>
-          <li><a href="/iade-ve-iptal" class="nav-item">${t('returns')}</a></li>
+          <li><a href="${kvkkPath()}" class="nav-item">KVKK</a></li>
+          <li><a href="${termsPath()}" class="nav-item">${t('terms')}</a></li>
+          <li><a href="${privacyPath()}" class="nav-item">${t('privacy')}</a></li>
+          <li><a href="${distancePath()}" class="nav-item">${t('legalDistanceSales')}</a></li>
+          <li><a href="${preinfoPath()}" class="nav-item">${t('legalPreInfo')}</a></li>
+          <li><a href="${returnsPath()}" class="nav-item">${t('returns')}</a></li>
         </ul>
       </details>
     `;
@@ -58,10 +60,12 @@ function legalNavHtml() {
     <details class="footer-col">
       <summary class="footer-col__title">${t('legal')}</summary>
       <ul class="footer-nav">
-        <li><a href="/terms" class="nav-item">${t('terms')}</a></li>
-        <li><a href="/privacy" class="nav-item">${t('privacy')}</a></li>
-        <li><a href="/iade-ve-iptal" class="nav-item">${t('returns')}</a></li>
-        <li><a href="/kvkk" class="nav-item">KVKK</a></li>
+        <li><a href="${termsPath()}" class="nav-item">${t('terms')}</a></li>
+        <li><a href="${privacyPath()}" class="nav-item">${t('privacy')}</a></li>
+        <li><a href="${distancePath()}" class="nav-item">${t('legalDistanceSales')}</a></li>
+        <li><a href="${preinfoPath()}" class="nav-item">${t('legalPreInfo')}</a></li>
+        <li><a href="${returnsPath()}" class="nav-item">${t('returns')}</a></li>
+        <li><a href="${kvkkPath()}" class="nav-item">KVKK</a></li>
       </ul>
     </details>
   `;
@@ -77,7 +81,7 @@ function footerInnerHtml() {
         <span>${SITE.name}</span>
       </a>
       <p class="footer-tagline">${t('tagline')}</p>
-      <a class="footer-cta" href="/contact">${t('contactSupport')}</a>
+      <a class="footer-cta" href="${contactPath()}">${t('contactSupport')}</a>
     </div>
 
     <div class="footer-columns">
@@ -86,11 +90,11 @@ function footerInnerHtml() {
       <details class="footer-col">
         <summary class="footer-col__title">${t('help')}</summary>
         <ul class="footer-nav">
-          <li><a href="/contact" class="nav-item">${t('contact')}</a></li>
+          <li><a href="${contactPath()}" class="nav-item">${t('contact')}</a></li>
           <li><a href="/order-status" class="nav-item">${t('orderStatus')}</a></li>
-          <li><a href="/privacy" class="nav-item">${t('privacy')}</a></li>
-          <li><a href="/accessibility" class="nav-item">${t('accessibility')}</a></li>
-          <li><button type="button" class="nav-item" data-cookies-btn>${t('cookies')}</button></li>
+          <li><a href="${privacyPath()}" class="nav-item">${t('privacy')}</a></li>
+          <li><a href="${accessibilityPath()}" class="nav-item">${t('accessibility')}</a></li>
+          <li><a href="${cookiesPath()}" class="nav-item">${t('cookies')}</a></li>
         </ul>
       </details>
 
@@ -100,7 +104,7 @@ function footerInnerHtml() {
     <div class="footer-meta">
       <p class="footer-trust">${t('trust')}</p>
       <p class="footer-places">${t('places')} · <a href="${MERCHANT_PHONE_HREF}">${MERCHANT_PHONE}</a> · <a href="mailto:${SITE.supportEmail}">${SITE.supportEmail}</a></p>
-      <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">${t('etbis')}</a> · <a href="/iade-ve-iptal">${t('returns')}</a></p>
+      <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">${t('etbis')}</a> · <a href="${returnsPath()}">${t('returns')}</a></p>
       <p class="footer-lang" aria-label="Language">
         <button type="button" class="footer-lang__btn${lang === 'tr' ? ' is-active' : ''}" data-lang-switch="tr">${t('langTr')}</button>
         <span aria-hidden="true">/</span>
@@ -133,7 +137,7 @@ function newsletterHtml() {
       />
       <p class="newsletter-consent">
         ${t('newsletterConsent')}
-        <a href="${getLang() === 'tr' ? '/kvkk' : '/privacy'}">${t('newsletterPrivacy')}</a>
+        <a href="${getLang() === 'tr' ? kvkkPath() : privacyPath()}">${t('newsletterPrivacy')}</a>
       </p>
       <button type="submit" class="newsletter-btn">${t('subscribe')}</button>
       <p class="newsletter-msg" data-newsletter-msg hidden></p>
@@ -142,18 +146,23 @@ function newsletterHtml() {
 `;
 }
 
-function bindCookiesButton(footer) {
-  footer.querySelector('[data-cookies-btn]')?.addEventListener('click', () => {
-    window.location.href = getLang() === 'tr' ? '/kvkk#cookies' : '/privacy#cookies';
-  });
-}
-
 function bindLangSwitch(footer) {
   footer.querySelectorAll('[data-lang-switch]').forEach(btn => {
     btn.addEventListener('click', () => {
       switchLang(btn.getAttribute('data-lang-switch'));
     });
   });
+}
+
+export function mountSiteFooter(root = document) {
+  root.querySelectorAll('[data-site-footer], .site-footer').forEach(footer => {
+    footer.classList.add('site-footer');
+    footer.innerHTML = footerInnerHtml();
+    bindLangSwitch(footer);
+    syncFooterAccordions(footer);
+  });
+
+  mountNewsletterPopup();
 }
 
 function syncFooterAccordions(footer) {
@@ -246,18 +255,6 @@ export function mountNewsletterPopup() {
       if (button) button.disabled = false;
     }
   });
-}
-
-export function mountSiteFooter(root = document) {
-  root.querySelectorAll('[data-site-footer], .site-footer').forEach(footer => {
-    footer.classList.add('site-footer');
-    footer.innerHTML = footerInnerHtml();
-    bindCookiesButton(footer);
-    bindLangSwitch(footer);
-    syncFooterAccordions(footer);
-  });
-
-  mountNewsletterPopup();
 }
 
 if (document.currentScript?.type === 'module') {

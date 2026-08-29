@@ -4,5 +4,6 @@ Disallow: /admin
 Disallow: /checkout
 Disallow: /order-confirmation
 Disallow: /api/
+Disallow: /templates/
 
 Sitemap: https://marvispace.com/sitemap.xml

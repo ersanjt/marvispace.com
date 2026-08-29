@@ -1,7 +1,8 @@
 /**
  * Shared merchant legal block for Turkish compliance pages.
  */
-import { MERCHANT, LEGAL_LINKS, LOCATIONS, MERCHANT_PHONE_HREF } from '../config/legal.js';
+import { MERCHANT, LOCATIONS, MERCHANT_PHONE_HREF } from '../config/legal.js';
+import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js';
 
 function esc(value) {
   return String(value || '')
@@ -24,16 +25,16 @@ function mapsUrl(address) {
 function merchantRowsHtml() {
   const m = MERCHANT;
   const rows = [
-    ['Ticari Unvan', m.legalName],
-    ['Marka', m.brand],
-    ['Adres', m.address],
-    ['Telefon', m.phone, MERCHANT_PHONE_HREF],
-    ['E-posta', m.email, `mailto:${m.email}`],
-    isPresent(m.taxOffice) && isPresent(m.taxNumber) ? ['Vergi Dairesi / No', `${m.taxOffice} — ${m.taxNumber}`] : null,
-    isPresent(m.mersis) ? ['MERSİS', m.mersis] : null,
-    isPresent(m.tradeRegistry) ? ['Ticaret Sicil No', m.tradeRegistry] : null,
-    isPresent(m.kep) ? ['KEP', m.kep] : null,
-    isPresent(m.authorizedPerson) ? ['Yetkili', m.authorizedPerson] : null,
+    [t('merchantTrade'), m.legalName],
+    [t('merchantBrand'), m.brand],
+    [t('merchantAddress'), m.address],
+    [t('merchantPhone'), m.phone, MERCHANT_PHONE_HREF],
+    [t('merchantEmail'), m.email, `mailto:${m.email}`],
+    isPresent(m.taxOffice) && isPresent(m.taxNumber) ? [t('merchantTax'), `${m.taxOffice} — ${m.taxNumber}`] : null,
+    isPresent(m.mersis) ? [t('merchantMersis'), m.mersis] : null,
+    isPresent(m.tradeRegistry) ? [t('merchantRegistry'), m.tradeRegistry] : null,
+    isPresent(m.kep) ? [t('merchantKep'), m.kep] : null,
+    isPresent(m.authorizedPerson) ? [t('merchantAuthorized'), m.authorizedPerson] : null,
     ['ETBİS', 'etbis.ticaret.gov.tr', m.etbisUrl],
   ].filter(Boolean);
 
@@ -46,18 +47,19 @@ function merchantRowsHtml() {
 }
 
 export function locationsHtml() {
+  const tr = getLang() === 'tr';
   return `
-    <section class="store-locations" aria-label="MARVISPACE locations">
-      <h2 class="section-label">Atölye ve mağazalar / Workshop &amp; stores</h2>
-      <p class="store-locations__lead">MARVISPACE online satıştır. Deri İstanbul Kağıthane atölyesinde üretilir; Alanya ve Antalya’da showroom’da görebilirsiniz.</p>
+    <section class="store-locations" aria-label="${esc(t('locationsAria'))}">
+      <h2 class="section-label">${esc(t('locationsTitle'))}</h2>
+      <p class="store-locations__lead">${esc(t('locationsLead'))}</p>
       <div class="store-locations__grid">
         ${LOCATIONS.map(place => `
           <article class="store-location">
-            <h3>${esc(place.nameTr)} <span>/ ${esc(place.nameEn)}</span></h3>
-            <p class="store-location__blurb">${esc(place.blurbTr)}</p>
+            <h3>${esc(tr ? place.nameTr : place.nameEn)}</h3>
+            <p class="store-location__blurb">${esc(tr ? place.blurbTr : place.blurbEn)}</p>
             <p class="store-location__address">${esc(place.address)}</p>
             ${place.phone ? `<p><a href="${MERCHANT_PHONE_HREF}">${esc(place.phone)}</a></p>` : ''}
-            <p><a href="${esc(mapsUrl(place.address))}" rel="noopener noreferrer" target="_blank">Harita / Map</a></p>
+            <p><a href="${esc(mapsUrl(place.address))}" rel="noopener noreferrer" target="_blank">${esc(t('locationMap'))}</a></p>
           </article>
         `).join('')}
       </div>
@@ -67,8 +69,8 @@ export function locationsHtml() {
 
 export function merchantInfoHtml() {
   return `
-    <section class="merchant-info" aria-label="Satıcı bilgileri">
-      <h2 class="section-label">Satıcı / Veri Sorumlusu Bilgileri</h2>
+    <section class="merchant-info" aria-label="${esc(t('merchantAria'))}">
+      <h2 class="section-label">${esc(t('merchantTitle'))}</h2>
       <dl class="order-meta">
         ${merchantRowsHtml()}
       </dl>
@@ -91,17 +93,24 @@ export function mountStoreLocations(root = document) {
 export function mountLegalNav(root = document) {
   root.querySelectorAll('[data-legal-nav]').forEach(el => {
     el.innerHTML = `
-      <nav class="legal-nav" aria-label="Yasal metinler">
-        <a href="${LEGAL_LINKS.kvkk}">KVKK</a>
-        <a href="${LEGAL_LINKS.mesafeliSatis}">Mesafeli Satış</a>
-        <a href="${LEGAL_LINKS.onBilgilendirme}">Ön Bilgilendirme</a>
-        <a href="${LEGAL_LINKS.iadeIptal}">İade & Cayma</a>
-        <a href="${LEGAL_LINKS.contact}">İletişim</a>
+      <nav class="legal-nav" aria-label="${esc(t('legalNavAria'))}">
+        <a href="${kvkkPath()}">KVKK</a>
+        <a href="${termsPath()}">${esc(t('terms'))}</a>
+        <a href="${privacyPath()}">${esc(t('privacy'))}</a>
+        <a href="${cookiesPath()}">${esc(t('cookiePolicy'))}</a>
+        <a href="${distancePath()}">${esc(t('legalDistanceSales'))}</a>
+        <a href="${preinfoPath()}">${esc(t('legalPreInfo'))}</a>
+        <a href="${returnsPath()}">${esc(t('returns'))}</a>
+        <a href="${contactPath()}">${esc(t('contact'))}</a>
       </nav>
     `;
   });
 }
 
-mountMerchantInfo();
-mountStoreLocations();
-mountLegalNav();
+export function mountLegalPage(root = document) {
+  mountMerchantInfo(root);
+  mountStoreLocations(root);
+  mountLegalNav(root);
+}
+
+mountLegalPage();

@@ -41,7 +41,13 @@ export function buildSrcset(src, widths, format = 'webp', quality = 85) {
 }
 
 export function bindImageReveal(img, fallbackSrc = '') {
-  const reveal = () => img.classList.add('is-loaded');
+  let revealed = false;
+
+  const reveal = () => {
+    if (revealed) return;
+    revealed = true;
+    img.classList.add('is-loaded');
+  };
 
   const fallBackToOriginal = () => {
     if (!fallbackSrc || img.dataset.fallbackApplied === '1') {
@@ -49,20 +55,36 @@ export function bindImageReveal(img, fallbackSrc = '') {
       return;
     }
     img.dataset.fallbackApplied = '1';
-    // <picture> <source> tags win over img.src — strip them or fallback never shows
     const picture = img.closest('picture');
     picture?.querySelectorAll('source').forEach(el => el.remove());
     img.removeAttribute('srcset');
     img.removeAttribute('sizes');
-    img.src = fallbackSrc;
+    try {
+      const next = new URL(fallbackSrc, window.location.href).href;
+      if (img.src !== next) img.src = fallbackSrc;
+    } catch {
+      img.src = fallbackSrc;
+    }
+    if (img.complete && img.naturalWidth > 0) reveal();
   };
 
-  img.addEventListener('load', reveal, { once: true });
+  img.addEventListener('load', reveal);
   img.addEventListener('error', fallBackToOriginal);
-  if (img.complete && img.naturalWidth) reveal();
-  else if (img.complete && !img.naturalWidth && (img.currentSrc || img.src)) {
-    fallBackToOriginal();
+
+  // Cached / already decoded — show immediately.
+  if (img.complete && img.naturalWidth > 0) {
+    reveal();
+    return;
   }
+
+  // Native loading="lazy" often reports complete=true with 0×0 *before*
+  // the fetch starts. Treating that as an error leaves the card blank
+  // (opacity: 0, no load event) until a full cache-busting reload.
+  window.setTimeout(() => {
+    if (revealed) return;
+    if (img.naturalWidth > 0) reveal();
+    else fallBackToOriginal();
+  }, 4000);
 }
 
 export function prefetchOptimizedImage(src, width = PREVIEW_WIDTHS[1]) {
@@ -89,9 +111,11 @@ export function prefetchGalleryImages(urls, centerIdx = 0) {
  */
 export function appendOptimizedPicture(picture, {
   src,
+  fallbackSrc = '',
   alt = '',
   className = '',
   eager = false,
+  priority = false,
   widths = GRID_WIDTHS,
   sizes = GRID_SIZES,
   quality = 85,
@@ -99,15 +123,16 @@ export function appendOptimizedPicture(picture, {
   const img = document.createElement('img');
   img.decoding = 'async';
   img.loading = eager ? 'eager' : 'lazy';
-  if (eager) img.fetchPriority = 'high';
+  if (priority) img.fetchPriority = 'high';
   img.alt = alt;
   if (className) img.className = className;
   img.draggable = false;
+  const original = fallbackSrc || src;
 
   if (!isOptimizableImage(src)) {
     img.src = src;
     picture.append(img);
-    bindImageReveal(img);
+    bindImageReveal(img, original);
     return img;
   }
 
@@ -124,12 +149,10 @@ export function appendOptimizedPicture(picture, {
   const fallbackW = widths[widths.length - 1] || widths[0];
   img.sizes = sizes;
 
-  // Attach first so error fallback can strip <source> siblings.
   picture.append(webp, jpeg, img);
-  bindImageReveal(img, src);
-
   img.srcset = buildSrcset(src, widths, 'jpeg', quality);
   img.src = resizeUrl(src, fallbackW, 'jpeg', quality);
+  bindImageReveal(img, original);
   return img;
 }
 

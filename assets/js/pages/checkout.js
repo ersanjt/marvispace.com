@@ -12,10 +12,11 @@ import {
   startPaynetPayment,
   startZiraatPayment,
 } from '../core/storage.js';
-import { buildCartLineItem, renderTotalsBlock, setStoreCurrency } from '../modules/cart-ui.js';
+import { buildCartLineItem, renderTotalsBlock, setStoreCurrency, fmtMoney } from '../modules/cart-ui.js?v=20260829-store';
 import { initWhatsAppSupport } from '../core/whatsapp-support.js';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { initI18n, applyDomI18n, t, homePath } from '../core/i18n.js';
+import { trackBeginCheckout } from '../core/analytics-events.js?v=20260829-store';
 
 const checkoutPage = document.getElementById('checkoutPage');
 const checkoutLoadingMsg = document.getElementById('checkoutLoadingMsg');
@@ -117,7 +118,7 @@ function renderSummary() {
 
   const total = subtotal();
   if (summaryMobileTotal) {
-    summaryMobileTotal.textContent = `$${total.toFixed(2)}`;
+    summaryMobileTotal.textContent = fmtMoney(total);
   }
   if (summaryMobileCount) {
     const n = cartQtyTotal();
@@ -418,7 +419,7 @@ checkoutForm.addEventListener('submit', async e => {
   if (!cartItems.length || !selectedPayment || !formReady()) return;
 
   if (selectedPayment === 'card' && cardPaymentsEnabled && !cardDetailsValid()) {
-    showPaymentAlert('Enter valid card details to continue.', true);
+    showPaymentAlert(t('checkoutCardInvalid'), true);
     return;
   }
 
@@ -428,7 +429,7 @@ checkoutForm.addEventListener('submit', async e => {
   }
 
   if (!legalConsentValid()) {
-    showPaymentAlert('Devam etmek için yasal onay kutularını işaretleyin.', true);
+    showPaymentAlert(t('checkoutLegalNeeded'), true);
     return;
   }
 
@@ -496,7 +497,7 @@ checkoutForm.addEventListener('submit', async e => {
   let pendingAlert = null;
   if (params.get('payment') === 'failed') {
     pendingAlert = {
-      message: 'Payment was not completed. Please review your card details and try again.',
+      message: t('checkoutPaymentFailed'),
       isError: true,
     };
   }
@@ -539,6 +540,7 @@ checkoutForm.addEventListener('submit', async e => {
     syncPhoneCodeLabel();
     setCheckoutReady(true);
     updatePaymentState();
+    trackBeginCheckout(cartItems, subtotal());
 
     if (pendingAlert) {
       showPaymentAlert(pendingAlert.message, pendingAlert.isError);
@@ -552,6 +554,7 @@ checkoutForm.addEventListener('submit', async e => {
       syncPhoneCodeLabel();
       setCheckoutReady(true);
       updatePaymentState();
+      trackBeginCheckout(cartItems, subtotal());
       if (pendingAlert) {
         showPaymentAlert(pendingAlert.message, pendingAlert.isError);
       }

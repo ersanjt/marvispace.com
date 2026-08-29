@@ -43,6 +43,9 @@
   RewriteCond %{THE_REQUEST} \s/+accessibility\.html[\s?] [NC]
   RewriteRule ^accessibility\.html$ /accessibility [R=301,L,NC]
 
+  RewriteCond %{THE_REQUEST} \s/+cookies\.html[\s?] [NC]
+  RewriteRule ^cookies\.html$ /cookies [R=301,L,NC]
+
   RewriteCond %{THE_REQUEST} \s/+order-status\.html[\s?] [NC]
   RewriteRule ^order-status\.html$ /order-status [R=301,L,NC]
 
@@ -64,25 +67,31 @@
   RewriteCond %{THE_REQUEST} \s/+iade-ve-iptal\.html[\s?] [NC]
   RewriteRule ^iade-ve-iptal\.html$ /iade-ve-iptal [R=301,L,NC]
 
+  RewriteCond %{THE_REQUEST} \s/+returns\.html[\s?] [NC]
+  RewriteRule ^returns\.html$ /returns [R=301,L,NC]
+
+  RewriteRule ^templates/distance\.html$ /distance-sales [R=301,L,NC]
+  RewriteRule ^templates/preinfo\.html$ /pre-contract [R=301,L,NC]
+  RewriteRule ^templates/(contact|privacy|accessibility|cookies|terms|returns|kvkk)\.html$ /$1 [R=301,L,NC]
+
+  # Retired per-page PHP routers
+  RewriteRule ^mesafeli\.php$ /distance-sales [R=301,L,NC]
+  RewriteRule ^preinfo\.php$ /pre-contract [R=301,L,NC]
+  RewriteRule ^(contact|privacy|accessibility|cookies|terms|returns|kvkk)\.php$ /$1 [R=301,L,NC]
+
   # Clean URL routes (internal rewrite — no redirect)
   RewriteRule ^sitemap\.xml$ sitemap.php [L]
   RewriteRule ^api/v1/geo/?$ api/v1/geo.php [L,QSA]
   RewriteRule ^(tr|en)/?$ index.php?hl=$1 [L,QSA]
   RewriteRule ^(tr|en)/product/([^/]+)/?$ product.php?hl=$1&slug=$2 [L,QSA]
+  RewriteRule ^(tr|en)/(contact|iletisim|privacy|gizlilik|accessibility|erisilebilirlik|cookies|cerez-politikasi|terms|kullanim-kosullari|returns|iade-ve-iptal|kvkk|distance-sales|mesafeli-satis-sozlesmesi|pre-contract|on-bilgilendirme)/?$ page.php?hl=$1&slug=$2 [L,QSA]
   RewriteRule ^product/([^/]+)/?$ product.php?slug=$1 [L,QSA]
   RewriteRule ^checkout/?$ checkout.html [L,NC]
   RewriteRule ^admin/?$ admin.html [L,NC]
-  RewriteRule ^contact/?$ contact.html [L,NC]
-  RewriteRule ^terms/?$ terms.html [L,NC]
-  RewriteRule ^privacy/?$ privacy.html [L,NC]
-  RewriteRule ^accessibility/?$ accessibility.html [L,NC]
+  RewriteRule ^(contact|iletisim|privacy|gizlilik|accessibility|erisilebilirlik|cookies|cerez-politikasi|terms|kullanim-kosullari|returns|iade-ve-iptal|kvkk|distance-sales|mesafeli-satis-sozlesmesi|pre-contract|on-bilgilendirme)/?$ page.php?slug=$1 [L,NC,QSA]
   RewriteRule ^order-status/?$ order-status.html [L,NC]
   RewriteRule ^order-confirmation/?$ order-confirmation.html [L,NC]
   RewriteRule ^privacy-right-center/?$ privacy-right-center.html [L,NC]
-  RewriteRule ^kvkk/?$ kvkk.html [L,NC]
-  RewriteRule ^mesafeli-satis-sozlesmesi/?$ mesafeli-satis-sozlesmesi.html [L,NC]
-  RewriteRule ^on-bilgilendirme/?$ on-bilgilendirme.html [L,NC]
-  RewriteRule ^iade-ve-iptal/?$ iade-ve-iptal.html [L,NC]
 
   # REST API (PHP + MySQL)
   RewriteRule ^api/v1/cart/?$ api/v1/cart.php [L,QSA]
@@ -90,6 +99,7 @@
   RewriteRule ^api/v1/settings/?$ api/v1/settings.php [L,QSA]
   RewriteRule ^api/v1/products/?$ api/v1/products.php [L,QSA]
   RewriteRule ^api/v1/newsletter/?$ api/v1/newsletter.php [L,QSA]
+  RewriteRule ^api/v1/contact/?$ api/v1/contact.php [L,QSA]
   RewriteRule ^api/v1/orders/?$ api/v1/orders.php [L,QSA]
   RewriteRule ^api/v1/payments/paynet/initialize/?$ api/v1/payments/paynet-initialize.php [L,QSA]
   RewriteRule ^api/v1/payments/paynet/callback/?$ api/v1/payments/paynet-callback.php [L,QSA]

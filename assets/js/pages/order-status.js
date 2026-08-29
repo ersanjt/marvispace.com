@@ -1,5 +1,5 @@
 import { lookupOrder } from '../core/storage.js';
-import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js';
+import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js?v=20260829-store';
 import { mountDeveloperCredit } from '../core/credits.js';
 
 const form = document.getElementById('orderLookupForm');

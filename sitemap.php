@@ -15,14 +15,16 @@ $slugMap = seo_slug_map($products);
 
 $pages = [
     ['en' => '/en/', 'tr' => '/tr/', 'changefreq' => 'daily', 'priority' => '1.0'],
-    ['en' => '/contact', 'tr' => '/contact', 'changefreq' => 'monthly', 'priority' => '0.6'],
-    ['en' => '/terms', 'tr' => '/kvkk', 'changefreq' => 'monthly', 'priority' => '0.4'],
-    ['en' => '/privacy', 'tr' => '/kvkk', 'changefreq' => 'monthly', 'priority' => '0.4'],
-    ['en' => '/accessibility', 'tr' => '/accessibility', 'changefreq' => 'monthly', 'priority' => '0.3'],
+    ['en' => seo_contact_path('en'), 'tr' => seo_contact_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.6'],
+    ['en' => seo_terms_path('en'), 'tr' => seo_terms_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.4'],
+    ['en' => seo_kvkk_path('en'), 'tr' => seo_kvkk_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.4'],
+    ['en' => seo_privacy_path('en'), 'tr' => seo_privacy_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.4'],
+    ['en' => seo_accessibility_path('en'), 'tr' => seo_accessibility_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.3'],
+    ['en' => seo_cookies_path('en'), 'tr' => seo_cookies_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.4'],
     ['en' => '/order-status', 'tr' => '/order-status', 'changefreq' => 'monthly', 'priority' => '0.5'],
-    ['en' => '/mesafeli-satis-sozlesmesi', 'tr' => '/mesafeli-satis-sozlesmesi', 'changefreq' => 'monthly', 'priority' => '0.5'],
-    ['en' => '/on-bilgilendirme', 'tr' => '/on-bilgilendirme', 'changefreq' => 'monthly', 'priority' => '0.5'],
-    ['en' => '/iade-ve-iptal', 'tr' => '/iade-ve-iptal', 'changefreq' => 'monthly', 'priority' => '0.5'],
+    ['en' => seo_distance_path('en'), 'tr' => seo_distance_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.5'],
+    ['en' => seo_preinfo_path('en'), 'tr' => seo_preinfo_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.5'],
+    ['en' => seo_returns_path('en'), 'tr' => seo_returns_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.5'],
 ];
 
 header('Content-Type: application/xml; charset=utf-8');

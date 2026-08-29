@@ -64,11 +64,11 @@ export const MERCHANT = {
 };
 
 export const LEGAL_LINKS = {
-  kvkk: '/kvkk',
-  mesafeliSatis: '/mesafeli-satis-sozlesmesi',
-  onBilgilendirme: '/on-bilgilendirme',
-  iadeIptal: '/iade-ve-iptal',
-  contact: '/contact',
-  privacy: '/privacy',
-  terms: '/terms',
+  kvkk: '/tr/kvkk',
+  mesafeliSatis: '/tr/mesafeli-satis-sozlesmesi',
+  onBilgilendirme: '/tr/on-bilgilendirme',
+  iadeIptal: '/tr/iade-ve-iptal',
+  contact: '/en/contact',
+  privacy: '/en/privacy',
+  terms: '/en/terms',
 };

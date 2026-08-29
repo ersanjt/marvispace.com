@@ -41,12 +41,18 @@ bash install/setup-server.sh
 ## Project layout
 
 ```
-index.html              Storefront
+index.php / index.html  Storefront entry (SEO + /en /tr)
+product.php             Product URLs
+page.php                Bilingual legal/info router
+templates/              HTML for those pages (contact, privacy, …)
+checkout.html           Checkout
 admin.html              Admin panel
-api/                    PHP REST API
-assets/                 CSS, JS, images
-install/                Migrations, seed (products.json), server scripts
+order-status.html       Order lookup
+api/                    PHP REST API (`/api/v1/`, `api/lib/`)
+assets/css|js|images    Front-end (js/pages = page scripts)
+install/                Migrations, seed, server scripts
 docs/                   Deployment & database guides
+tools/                  One-off maint scripts (not the public site)
 ```
 
 ## Admin

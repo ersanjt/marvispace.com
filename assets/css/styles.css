@@ -473,10 +473,16 @@ a { color: inherit; text-decoration: none; }
   -webkit-user-drag: none;
   opacity: 0;
   transition: opacity 320ms ease;
+  animation: img-show-anyway 0s linear 2.8s forwards;
 }
 
 .prod-img.is-loaded {
   opacity: 1;
+  animation: none;
+}
+
+@keyframes img-show-anyway {
+  to { opacity: 1; }
 }
 
 .product-grid.is-open .product-btn.active .prod-img { opacity: 0 !important; }
@@ -726,6 +732,10 @@ a { color: inherit; text-decoration: none; }
   -webkit-user-drag: none;
   opacity: 0;
   transition: opacity 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.preview-img.is-loaded {
+  opacity: 1;
 }
 
 /* Dots — anchored to image shell (Yeezy-style) */
@@ -1160,11 +1170,9 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.05em;
   text-transform: uppercase;
   line-height: 1.7;
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0.8;
+  transform: none;
 }
-.p-desc.show { opacity: 0.8; transform: translateY(0); }
 
 
 /* ═══════════════════════════════════════
@@ -1186,8 +1194,6 @@ body.preview-open .product-grid {
    RESPONSIVE
    ═══════════════════════════════════════ */
 @media (max-width: 900px) {
-  :root { --nav-h: 56px; }
-  .site-nav { grid-template-columns: 44px 1fr 52px; }
   .site-nav.preview-open { height: var(--preview-nav-h); }
   .nav-spacer.preview-open { height: var(--preview-nav-h); }
 }
@@ -1269,15 +1275,26 @@ body.preview-open .product-grid {
   }
 
   .site-nav .filters {
+    position: relative;
+    min-width: 0;
     width: 100%;
     max-width: 100%;
-    padding: 4px 0 2px;
+    align-items: stretch;
     justify-content: flex-start;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    mask-image: linear-gradient(90deg, #000 85%, transparent);
+    padding: 4px 0 2px;
+    overflow: hidden;
+  }
+
+  .site-nav .filters::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 32px;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.95));
   }
 
   .site-nav .filters::-webkit-scrollbar { display: none; }
@@ -1286,11 +1303,21 @@ body.preview-open .product-grid {
     display: flex;
     flex-wrap: nowrap;
     justify-content: flex-start;
+    align-items: center;
     gap: 8px;
-    padding: 0 2px 2px;
-    width: max-content;
-    min-width: 100%;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0 32px 2px 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    scrollbar-width: none;
   }
+
+  .filter-row::-webkit-scrollbar { display: none; }
 
   .f-btn {
     flex-shrink: 0;
@@ -1510,17 +1537,85 @@ body.preview-open .product-grid {
   }
 }
 
-/* Desktop product preview — Yeezy-style centered gallery + bottom meta */
+/* Desktop header — single row: toggle · mark · filters · cart */
 @media (min-width: 769px) {
+  :root {
+    --nav-h: 64px;
+    --preview-nav-h: 48px;
+  }
+
   .site-nav {
-    grid-template-columns: 52px 1fr 52px;
-    padding: 0 16px 8px;
+    grid-template-columns: 52px auto minmax(0, 1fr) 52px;
+    grid-template-rows: var(--nav-h);
+    grid-template-areas: "menu brand filt right";
+    column-gap: 20px;
+    padding: 0 28px;
+    background: transparent;
+    border-bottom: 0;
+    backdrop-filter: none;
+  }
+
+  .site-nav .brand {
+    justify-content: flex-start;
+  }
+
+  .site-nav .brand-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .site-nav .brand-mark {
+    font-size: 11px;
+    letter-spacing: 0.26em;
+  }
+
+  .site-nav .filters {
+    width: auto;
+    max-width: 100%;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .filter-row {
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 22px;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .f-btn {
+    height: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    opacity: 0.32;
+    border-radius: 0;
+  }
+
+  .f-btn.active {
+    opacity: 1;
+    background: none;
+    border: 0;
+    color: inherit;
+  }
+
+  .f-btn:hover:not(.active) {
+    opacity: 0.6;
   }
 
   .site-nav.preview-open {
     height: var(--preview-nav-h);
     grid-template-columns: 56px 1fr 56px;
     grid-template-rows: var(--preview-nav-h);
+    grid-template-areas: "menu brand right";
     padding: 0 20px;
     background: #ffffff;
   }
@@ -1574,6 +1669,22 @@ body.preview-open .product-grid {
   .preview.sz-open .p-next {
     top: calc(var(--preview-nav-h) + (100svh - var(--preview-nav-h) - var(--size-panel-h)) * 0.5);
     transform: translateY(-50%);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .site-nav .filters {
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+  }
+
+  .site-nav .filters::-webkit-scrollbar { display: none; }
+
+  .filter-row {
+    justify-content: flex-start;
+    gap: 16px;
   }
 }
 
