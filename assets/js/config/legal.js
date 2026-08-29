@@ -1,27 +1,66 @@
 /**
- * Turkish merchant / legal identity — update before payment gateway review.
+ * Turkish merchant / legal identity — MARVISPACE online store.
+ * Leather is produced at the Istanbul workshop; Alanya and Antalya are showrooms.
  * @project MARVISPACE
  */
 import { SITE } from './site.js';
 
+export const MERCHANT_PHONE = '+90 212 294 90 00';
+export const MERCHANT_PHONE_HREF = 'tel:+902122949000';
+
+export const LOCATIONS = [
+  {
+    id: 'istanbul',
+    kind: 'factory',
+    nameTr: 'İstanbul Fabrika',
+    nameEn: 'Istanbul Workshop',
+    blurbTr: 'MARVISPACE deri ürünlerinin üretildiği atölye.',
+    blurbEn: 'The workshop where MARVISPACE leather is made.',
+    address: 'Hamidiye Mahallesi Söyler Caddesi No: 2, Kağıthane / İstanbul',
+    phone: MERCHANT_PHONE,
+    email: SITE.supportEmail,
+  },
+  {
+    id: 'alanya',
+    kind: 'store',
+    nameTr: 'Alanya Mağaza',
+    nameEn: 'Alanya Store',
+    blurbTr: 'Deriyi yerinde görmek için showroom.',
+    blurbEn: 'Showroom — see the leather in person.',
+    address: 'Konaklı, D-400 Karayolu Timo Hotel, 07491 Alanya / Antalya',
+    email: SITE.supportEmail,
+  },
+  {
+    id: 'antalya',
+    kind: 'store',
+    nameTr: 'Antalya Mağaza',
+    nameEn: 'Antalya Store',
+    blurbTr: 'Deriyi yerinde görmek için showroom.',
+    blurbEn: 'Showroom — see the leather in person.',
+    address: 'Altınovasinan Mahallesi Serik Caddesi No: 367, Kepez / Antalya',
+    email: SITE.supportEmail,
+  },
+];
+
 export const MERCHANT = {
   brand: SITE.name,
-  legalName: 'MARVISPACE TİCARET LİMİTED ŞİRKETİ', // TODO: şirket unvanınız
-  address: 'Antalya, Türkiye', // TODO: açık adres (mahalle, ilçe, il, posta kodu)
-  phone: '+90 850 000 00 00', // TODO: müşteri hattı
+  legalName: 'MARVISPACE',
+  address: LOCATIONS[0].address,
+  phone: MERCHANT_PHONE,
   email: SITE.supportEmail,
-  taxOffice: 'Antalya', // TODO: vergi dairesi
-  taxNumber: '0000000000', // TODO: vergi numarası
-  mersis: '0000000000000000', // TODO: MERSİS no
-  tradeRegistry: '000000', // TODO: ticaret sicil no
-  kep: 'destek@hs01.kep.tr', // TODO: KEP adresi
+  taxOffice: '',
+  taxNumber: '',
+  mersis: '',
+  tradeRegistry: '',
+  kep: '',
   etbisUrl: 'https://etbis.ticaret.gov.tr/',
-  authorizedPerson: 'Yetkili Kişi', // TODO: ad soyad
+  authorizedPerson: '',
   deliveryDays: '3–7 iş günü',
-  cargoCompany: 'Anlaşmalı kargo firması',
+  cargoCompany: 'Türkiye içi kargo',
   currency: 'TRY',
   vatIncluded: true,
   vatRate: 10,
+  locations: LOCATIONS,
 };
 
 export const LEGAL_LINKS = {

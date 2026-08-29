@@ -5,6 +5,7 @@
 
 import { subscribeNewsletter } from './api-client.js';
 import { SITE, SOCIAL } from '../config/site.js';
+import { MERCHANT_PHONE, MERCHANT_PHONE_HREF } from '../config/legal.js';
 import { t, getLang, switchLang } from './i18n.js';
 
 const NEWSLETTER_DISMISS_KEY = 'marvispace_newsletter_dismissed';
@@ -97,7 +98,8 @@ function footerInnerHtml() {
     </div>
 
     <div class="footer-meta">
-      <p class="footer-trust">${t('trust')} · <a href="mailto:${SITE.supportEmail}">${SITE.supportEmail}</a></p>
+      <p class="footer-trust">${t('trust')}</p>
+      <p class="footer-places">${t('places')} · <a href="${MERCHANT_PHONE_HREF}">${MERCHANT_PHONE}</a> · <a href="mailto:${SITE.supportEmail}">${SITE.supportEmail}</a></p>
       <p class="footer-etbis"><a href="https://etbis.ticaret.gov.tr/" rel="noopener noreferrer" target="_blank">${t('etbis')}</a> · <a href="/iade-ve-iptal">${t('returns')}</a></p>
       <p class="footer-lang" aria-label="Language">
         <button type="button" class="footer-lang__btn${lang === 'tr' ? ' is-active' : ''}" data-lang-switch="tr">${t('langTr')}</button>

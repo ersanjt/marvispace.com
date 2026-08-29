@@ -419,6 +419,61 @@ body:has(.site-page) {
   color: inherit;
 }
 
+.store-locations {
+  margin: 8px 0 28px;
+}
+
+.store-locations__lead {
+  margin: 0 0 16px;
+  font-size: 12px;
+  line-height: 1.65;
+  opacity: 0.72;
+}
+
+.store-locations__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.store-location {
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.store-location h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.store-location h3 span {
+  font-weight: 400;
+  opacity: 0.5;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.store-location__blurb,
+.store-location__address,
+.store-location p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.store-location a {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+@media (min-width: 720px) {
+  .store-locations__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .contact-channels {
   margin: 0 0 24px;
 }

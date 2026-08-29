@@ -318,6 +318,7 @@ body.preview-open .newsletter-popup { display: none; }
 }
 
 .footer-trust,
+.footer-places,
 .footer-etbis {
   margin: 0;
   max-width: 36rem;
@@ -332,12 +333,14 @@ body.preview-open .newsletter-popup { display: none; }
 }
 
 .footer-trust a,
+.footer-places a,
 .footer-etbis a {
   text-decoration: none;
   color: inherit;
 }
 
 .footer-trust a:hover,
+.footer-places a:hover,
 .footer-etbis a:hover {
   opacity: 1;
   text-decoration: underline;
@@ -545,6 +548,7 @@ body.preview-open .newsletter-popup { display: none; }
   }
 
   .footer-trust,
+  .footer-places,
   .footer-etbis {
     font-size: 11px;
     letter-spacing: 0.04em;

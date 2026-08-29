@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>İletişim — MARVISPACE</title>
-  <meta name="description" content="MARVISPACE iletişim — sipariş desteği, iade ve müşteri hizmetleri. 1–2 iş günü içinde yanıt." />
+  <meta name="description" content="MARVISPACE iletişim — İstanbul Kağıthane atölyesi, Alanya ve Antalya mağazaları. Sipariş, iade ve müşteri hizmetleri." />
   <link rel="canonical" href="https://marvispace.com/contact" />
   <meta name="robots" content="index, follow" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -14,7 +14,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="MARVISPACE" />
   <meta property="og:title" content="İletişim — MARVISPACE" />
-  <meta property="og:description" content="MARVISPACE iletişim — sipariş desteği, iade ve müşteri hizmetleri." />
+  <meta property="og:description" content="MARVISPACE iletişim — İstanbul atölyesi, Alanya ve Antalya mağazaları." />
   <meta property="og:url" content="https://marvispace.com/contact" />
   <meta property="og:image" content="https://marvispace.com/assets/images/brand/og.jpg" />
   <meta property="og:locale" content="tr_TR" />
@@ -26,8 +26,8 @@
   <script type="module" src="/assets/js/core/cookie-consent.js"></script>
   <link rel="stylesheet" href="/assets/css/fonts.css?v=20260827-localfonts" />
   <link rel="stylesheet" href="/assets/css/styles.css?v=20260825-mobile" />
-  <link rel="stylesheet" href="/assets/css/page.css?v=20260826-contact" />
-  <link rel="stylesheet" href="/assets/css/footer.css?v=20260825-mobile" />
+  <link rel="stylesheet" href="/assets/css/page.css?v=20260829-places" />
+  <link rel="stylesheet" href="/assets/css/footer.css?v=20260829-places" />
 </head>
 <body>
   <a class="skip-link" href="#main">İçeriğe atla</a>
@@ -40,8 +40,9 @@
   </header>
   <main class="site-page site-page--wide" id="main">
     <h1>İletişim / Contact</h1>
-    <p class="page-lead">Sipariş, iade, ödeme ve ürün sorularınız için bize ulaşın. We respond within 1–2 business days.</p>
+    <p class="page-lead">MARVISPACE online deri mağazasıdır. Üretim İstanbul Kağıthane atölyesindedir; Alanya ve Antalya’da deriyi yerinde görebilirsiniz. Sipariş, iade ve ödeme soruları için yazın — 1–2 iş günü içinde yanıtlarız.</p>
     <div data-legal-nav></div>
+    <div data-store-locations></div>
     <div data-merchant-info></div>
 
     <div class="contact-channels" id="contactWhatsApp" hidden>
@@ -71,11 +72,11 @@
       <button type="submit" class="page-btn" id="contactSubmitBtn">Gönder / Send</button>
     </form>
 
-    <p class="page-note">Çalışma saatleri: Pazartesi–Cuma 09:00–18:00 (TR) · <a href="mailto:support@marvispace.com">support@marvispace.com</a></p>
+    <p class="page-note">Çalışma saatleri: Pazartesi–Cuma 09:00–18:00 (TR) · <a href="tel:+902122949000">+90 212 294 90 00</a> · <a href="mailto:support@marvispace.com">support@marvispace.com</a></p>
     <a class="back-shop" href="/">← Mağazaya dön</a>
   </main>
   <footer data-site-footer></footer>
-  <script type="module" src="/assets/js/core/legal-page.js"></script>
+  <script type="module" src="/assets/js/core/legal-page.js?v=20260829-places"></script>
   <script type="module">
     import { fetchSiteSettings, submitContact } from '/assets/js/core/api-client.js?v=20260826-contact';
     import { initWhatsAppSupport } from '/assets/js/core/whatsapp-support.js';
@@ -135,6 +136,6 @@
       }
     })();
   </script>
-  <script type="module" src="/assets/js/core/credits.js?v=20260825-mobile"></script>
+  <script type="module" src="/assets/js/core/credits.js?v=20260829-places"></script>
 </body>
 </html>

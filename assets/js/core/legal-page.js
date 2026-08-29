@@ -1,25 +1,76 @@
 /**
  * Shared merchant legal block for Turkish compliance pages.
  */
-import { MERCHANT, LEGAL_LINKS } from '../config/legal.js';
+import { MERCHANT, LEGAL_LINKS, LOCATIONS, MERCHANT_PHONE_HREF } from '../config/legal.js';
+
+function esc(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function isPresent(value) {
+  const text = String(value || '').trim();
+  if (!text) return false;
+  return !/^0+$/.test(text.replace(/\s/g, ''));
+}
+
+function mapsUrl(address) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+}
+
+function merchantRowsHtml() {
+  const m = MERCHANT;
+  const rows = [
+    ['Ticari Unvan', m.legalName],
+    ['Marka', m.brand],
+    ['Adres', m.address],
+    ['Telefon', m.phone, MERCHANT_PHONE_HREF],
+    ['E-posta', m.email, `mailto:${m.email}`],
+    isPresent(m.taxOffice) && isPresent(m.taxNumber) ? ['Vergi Dairesi / No', `${m.taxOffice} — ${m.taxNumber}`] : null,
+    isPresent(m.mersis) ? ['MERSİS', m.mersis] : null,
+    isPresent(m.tradeRegistry) ? ['Ticaret Sicil No', m.tradeRegistry] : null,
+    isPresent(m.kep) ? ['KEP', m.kep] : null,
+    isPresent(m.authorizedPerson) ? ['Yetkili', m.authorizedPerson] : null,
+    ['ETBİS', 'etbis.ticaret.gov.tr', m.etbisUrl],
+  ].filter(Boolean);
+
+  return rows.map(([label, value, href]) => {
+    const body = href
+      ? `<a href="${esc(href)}"${String(href).startsWith('http') ? ' rel="noopener noreferrer" target="_blank"' : ''}>${esc(value)}</a>`
+      : esc(value);
+    return `<div><dt>${esc(label)}</dt><dd>${body}</dd></div>`;
+  }).join('');
+}
+
+export function locationsHtml() {
+  return `
+    <section class="store-locations" aria-label="MARVISPACE locations">
+      <h2 class="section-label">Atölye ve mağazalar / Workshop &amp; stores</h2>
+      <p class="store-locations__lead">MARVISPACE online satıştır. Deri İstanbul Kağıthane atölyesinde üretilir; Alanya ve Antalya’da showroom’da görebilirsiniz.</p>
+      <div class="store-locations__grid">
+        ${LOCATIONS.map(place => `
+          <article class="store-location">
+            <h3>${esc(place.nameTr)} <span>/ ${esc(place.nameEn)}</span></h3>
+            <p class="store-location__blurb">${esc(place.blurbTr)}</p>
+            <p class="store-location__address">${esc(place.address)}</p>
+            ${place.phone ? `<p><a href="${MERCHANT_PHONE_HREF}">${esc(place.phone)}</a></p>` : ''}
+            <p><a href="${esc(mapsUrl(place.address))}" rel="noopener noreferrer" target="_blank">Harita / Map</a></p>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
 
 export function merchantInfoHtml() {
-  const m = MERCHANT;
   return `
     <section class="merchant-info" aria-label="Satıcı bilgileri">
       <h2 class="section-label">Satıcı / Veri Sorumlusu Bilgileri</h2>
       <dl class="order-meta">
-        <div><dt>Ticari Unvan</dt><dd>${m.legalName}</dd></div>
-        <div><dt>Marka</dt><dd>${m.brand}</dd></div>
-        <div><dt>Adres</dt><dd>${m.address}</dd></div>
-        <div><dt>Telefon</dt><dd><a href="tel:${m.phone.replace(/\s/g, '')}">${m.phone}</a></dd></div>
-        <div><dt>E-posta</dt><dd><a href="mailto:${m.email}">${m.email}</a></dd></div>
-        <div><dt>Vergi Dairesi / No</dt><dd>${m.taxOffice} — ${m.taxNumber}</dd></div>
-        <div><dt>MERSİS</dt><dd>${m.mersis}</dd></div>
-        <div><dt>Ticaret Sicil No</dt><dd>${m.tradeRegistry}</dd></div>
-        <div><dt>KEP</dt><dd>${m.kep}</dd></div>
-        <div><dt>Yetkili</dt><dd>${m.authorizedPerson}</dd></div>
-        <div><dt>ETBİS</dt><dd><a href="${m.etbisUrl}" rel="noopener noreferrer" target="_blank">etbis.ticaret.gov.tr</a></dd></div>
+        ${merchantRowsHtml()}
       </dl>
     </section>
   `;
@@ -28,6 +79,12 @@ export function merchantInfoHtml() {
 export function mountMerchantInfo(root = document) {
   root.querySelectorAll('[data-merchant-info]').forEach(el => {
     el.innerHTML = merchantInfoHtml();
+  });
+}
+
+export function mountStoreLocations(root = document) {
+  root.querySelectorAll('[data-store-locations]').forEach(el => {
+    el.innerHTML = locationsHtml();
   });
 }
 
@@ -45,7 +102,6 @@ export function mountLegalNav(root = document) {
   });
 }
 
-if (document.currentScript?.type === 'module') {
-  mountMerchantInfo();
-  mountLegalNav();
-}
+mountMerchantInfo();
+mountStoreLocations();
+mountLegalNav();
