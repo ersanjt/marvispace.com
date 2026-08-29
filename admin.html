@@ -13,7 +13,7 @@
   <meta name="theme-color" content="#0a0a0a" />
   <script type="module" src="/assets/js/core/favicon-loader.js"></script>
   <link rel="stylesheet" href="/assets/css/fonts.css?v=20260827-localfonts" />
-  <link rel="stylesheet" href="/assets/css/admin.css?v=20260826-sale" />
+  <link rel="stylesheet" href="/assets/css/admin.css?v=20260829-orders2" />
 </head>
 <body>
 
@@ -224,7 +224,7 @@
               <strong class="stat-value" id="statOrders">0</strong>
             </article>
             <article class="stat-card stat-wide">
-              <span class="stat-label">Recorded revenue</span>
+              <span class="stat-label">Paid revenue</span>
               <strong class="stat-value" id="statRevenue">$0.00</strong>
             </article>
           </div>
@@ -316,13 +316,13 @@
           <div class="orders-quick-filters" id="ordersQuickFilters" role="toolbar" aria-label="Quick filters"></div>
 
           <div class="card card--orders">
-            <div class="card-head card-head--stack">
+            <div class="card-head card-head--orders">
               <div class="card-head-start">
                 <h2>Orders</h2>
-                <span class="muted" id="ordersCount">0 orders</span>
+                <span class="orders-count" id="ordersCount">0 orders</span>
               </div>
-              <div class="card-head-actions orders-toolbar">
-                <input type="search" class="search-input" id="orderSearch" placeholder="Search ID, name, email…" autocomplete="off" />
+              <div class="orders-toolbar">
+                <input type="search" class="search-input" id="orderSearch" placeholder="Search ID, name, email, product…" autocomplete="off" />
                 <select class="filter-select" id="orderStatusFilter" aria-label="Filter by status">
                   <option value="all">All statuses</option>
                   <option value="pending">Pending</option>
@@ -346,7 +346,7 @@
                   <option value="total-asc">Lowest total</option>
                 </select>
                 <button type="button" class="btn btn-ghost btn-sm" id="clearOrderFiltersBtn" hidden>Clear filters</button>
-                <button type="button" class="btn btn-ghost btn-sm" id="exportOrdersBtn">Export CSV</button>
+                <button type="button" class="btn btn-sm" id="exportOrdersBtn">Export CSV</button>
               </div>
             </div>
             <div class="table-wrap" id="ordersTableWrap">
@@ -373,6 +373,7 @@
             <p class="empty-state empty-state--orders" id="ordersFilterEmpty" hidden>
               <strong>No matching orders</strong>
               <span>Try a different search or clear your filters.</span>
+              <button type="button" class="btn btn-ghost btn-sm" id="ordersFilterEmptyClear">Clear filters</button>
             </p>
           </div>
         </section>
@@ -976,6 +977,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script type="module" src="/assets/js/pages/admin.js?v=20260826-sale"></script>
+  <script type="module" src="/assets/js/pages/admin.js?v=20260829-orders2"></script>
 </body>
 </html>

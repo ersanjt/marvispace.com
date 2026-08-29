@@ -215,6 +215,7 @@ const ORDER_QUICK_FILTERS = [
   { id: 'paid', label: 'Paid' },
   { id: 'unpaid', label: 'Unpaid' },
   { id: 'completed', label: 'Completed' },
+  { id: 'cancelled', label: 'Cancelled' },
 ];
 
 const ORDER_STATUS_OPTIONS = [
@@ -273,29 +274,75 @@ function shortOrderId(id) {
   return id.length > 12 ? `${id.slice(0, 12)}…` : id;
 }
 
+function orderPaymentKey(order) {
+  return (order.paymentStatus || 'unpaid').toLowerCase();
+}
+
+function isCancelledOrder(order) {
+  return (order.status || '') === 'cancelled';
+}
+
+function isPaidOrder(order) {
+  return orderPaymentKey(order) === 'paid';
+}
+
+function orderPaidRevenue(list) {
+  return (list || []).reduce((sum, order) => {
+    if (isCancelledOrder(order) || !isPaidOrder(order)) return sum;
+    return sum + (Number(order.total) || 0);
+  }, 0);
+}
+
 function orderNeedsAttention(order) {
   const status = order.status || 'pending';
-  const pay = (order.paymentStatus || 'unpaid').toLowerCase();
+  if (status === 'cancelled' || status === 'completed') return false;
+  const pay = orderPaymentKey(order);
   return status === 'pending'
     || status === 'awaiting_payment'
     || pay === 'failed'
-    || pay === 'unpaid';
+    || pay === 'unpaid'
+    || pay === 'pending';
+}
+
+function orderMatchesFilter(order, filter = 'all') {
+  if (filter === 'all') return true;
+  const status = order.status || 'pending';
+  const pay = orderPaymentKey(order);
+  if (filter === 'action') return orderNeedsAttention(order);
+  if (filter === 'progress') return status === 'processing' || status === 'shipped';
+  if (filter === 'paid') return pay === 'paid';
+  if (filter === 'unpaid') return pay === 'unpaid' || pay === 'failed' || pay === 'pending';
+  if (filter === 'completed') return status === 'completed';
+  if (filter === 'cancelled') return status === 'cancelled';
+  return true;
 }
 
 function orderMatchesQuickFilter(order) {
-  if (orderQuickFilter === 'all') return true;
+  return orderMatchesFilter(order, orderQuickFilter);
+}
+
+function orderQuickFilterCount(filterId) {
+  return orders.filter(order => orderMatchesFilter(order, filterId)).length;
+}
+
+function orderStatusSelectClass(status) {
+  return `order-status-select is-${status || 'pending'}`;
+}
+
+function orderStatusSelectHtml(order) {
   const status = order.status || 'pending';
-  const pay = (order.paymentStatus || 'unpaid').toLowerCase();
-  if (orderQuickFilter === 'action') {
-    return status === 'pending' || status === 'awaiting_payment' || pay === 'failed';
-  }
-  if (orderQuickFilter === 'progress') {
-    return status === 'processing' || status === 'shipped';
-  }
-  if (orderQuickFilter === 'paid') return pay === 'paid';
-  if (orderQuickFilter === 'unpaid') return pay === 'unpaid' || pay === 'failed' || pay === 'pending';
-  if (orderQuickFilter === 'completed') return status === 'completed';
-  return true;
+  return `
+    <select class="${orderStatusSelectClass(status)}" data-order-status data-order-id="${esc(order.id)}" aria-label="Change order status">
+      ${orderStatusOptionsHtml(status)}
+    </select>
+  `;
+}
+
+function orderRowClass(order) {
+  const classes = ['order-row'];
+  if (orderNeedsAttention(order)) classes.push('order-row--attention');
+  if (isCancelledOrder(order)) classes.push('order-row--cancelled');
+  return classes.join(' ');
 }
 
 function ordersFiltersActive() {
@@ -318,19 +365,22 @@ function clearOrderFilters() {
 
 function renderOrderQuickFilters() {
   if (!ordersQuickFilters) return;
-  ordersQuickFilters.innerHTML = ORDER_QUICK_FILTERS.map(f => `
-    <button
-      type="button"
-      class="orders-chip${orderQuickFilter === f.id ? ' is-active' : ''}"
-      data-order-quick="${f.id}"
-    >${f.label}</button>
-  `).join('');
+  ordersQuickFilters.innerHTML = ORDER_QUICK_FILTERS.map(f => {
+    const count = orderQuickFilterCount(f.id);
+    return `
+      <button
+        type="button"
+        class="orders-chip${orderQuickFilter === f.id ? ' is-active' : ''}"
+        data-order-quick="${f.id}"
+        aria-pressed="${orderQuickFilter === f.id}"
+      >${f.label}<span class="orders-chip__count">${count}</span></button>
+    `;
+  }).join('');
 }
 
 function orderRowHtml(order) {
   const customer = order.customer || {};
   const pay = paymentStatusLabel(order.paymentStatus);
-  const st = orderStatusLabel(order.status);
   const itemCount = orderItemCount(order);
   const relative = fmtRelativeTime(order.createdAt);
 
@@ -355,20 +405,13 @@ function orderRowHtml(order) {
         <span class="order-items-preview">${esc(orderItemsPreview(order))}</span>
       </div>
     </td>
-    <td dir="ltr"><strong class="order-total">${money(order.total)}</strong></td>
+    <td dir="ltr" class="order-total-cell"><strong class="order-total">${money(order.total)}</strong></td>
     <td><span class="status-pill ${pay.cls}">${pay.label}</span></td>
-    <td>
-      <div class="order-status-cell">
-        <span class="status-pill ${st.cls}">${st.label}</span>
-        <select class="filter-select order-status-select" data-order-status data-order-id="${esc(order.id)}" aria-label="Change order status">
-          ${orderStatusOptionsHtml(order.status || 'pending')}
-        </select>
-      </div>
-    </td>
-    <td>
+    <td class="order-status-cell">${orderStatusSelectHtml(order)}</td>
+    <td class="order-actions-cell">
       <div class="row-actions">
-        <button type="button" class="btn btn-ghost" data-order-view data-order-id="${esc(order.id)}">View</button>
-        ${customer.email ? `<a class="btn btn-ghost" href="mailto:${esc(customer.email)}?subject=${encodeURIComponent(`Order ${order.id}`)}">Email</a>` : ''}
+        <button type="button" class="btn btn-primary btn-sm" data-order-view data-order-id="${esc(order.id)}">View</button>
+        ${customer.email ? `<a class="btn btn-ghost btn-sm" href="mailto:${esc(customer.email)}?subject=${encodeURIComponent(`Order ${order.id}`)}">Email</a>` : ''}
       </div>
     </td>
   `;
@@ -377,12 +420,13 @@ function orderRowHtml(order) {
 function orderCardHtml(order) {
   const customer = order.customer || {};
   const pay = paymentStatusLabel(order.paymentStatus);
-  const st = orderStatusLabel(order.status);
   const itemCount = orderItemCount(order);
   const relative = fmtRelativeTime(order.createdAt);
+  const attention = orderNeedsAttention(order);
+  const cancelled = isCancelledOrder(order);
 
   return `
-    <article class="order-card${orderNeedsAttention(order) ? ' order-card--attention' : ''}" data-order-id="${esc(order.id)}">
+    <article class="order-card${attention ? ' order-card--attention' : ''}${cancelled ? ' order-card--cancelled' : ''}" data-order-id="${esc(order.id)}">
       <div class="order-card__head">
         <button type="button" class="order-id-btn" data-copy-order-id="${esc(order.id)}" title="Copy order ID">
           <code dir="ltr">${esc(shortOrderId(order.id))}</code>
@@ -396,12 +440,15 @@ function orderCardHtml(order) {
       <p class="order-card__items">${itemCount} item${itemCount === 1 ? '' : 's'} · ${esc(orderItemsPreview(order, 1))}</p>
       <div class="order-card__badges">
         <span class="status-pill ${pay.cls}">${pay.label}</span>
-        <span class="status-pill ${st.cls}">${st.label}</span>
       </div>
       <div class="order-card__foot">
-        <span class="order-date">${fmtDateShort(order.createdAt)}${relative ? ` · ${relative}` : ''}</span>
-        <button type="button" class="btn btn-ghost btn-sm" data-order-view data-order-id="${esc(order.id)}">View</button>
+        ${orderStatusSelectHtml(order)}
+        <div class="row-actions">
+          <button type="button" class="btn btn-primary btn-sm" data-order-view data-order-id="${esc(order.id)}">View</button>
+          ${customer.email ? `<a class="btn btn-ghost btn-sm" href="mailto:${esc(customer.email)}?subject=${encodeURIComponent(`Order ${order.id}`)}">Email</a>` : ''}
+        </div>
       </div>
+      <span class="order-date">${fmtDateShort(order.createdAt)}${relative ? ` · ${relative}` : ''}</span>
     </article>
   `;
 }
@@ -1639,11 +1686,21 @@ function getFilteredOrders() {
     const customer = order.customer || {};
     const name = customerName(customer).toLowerCase();
     const email = (customer.email || '').toLowerCase();
+    const phone = (customer.phone || '').toLowerCase();
     const id = (order.id || '').toLowerCase();
-    const matchQ = !q || id.includes(q) || name.includes(q) || email.includes(q);
+    const itemsText = (order.items || [])
+      .map(item => `${item.label || ''} ${item.size || ''}`)
+      .join(' ')
+      .toLowerCase();
+    const matchQ = !q
+      || id.includes(q)
+      || name.includes(q)
+      || email.includes(q)
+      || phone.includes(q)
+      || itemsText.includes(q);
 
     const matchStatus = statusFilter === 'all' || order.status === statusFilter;
-    const pay = (order.paymentStatus || 'unpaid').toLowerCase();
+    const pay = orderPaymentKey(order);
     const matchPayment = paymentFilter === 'all' || pay === paymentFilter;
     const matchQuick = orderMatchesQuickFilter(order);
 
@@ -1663,14 +1720,12 @@ function getFilteredOrders() {
 function renderOrderStats() {
   if (!ordersStats) return;
 
-  const action = orders.filter(o => orderNeedsAttention(o)).length;
-  const processing = orders.filter(o => o.status === 'processing' || o.status === 'shipped').length;
-  const completed = orders.filter(o => o.status === 'completed').length;
-  const revenue = orders
-    .filter(o => o.status !== 'cancelled')
-    .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+  const action = orderQuickFilterCount('action');
+  const processing = orderQuickFilterCount('progress');
+  const completed = orderQuickFilterCount('completed');
+  const revenue = orderPaidRevenue(orders);
 
-  const statBtn = (filter, label, value, accent = false) => `
+  const statBtn = (filter, label, value, { accent = false, hint = '' } = {}) => `
     <button
       type="button"
       class="orders-stat${accent ? ' orders-stat--accent' : ''}${orderQuickFilter === filter ? ' is-active' : ''}"
@@ -1678,15 +1733,16 @@ function renderOrderStats() {
       aria-pressed="${orderQuickFilter === filter}"
     >
       <span class="orders-stat__label">${label}</span>
-      <strong class="orders-stat__value"${accent ? ' dir="ltr"' : ''}>${accent ? money(revenue) : value}</strong>
+      <strong class="orders-stat__value"${accent ? ' dir="ltr"' : ''}>${value}</strong>
+      ${hint ? `<span class="orders-stat__hint">${hint}</span>` : ''}
     </button>
   `;
 
   ordersStats.innerHTML = [
-    statBtn('action', 'Needs action', action),
-    statBtn('progress', 'In progress', processing),
-    statBtn('completed', 'Completed', completed),
-    statBtn('all', 'Revenue', money(revenue), true),
+    statBtn('action', 'Needs action', action, { hint: action ? 'Pending or unpaid' : 'All caught up' }),
+    statBtn('progress', 'In progress', processing, { hint: 'Processing & shipped' }),
+    statBtn('completed', 'Completed', completed, { hint: 'Fulfilled orders' }),
+    statBtn('paid', 'Paid revenue', money(revenue), { accent: true, hint: 'Paid · excludes cancelled' }),
   ].join('');
 }
 
@@ -1698,7 +1754,7 @@ function exportOrdersCsv() {
   }
 
   const rows = [
-    ['Order ID', 'Date', 'Customer', 'Email', 'Items', 'Total', 'Status', 'Payment'],
+    ['Order ID', 'Date', 'Customer', 'Email', 'Phone', 'Items', 'Products', 'Total', 'Status', 'Payment', 'Payment method'],
   ];
 
   list.forEach(order => {
@@ -1708,10 +1764,13 @@ function exportOrdersCsv() {
       order.createdAt || '',
       customerName(customer),
       customer.email || '',
+      customer.phone || '',
       String(orderItemCount(order)),
+      orderItemsPreview(order, 8),
       String(order.total ?? ''),
       order.status || '',
       order.paymentStatus || '',
+      paymentLabel(customer.payment),
     ]);
   });
 
@@ -1733,8 +1792,10 @@ function renderOrders() {
   renderOrderStats();
   renderOrderQuickFilters();
 
+  if (!ordersTableBody) return;
+
   const list = getFilteredOrders();
-  const tableWrap = ordersTableWrap || ordersTableBody?.closest('.table-wrap');
+  const tableWrap = ordersTableWrap || ordersTableBody.closest('.table-wrap');
   const filtersActive = ordersFiltersActive();
   if (clearOrderFiltersBtn) clearOrderFiltersBtn.hidden = !filtersActive;
 
@@ -1768,15 +1829,16 @@ function renderOrders() {
 
   list.forEach(order => {
     const row = document.createElement('tr');
-    row.className = orderNeedsAttention(order) ? 'order-row order-row--attention' : 'order-row';
+    row.className = orderRowClass(order);
     row.dataset.orderId = order.id;
     row.innerHTML = orderRowHtml(order);
     ordersTableBody.append(row);
 
     if (ordersCards) {
-      const card = document.createElement('div');
-      card.innerHTML = orderCardHtml(order);
-      ordersCards.append(card.firstElementChild);
+      const wrap = document.createElement('div');
+      wrap.innerHTML = orderCardHtml(order);
+      const card = wrap.firstElementChild;
+      if (card) ordersCards.append(card);
     }
   });
 }
@@ -1784,7 +1846,7 @@ function renderOrders() {
 function renderDashboard() {
   const inStock = products.filter(p => p.inStock).length;
   const outStock = products.length - inStock;
-  const revenue = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+  const revenue = orderPaidRevenue(orders);
 
   if (statTotal) statTotal.textContent = String(products.length);
   if (statInStock) statInStock.textContent = String(inStock);
@@ -2101,6 +2163,10 @@ async function applyOrderStatus(orderId, status) {
   }
 }
 
+ordersTableBody?.addEventListener('pointerdown', e => {
+  if (e.target.closest('select[data-order-status]')) e.stopPropagation();
+});
+
 ordersTableBody?.addEventListener('click', async e => {
   if (e.target.closest('select, a, button[data-copy-order-id], button[data-order-view]')) {
     const viewBtn = e.target.closest('button[data-order-view]');
@@ -2129,7 +2195,13 @@ ordersTableBody?.addEventListener('click', async e => {
   }
 });
 
+ordersCards?.addEventListener('pointerdown', e => {
+  if (e.target.closest('select[data-order-status]')) e.stopPropagation();
+});
+
 ordersCards?.addEventListener('click', async e => {
+  if (e.target.closest('select, a')) return;
+
   const viewBtn = e.target.closest('button[data-order-view]');
   if (viewBtn) {
     const order = orders.find(item => item.id === viewBtn.dataset.orderId);
@@ -2159,18 +2231,21 @@ ordersCards?.addEventListener('click', async e => {
 ordersStats?.addEventListener('click', e => {
   const btn = e.target.closest('[data-order-stat]');
   if (!btn) return;
-  orderQuickFilter = btn.dataset.orderStat || 'all';
+  const next = btn.dataset.orderStat || 'all';
+  orderQuickFilter = orderQuickFilter === next ? 'all' : next;
   renderOrders();
 });
 
 ordersQuickFilters?.addEventListener('click', e => {
   const btn = e.target.closest('[data-order-quick]');
   if (!btn) return;
-  orderQuickFilter = btn.dataset.orderQuick || 'all';
+  const next = btn.dataset.orderQuick || 'all';
+  orderQuickFilter = orderQuickFilter === next && next !== 'all' ? 'all' : next;
   renderOrders();
 });
 
 clearOrderFiltersBtn?.addEventListener('click', clearOrderFilters);
+document.getElementById('ordersFilterEmptyClear')?.addEventListener('click', clearOrderFilters);
 
 orderModalCopyId?.addEventListener('click', async () => {
   const id = orderModalCopyId.dataset.orderId || activeOrderId;
@@ -2183,13 +2258,24 @@ orderModalCopyId?.addEventListener('click', async () => {
   }
 });
 
-ordersTableBody?.addEventListener('change', async e => {
-  const select = e.target.closest('select[data-order-status]');
+async function handleOrderStatusChange(select) {
   if (!select) return;
   const orderId = select.dataset.orderId;
   const prev = orders.find(item => item.id === orderId)?.status || 'pending';
+  select.className = orderStatusSelectClass(select.value);
   const ok = await applyOrderStatus(orderId, select.value);
-  if (!ok) select.value = prev;
+  if (!ok && select.isConnected) {
+    select.value = prev;
+    select.className = orderStatusSelectClass(prev);
+  }
+}
+
+ordersTableBody?.addEventListener('change', async e => {
+  await handleOrderStatusChange(e.target.closest('select[data-order-status]'));
+});
+
+ordersCards?.addEventListener('change', async e => {
+  await handleOrderStatusChange(e.target.closest('select[data-order-status]'));
 });
 
 orderSearch?.addEventListener('input', () => renderOrders());
