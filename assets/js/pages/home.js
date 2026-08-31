@@ -1,9 +1,9 @@
 import { loadCart, loadProducts, loadSiteSettings, resetApiHealthCache, saveCart, discountPercent, salePrice } from '../core/storage.js';
-import { buildCartLineItem, renderTotalsBlock, setStoreCurrency } from '../modules/cart-ui.js?v=20260829-store';
+import { buildCartLineItem, renderTotalsBlock, setStoreCurrency, fmtMoney, getStoreCurrency } from '../modules/cart-ui.js?v=20260831-store';
 import { mountDeveloperCredit } from '../core/credits.js';
 import { SITE } from '../config/site.js';
 import { buildSlugMap, productPath, productUrl } from '../core/product-seo.js';
-import { initI18n, applyDomI18n, t, homePath } from '../core/i18n.js';
+import { initI18n, applyDomI18n, t, homePath, initLangSwitch } from '../core/i18n.js';
 import { trackAddToCart, trackViewItem } from '../core/analytics-events.js?v=20260829-store';
 import {
   appendOptimizedPicture,
@@ -186,9 +186,6 @@ function mkPictureFromUrl(imageUrl, item, eager = true) {
 /* ════════════════════════════════════
    Cart
    ════════════════════════════════════ */
-function fmt(p) { return `$${p}`; }
-function fmtMoney(p) { return `$${p.toFixed(2)}`; }
-
 function setPriceText(el, item) {
   if (!el) return;
   const pct = discountPercent(item);
@@ -197,17 +194,17 @@ function setPriceText(el, item) {
     el.replaceChildren();
     const was = document.createElement('s');
     was.className = 'p-price-was';
-    was.textContent = fmt(item.price);
+    was.textContent = fmtMoney(item.price);
     const current = document.createElement('span');
     current.className = 'p-price-now';
-    current.textContent = fmt(now);
+    current.textContent = fmtMoney(now);
     const off = document.createElement('span');
     off.className = 'p-price-off';
     off.textContent = `-${pct}%`;
     el.append(was, ' ', current, ' ', off);
     return;
   }
-  el.textContent = fmt(item.price);
+  el.textContent = fmtMoney(item.price);
 }
 
 function cartCount() {
@@ -364,7 +361,11 @@ function filtered(key) {
 
 function applyFilter(key) {
   activeFilter = key;
-  filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === key));
+  filterBtns.forEach(b => {
+    const on = b.dataset.filter === key;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
   visible = filtered(key);
   renderGrid(visible);
   if (!window.__MARVISPACE_OPEN_PRODUCT__) injectProductSchema(visible);
@@ -421,7 +422,7 @@ function injectProductSchema(items) {
         offers: {
           '@type': 'Offer',
           url: productShareUrl(p),
-          priceCurrency: 'USD',
+          priceCurrency: getStoreCurrency(),
           price: String(salePrice(p)),
           availability: p.inStock === false
             ? 'https://schema.org/OutOfStock'
@@ -452,6 +453,13 @@ filterBtns.forEach(b => {
 function renderGrid(items) {
   grid.innerHTML = '';
   gridBtns = [];
+  if (!items.length) {
+    const empty = document.createElement('p');
+    empty.className = 'catalog-empty';
+    empty.textContent = t('filterEmpty');
+    grid.append(empty);
+    return;
+  }
   items.forEach((item, i) => {
     const btn = document.createElement('a');
     btn.className = 'product-btn';
@@ -459,9 +467,9 @@ function renderGrid(items) {
     const now = salePrice(item);
     const pct = discountPercent(item);
     btn.setAttribute('aria-label', pct > 0
-      ? `${item.label} — $${now} (-${pct}%)`
-      : `${item.label} — $${item.price}`);
-    btn.title = pct > 0 ? `${item.label} — -${pct}%` : `${item.label} — $${item.price}`;
+      ? `${item.label} — ${fmtMoney(now)} (-${pct}%)`
+      : `${item.label} — ${fmtMoney(item.price)}`);
+    btn.title = pct > 0 ? `${item.label} — -${pct}%` : `${item.label} — ${fmtMoney(item.price)}`;
     btn.dataset.id = item.id;
     btn.dataset.i = String(i);
 
@@ -1051,6 +1059,7 @@ if (document.fonts?.ready) {
 (async () => {
   await initI18n();
   applyDomI18n(document);
+  initLangSwitch();
   syncGridMode();
   await mountDeveloperCredit();
 

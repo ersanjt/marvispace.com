@@ -384,9 +384,9 @@ export async function loadOrders() {
   return getOrdersLocal();
 }
 
-export async function lookupOrder(orderId, email = '') {
+export async function lookupOrder(orderId, email = '', token = '') {
   if (await requireDatabase()) {
-    return api.fetchOrder(orderId, email);
+    return api.fetchOrder(orderId, email, token);
   }
   return getOrderByIdLocal(orderId);
 }

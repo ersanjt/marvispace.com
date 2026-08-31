@@ -49,3 +49,40 @@ function storefront_products(): array
 
     return $products;
 }
+
+function storefront_currency(): string
+{
+    static $currency = null;
+    if (is_string($currency)) {
+        return $currency;
+    }
+
+    $currency = 'TRY';
+    require_once __DIR__ . '/config.php';
+    $config = app_load_config();
+    if (!empty($config['db'])) {
+        try {
+            require_once __DIR__ . '/db.php';
+            require_once __DIR__ . '/settings-repo.php';
+            $pdo = db_connect($config['db']);
+            $code = strtoupper(setting_get($pdo, 'store_currency', 'TRY'));
+            if (preg_match('/^[A-Z]{3}$/', $code)) {
+                $currency = $code;
+            }
+        } catch (Throwable $e) {
+            /* keep default */
+        }
+    }
+
+    return $currency;
+}
+
+function storefront_currency_symbol(?string $code = null): string
+{
+    return match ($code ?? storefront_currency()) {
+        'TRY' => '₺',
+        'EUR' => '€',
+        'GBP' => '£',
+        default => '$',
+    };
+}

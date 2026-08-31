@@ -7,9 +7,21 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method === 'GET') {
     $id = trim((string) ($_GET['id'] ?? ''));
     $email = strtolower(trim((string) ($_GET['email'] ?? '')));
+    $token = trim((string) ($_GET['t'] ?? $_GET['token'] ?? ''));
 
     if ($id === '') {
         json_error('Order id required', 400);
+    }
+
+    if ($token !== '') {
+        if (!order_confirm_token_ok($id, $token)) {
+            json_error('Order not found', 404);
+        }
+        $order = order_get($pdo, $id);
+        if (!$order) {
+            json_error('Order not found', 404);
+        }
+        json_ok($order);
     }
 
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -44,14 +56,22 @@ if ($method === 'POST') {
     }
 
     require_once dirname(__DIR__) . '/lib/paynet-repo.php';
+    require_once dirname(__DIR__) . '/lib/ziraat-repo.php';
+
     $paymentMethod = trim((string) ($order['customer']['payment'] ?? ''));
-    if ($paymentMethod === 'card' && paynet_is_ready($pdo)) {
-        json_error('Card payments must use Paynet checkout. Use /api/v1/payments/paynet/initialize', 400);
+    $gatewayReady = paynet_is_ready($pdo) || ziraat_is_ready($pdo);
+    if ($paymentMethod === 'card' || $gatewayReady) {
+        json_error('Card payments must use 3D Secure checkout.', 400);
     }
 
-    if (empty($order['id'])) {
-        $order['id'] = 'ord_' . base_convert((string) (int) (microtime(true) * 1000), 10, 36);
+    $host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
+    $isProd = $host === 'marvispace.com' || str_ends_with($host, '.marvispace.com');
+    if ($isProd || $paymentMethod !== 'manual') {
+        json_error('Direct order placement is not allowed.', 400);
     }
+
+    $order['id'] = order_new_id();
+    unset($order['status']);
 
     try {
         $created = order_create($pdo, $order);

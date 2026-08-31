@@ -6,6 +6,7 @@ import { trackPurchase } from '../core/analytics-events.js?v=20260829-store';
 
 const params = new URLSearchParams(window.location.search);
 const orderId = params.get('id');
+const confirmToken = params.get('t') || '';
 
 const emptyEl = document.getElementById('confirmEmpty');
 const contentEl = document.getElementById('confirmContent');
@@ -54,16 +55,16 @@ function renderOrder(order, { missingEmail = false } = {}) {
 }
 
 (async () => {
-  const email = (orderId ? consumeOrderConfirmContext(orderId) : '') || params.get('email') || '';
+  const email = orderId ? consumeOrderConfirmContext(orderId) : '';
   let order = null;
   if (orderId) {
-    if (!email) {
+    if (!email && !confirmToken) {
       renderOrder(null, { missingEmail: true });
       mountDeveloperCredit();
       return;
     }
     try {
-      order = await lookupOrder(orderId, email);
+      order = await lookupOrder(orderId, email, confirmToken);
     } catch {
       order = null;
     }

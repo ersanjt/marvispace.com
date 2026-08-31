@@ -285,11 +285,14 @@ function mail_send_smtp(
 function mail_smtp_connect(string $host, int $port, string $secure)
 {
     $remote = ($secure === 'ssl' ? 'ssl://' : '') . $host . ':' . $port;
+    $local = $host === 'localhost' || $host === '127.0.0.1';
+    $config = function_exists('app_load_config') ? app_load_config() : [];
+    $verify = $config['mail']['smtp']['verify_peer'] ?? !$local;
     $context = stream_context_create([
         'ssl' => [
-            'verify_peer' => false,
-            'verify_peer_name' => false,
-            'allow_self_signed' => true,
+            'verify_peer' => (bool) $verify,
+            'verify_peer_name' => (bool) $verify,
+            'allow_self_signed' => !$verify,
         ],
     ]);
 

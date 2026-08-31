@@ -244,15 +244,26 @@ function seo_product_jsonld(array $product, array $slugMap, ?string $lang = null
     }
 
     $inStock = ($product['inStock'] ?? true) !== false;
+    $currency = function_exists('storefront_currency') ? storefront_currency() : 'TRY';
+    $price = number_format(
+        function_exists('product_unit_price') ? product_unit_price($product) : (float) ($product['price'] ?? 0),
+        2,
+        '.',
+        ''
+    );
+    $validUntil = gmdate('Y-m-d', strtotime('+1 year'));
+    $home = seo_site_url() . seo_home_path($lang);
+
     return [
         '@context' => 'https://schema.org',
         '@type' => 'Product',
-        '@id' => $url,
+        '@id' => $url . '#product',
         'name' => (string) ($product['label'] ?? ''),
         'sku' => (string) ($product['id'] ?? ''),
         'image' => $images,
         'description' => seo_product_description($product, $lang),
         'inLanguage' => $lang,
+        'category' => seo_product_category_name($product, $lang),
         'brand' => [
             '@type' => 'Brand',
             'name' => 'MARVISPACE',
@@ -260,13 +271,9 @@ function seo_product_jsonld(array $product, array $slugMap, ?string $lang = null
         'offers' => [
             '@type' => 'Offer',
             'url' => $url,
-            'priceCurrency' => 'USD',
-            'price' => number_format(
-                function_exists('product_unit_price') ? product_unit_price($product) : (float) ($product['price'] ?? 0),
-                2,
-                '.',
-                ''
-            ),
+            'priceCurrency' => $currency,
+            'price' => $price,
+            'priceValidUntil' => $validUntil,
             'availability' => $inStock
                 ? 'https://schema.org/InStock'
                 : 'https://schema.org/OutOfStock',
@@ -276,7 +283,78 @@ function seo_product_jsonld(array $product, array $slugMap, ?string $lang = null
                 'name' => 'MARVISPACE',
                 'url' => seo_site_url() . '/',
             ],
+            'hasMerchantReturnPolicy' => seo_return_policy(),
         ],
+        'isPartOf' => ['@id' => $home],
+    ];
+}
+
+function seo_product_category_name(array $product, ?string $lang = null): string
+{
+    if (function_exists('i18n_category_phrase')) {
+        return i18n_category_phrase($product, $lang);
+    }
+    return (string) ($product['category'] ?? 'leather apparel');
+}
+
+function seo_return_policy(): array
+{
+    return [
+        '@type' => 'MerchantReturnPolicy',
+        'applicableCountry' => 'TR',
+        'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        'merchantReturnDays' => 14,
+        'returnMethod' => 'https://schema.org/ReturnByMail',
+        'returnFees' => 'https://schema.org/ReturnShippingFees',
+    ];
+}
+
+function seo_breadcrumb_jsonld(array $product, array $slugMap, ?string $lang = null): array
+{
+    $lang = seo_lang($lang);
+    $home = seo_site_url() . seo_home_path($lang);
+    $url = seo_product_url($product, $slugMap, $lang);
+    $homeName = $lang === 'tr' ? 'Ana sayfa' : 'Home';
+    return [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            [
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => $homeName,
+                'item' => $home,
+            ],
+            [
+                '@type' => 'ListItem',
+                'position' => 2,
+                'name' => (string) ($product['label'] ?? 'MARVISPACE'),
+                'item' => $url,
+            ],
+        ],
+    ];
+}
+
+function seo_faq_jsonld(?string $lang = null): array
+{
+    $lang = seo_lang($lang);
+    $items = function_exists('i18n_home_faq') ? i18n_home_faq($lang) : [];
+    $entities = [];
+    foreach ($items as $item) {
+        $entities[] = [
+            '@type' => 'Question',
+            'name' => $item['q'],
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text' => $item['a'],
+            ],
+        ];
+    }
+    return [
+        '@context' => 'https://schema.org',
+        '@type' => 'FAQPage',
+        'inLanguage' => $lang,
+        'mainEntity' => $entities,
     ];
 }
 
@@ -389,17 +467,20 @@ function seo_apply_product_head(string $html, array $product, array $slugMap, ?s
         '.',
         ''
     );
+    $currency = function_exists('storefront_currency') ? storefront_currency() : 'TRY';
+    $symbol = function_exists('storefront_currency_symbol') ? storefront_currency_symbol($currency) : '$';
     $inject = seo_hreflang_tags($enUrl, $trUrl) . "\n"
         . '  <meta property="product:price:amount" content="' . seo_h($price) . '" />' . "\n"
-        . '  <meta property="product:price:currency" content="USD" />' . "\n"
+        . '  <meta property="product:price:currency" content="' . seo_h($currency) . '" />' . "\n"
         . '  <link rel="image_src" href="' . seo_h($image) . '" />' . "\n"
         . '  <script type="application/ld+json">' . seo_json(seo_product_jsonld($product, $slugMap, $lang)) . "</script>\n"
+        . '  <script type="application/ld+json">' . seo_json(seo_breadcrumb_jsonld($product, $slugMap, $lang)) . "</script>\n"
         . '  <script>window.__MARVISPACE_OPEN_PRODUCT__=' . seo_json($boot) . ";window.__MARVISPACE_LANG__='" . $lang . "';</script>\n";
     $html = str_replace('<!-- SEO_INJECT -->', $inject . '  <!-- SEO_INJECT -->', $html);
 
     $noscript = '<noscript><article><h1>' . seo_h($label) . '</h1>'
         . '<p>' . seo_h($description) . '</p>'
-        . '<p>$' . seo_h($price) . '</p>'
+        . '<p>' . seo_h($symbol . $price) . '</p>'
         . '<img src="' . seo_h($image) . '" alt="' . seo_h($label) . '" width="800" height="800" />'
         . '</article></noscript>';
     $html = str_replace('<!-- SEO_NOSCRIPT -->', $noscript, $html);
@@ -516,6 +597,8 @@ function seo_apply_home_itemlist(string $html, array $products, array $slugMap, 
     $trHome = seo_site_url() . seo_home_path('tr');
     $ogLocale = $lang === 'tr' ? 'tr_TR' : 'en_US';
 
+    $ogAltLocale = $lang === 'tr' ? 'en_US' : 'tr_TR';
+
     $html = seo_apply_html_lang($html, $lang);
     $html = seo_replace_tagged($html, 'title', $meta['title'], 'title');
     $html = seo_replace_tagged($html, 'description', $meta['description']);
@@ -524,12 +607,14 @@ function seo_apply_home_itemlist(string $html, array $products, array $slugMap, 
     $html = seo_replace_tagged($html, 'og-description', $meta['description']);
     $html = seo_replace_tagged($html, 'og-url', $home);
     $html = seo_replace_tagged($html, 'og-locale', $ogLocale);
+    $html = seo_replace_tagged($html, 'og-locale-alt', $ogAltLocale);
     $html = seo_replace_tagged($html, 'twitter-title', $meta['ogTitle']);
     $html = seo_replace_tagged($html, 'twitter-description', $meta['description']);
     $html = seo_replace_tagged($html, 'h1', $meta['h1'], 'text');
 
     $inject = seo_hreflang_tags($enHome, $trHome) . "\n"
         . '  <script type="application/ld+json">' . seo_json(seo_itemlist_jsonld($products, $slugMap, $lang)) . "</script>\n"
+        . '  <script type="application/ld+json">' . seo_json(seo_faq_jsonld($lang)) . "</script>\n"
         . '  <script>window.__MARVISPACE_LANG__="' . $lang . '";</script>' . "\n";
     $html = str_replace('<!-- SEO_INJECT -->', $inject . '  <!-- SEO_INJECT -->', $html);
 

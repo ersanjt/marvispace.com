@@ -83,9 +83,10 @@ export async function createOrder(order) {
   return request('/orders.php', { method: 'POST', body: { order } });
 }
 
-export async function fetchOrder(id, email = '') {
+export async function fetchOrder(id, email = '', token = '') {
   const qs = new URLSearchParams({ id });
-  if (email) qs.set('email', email);
+  if (token) qs.set('t', token);
+  else if (email) qs.set('email', email);
   return request(`/orders.php?${qs}`);
 }
 

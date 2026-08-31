@@ -69,6 +69,7 @@ function renderBanner() {
     acceptCookieConsent();
     loadAnalytics();
     banner.remove();
+    window.dispatchEvent(new CustomEvent('marvispace:cookie-decision'));
   });
 
   banner.querySelector('[data-cookie-reject]')?.addEventListener('click', () => {
@@ -78,6 +79,7 @@ function renderBanner() {
       /* ignore */
     }
     banner.remove();
+    window.dispatchEvent(new CustomEvent('marvispace:cookie-decision'));
   });
 }
 

@@ -32,9 +32,7 @@ if ($payment !== 'card') {
     json_error('Ziraat only supports card payments', 400);
 }
 
-if (empty($orderInput['id'])) {
-    $orderInput['id'] = 'ord_' . base_convert((string) (int) (microtime(true) * 1000), 10, 36);
-}
+$orderInput['id'] = order_new_id();
 
 $orderInput['paymentGateway'] = 'ziraat';
 $settings = ziraat_settings($pdo);

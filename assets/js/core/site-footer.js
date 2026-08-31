@@ -6,7 +6,8 @@
 import { subscribeNewsletter } from './api-client.js';
 import { SITE, SOCIAL } from '../config/site.js';
 import { MERCHANT_PHONE, MERCHANT_PHONE_HREF } from '../config/legal.js';
-import { t, getLang, switchLang, contactPath, privacyPath, accessibilityPath, cookiesPath, termsPath, returnsPath, kvkkPath, distancePath, preinfoPath } from './i18n.js';
+import { t, getLang, initLangSwitch, contactPath, privacyPath, accessibilityPath, cookiesPath, termsPath, returnsPath, kvkkPath, distancePath, preinfoPath } from './i18n.js';
+import { hasCookieDecision } from './cookie-consent.js';
 
 const NEWSLETTER_DISMISS_KEY = 'marvispace_newsletter_dismissed';
 
@@ -146,19 +147,11 @@ function newsletterHtml() {
 `;
 }
 
-function bindLangSwitch(footer) {
-  footer.querySelectorAll('[data-lang-switch]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      switchLang(btn.getAttribute('data-lang-switch'));
-    });
-  });
-}
-
 export function mountSiteFooter(root = document) {
   root.querySelectorAll('[data-site-footer], .site-footer').forEach(footer => {
     footer.classList.add('site-footer');
     footer.innerHTML = footerInnerHtml();
-    bindLangSwitch(footer);
+    initLangSwitch(footer);
     syncFooterAccordions(footer);
   });
 
@@ -211,50 +204,64 @@ export function mountNewsletterPopup() {
   if (isNewsletterDismissed()) return;
   if (document.querySelector('.newsletter-popup')) return;
 
-  const popup = document.createElement('aside');
-  popup.className = 'newsletter-popup';
-  popup.innerHTML = newsletterHtml();
-  document.body.append(popup);
+  const open = () => {
+    if (isNewsletterDismissed()) return;
+    if (document.querySelector('.newsletter-popup')) return;
 
-  requestAnimationFrame(() => popup.classList.add('is-visible'));
+    const popup = document.createElement('aside');
+    popup.className = 'newsletter-popup';
+    popup.innerHTML = newsletterHtml();
+    document.body.append(popup);
 
-  popup.querySelector('[data-newsletter-close]')?.addEventListener('click', () => {
-    dismissNewsletter(popup);
-  });
+    requestAnimationFrame(() => popup.classList.add('is-visible'));
 
-  const form = popup.querySelector('[data-newsletter-form]');
-  const input = popup.querySelector('.newsletter-input');
-  const button = popup.querySelector('.newsletter-btn');
-  const msg = popup.querySelector('[data-newsletter-msg]');
+    popup.querySelector('[data-newsletter-close]')?.addEventListener('click', () => {
+      dismissNewsletter(popup);
+    });
 
-  const showMessage = (text, ok) => {
-    if (!msg) return;
-    msg.hidden = false;
-    msg.textContent = text;
-    msg.classList.toggle('is-error', !ok);
+    const form = popup.querySelector('[data-newsletter-form]');
+    const input = popup.querySelector('.newsletter-input');
+    const button = popup.querySelector('.newsletter-btn');
+    const msg = popup.querySelector('[data-newsletter-msg]');
+
+    const showMessage = (text, ok) => {
+      if (!msg) return;
+      msg.hidden = false;
+      msg.textContent = text;
+      msg.classList.toggle('is-error', !ok);
+    };
+
+    form?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = (input?.value || '').trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showMessage(t('newsletterInvalid'), false);
+        input?.focus();
+        return;
+      }
+
+      if (button) button.disabled = true;
+      try {
+        await subscribeNewsletter(email);
+        form.reset();
+        showMessage(t('newsletterThanks'), true);
+        setTimeout(() => dismissNewsletter(popup), 1600);
+      } catch (err) {
+        showMessage(err.message || t('newsletterError'), false);
+      } finally {
+        if (button) button.disabled = false;
+      }
+    });
   };
 
-  form?.addEventListener('submit', async e => {
-    e.preventDefault();
-    const email = (input?.value || '').trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showMessage(t('newsletterInvalid'), false);
-      input?.focus();
-      return;
-    }
+  if (hasCookieDecision()) {
+    setTimeout(open, 600);
+    return;
+  }
 
-    if (button) button.disabled = true;
-    try {
-      await subscribeNewsletter(email);
-      form.reset();
-      showMessage(t('newsletterThanks'), true);
-      setTimeout(() => dismissNewsletter(popup), 1600);
-    } catch (err) {
-      showMessage(err.message || t('newsletterError'), false);
-    } finally {
-      if (button) button.disabled = false;
-    }
-  });
+  window.addEventListener('marvispace:cookie-decision', () => {
+    setTimeout(open, 600);
+  }, { once: true });
 }
 
 if (document.currentScript?.type === 'module') {

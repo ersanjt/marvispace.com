@@ -2,12 +2,13 @@
   "name": "MARVISPACE",
   "short_name": "MARVISPACE",
   "description": "Premium leather jackets, coats, shirts and accessories — curated mens and womens collections.",
-  "start_url": "/",
+  "start_url": "/en/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
   "lang": "en",
+  "dir": "ltr",
   "categories": ["shopping", "lifestyle", "fashion"],
   "icons": [
     {
