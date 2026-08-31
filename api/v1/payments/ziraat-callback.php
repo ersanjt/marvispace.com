@@ -54,7 +54,6 @@ if (!$order) {
     ziraat_redirect($siteUrl . '/checkout?payment=failed');
 }
 
-$email = urlencode((string) ($order['customer']['email'] ?? ''));
 $merchantPassword = ziraat_store_key($pdo);
 
 $hashOk = ziraat_verify_response_hash($post, $merchantPassword);
@@ -112,5 +111,7 @@ try {
 }
 
 ziraat_redirect(
-    $siteUrl . '/order-confirmation?id=' . urlencode($orderId) . '&email=' . $email . '&paid=1'
+    $siteUrl . '/order-confirmation?id=' . urlencode($orderId)
+        . '&t=' . urlencode(order_confirm_token($orderId))
+        . '&paid=1'
 );

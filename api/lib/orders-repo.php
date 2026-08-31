@@ -162,6 +162,37 @@ function order_store_currency(PDO $pdo): string
     return strtoupper(setting_get($pdo, 'store_currency', 'TRY'));
 }
 
+function order_new_id(): string
+{
+    return 'ord_' . bin2hex(random_bytes(8));
+}
+
+function order_confirm_secret(): string
+{
+    $config = function_exists('app_load_config') ? app_load_config() : [];
+    $secret = (string) ($config['security']['confirm_secret'] ?? '');
+    if ($secret === '') {
+        $secret = (string) ($config['db']['pass'] ?? '');
+    }
+    if ($secret === '') {
+        $secret = 'marvispace-order-confirm';
+    }
+    return $secret;
+}
+
+function order_confirm_token(string $orderId): string
+{
+    return hash_hmac('sha256', 'confirm:' . $orderId, order_confirm_secret());
+}
+
+function order_confirm_token_ok(string $orderId, string $token): bool
+{
+    if ($orderId === '' || $token === '' || !preg_match('/^[a-f0-9]{64}$/i', $token)) {
+        return false;
+    }
+    return hash_equals(order_confirm_token($orderId), $token);
+}
+
 function order_create(PDO $pdo, array $order): array
 {
     order_validate_customer($order['customer'] ?? []);
@@ -174,10 +205,9 @@ function order_create(PDO $pdo, array $order): array
 
         $customer = order_customer_from_input($order['customer'] ?? []);
         $customerJson = order_customer_to_legacy_json($customer);
-        $status = (string) ($order['status'] ?? 'pending');
-        $allowed = ['pending', 'processing', 'completed', 'shipped', 'cancelled', 'awaiting_payment'];
-        if (!in_array($status, $allowed, true)) {
-            $status = 'pending';
+        $status = 'pending';
+        if (empty($order['id']) || !is_string($order['id'])) {
+            $order['id'] = order_new_id();
         }
 
         $currency = order_store_currency($pdo);
@@ -297,6 +327,9 @@ function order_create_pending(PDO $pdo, array $order): array
         $customer = order_customer_from_input($order['customer'] ?? []);
         $customerJson = order_customer_to_legacy_json($customer);
         $currency = order_store_currency($pdo);
+        if (empty($order['id']) || !is_string($order['id'])) {
+            $order['id'] = order_new_id();
+        }
 
         if (!order_has_professional_columns($pdo)) {
             throw new RuntimeException('Payment gateway requires professional order schema');

@@ -46,9 +46,7 @@ if ($year < 100) {
     $year += 2000;
 }
 
-if (empty($orderInput['id'])) {
-    $orderInput['id'] = 'ord_' . base_convert((string) (int) (microtime(true) * 1000), 10, 36);
-}
+$orderInput['id'] = order_new_id();
 
 $orderInput['paymentGateway'] = 'paynet';
 $settings = paynet_settings($pdo);

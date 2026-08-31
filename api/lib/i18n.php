@@ -432,17 +432,59 @@ function i18n_home_meta(string $lang): array
 {
     if (i18n_normalize($lang) === 'tr') {
         return [
-            'title' => 'MARVISPACE | Premium Deri Giyim — marvispace.com',
-            'ogTitle' => 'MARVISPACE | Premium Deri Giyim',
-            'description' => 'MARVISPACE’de premium deri ceket, palto, gömlek ve aksesuar. Erkek ve kadın koleksiyonu — güvenli ödeme, 14 gün iade.',
-            'h1' => 'MARVISPACE — Premium Deri Giyim Online Mağaza',
+            'title' => 'Premium Deri Ceket ve Palto | MARVISPACE',
+            'ogTitle' => 'Premium Deri Ceketler | MARVISPACE',
+            'description' => 'İstanbul atölyesinden premium deri ceket, palto, gömlek ve aksesuar. Erkek ve kadın koleksiyonu, 3D Secure ödeme, 3–7 gün kargo, 14 gün iade.',
+            'h1' => 'MARVISPACE — İstanbul’dan Premium Deri Giyim',
         ];
     }
     return [
-        'title' => 'MARVISPACE | Premium Leather Apparel — marvispace.com',
-        'ogTitle' => 'MARVISPACE | Premium Leather Apparel',
-        'description' => 'Shop premium leather jackets, coats, shirts and accessories at MARVISPACE. Curated mens and womens collections — secure checkout, 14-day returns.',
-        'h1' => 'MARVISPACE — Premium Leather Apparel Online Store',
+        'title' => 'Premium Leather Jackets & Coats | MARVISPACE',
+        'ogTitle' => 'Premium Leather Jackets | MARVISPACE',
+        'description' => 'Shop premium leather jackets, coats, shirts and accessories from the Istanbul workshop. Men’s and women’s collections, 3D Secure checkout, 3–7 day shipping, 14-day returns.',
+        'h1' => 'MARVISPACE — Premium Leather Apparel from Istanbul',
+    ];
+}
+
+function i18n_home_faq(string $lang): array
+{
+    if (i18n_normalize($lang) === 'tr') {
+        return [
+            [
+                'q' => 'MARVISPACE deri ceketler nerede üretiliyor?',
+                'a' => 'Koleksiyon İstanbul atölyesinde üretilir. Siparişler 3–7 iş gününde kargoya verilir.',
+            ],
+            [
+                'q' => 'İade süresi nedir?',
+                'a' => 'Teslimattan sonra 14 gün içinde cayma ve iade hakkınız vardır. Koşullar iade sayfasındadır.',
+            ],
+            [
+                'q' => 'Ödeme güvenli mi?',
+                'a' => 'Kart ödemeleri 3D Secure ile Ziraat Bankası veya iyzico Paynet üzerinden alınır. Kart bilgileri sunucularımızda saklanmaz.',
+            ],
+            [
+                'q' => 'Hangi bedenleri satıyorsunuz?',
+                'a' => 'Ceket ve paltolar XS–XXL (EU 34–44) bedenlerdedir. Ürün sayfasında beden seçimi vardır.',
+            ],
+        ];
+    }
+    return [
+        [
+            'q' => 'Where are MARVISPACE leather jackets made?',
+            'a' => 'The collection is made in our Istanbul workshop. Orders usually ship within 3–7 business days.',
+        ],
+        [
+            'q' => 'What is the return window?',
+            'a' => 'You can withdraw and return within 14 days of delivery. Full terms are on the returns page.',
+        ],
+        [
+            'q' => 'Is checkout secure?',
+            'a' => 'Card payments run through 3D Secure with Ziraat Bank or iyzico Paynet. Card details are not stored on our servers.',
+        ],
+        [
+            'q' => 'Which sizes do you sell?',
+            'a' => 'Jackets and coats are available in XS–XXL (EU 34–44). Choose a size on each product page.',
+        ],
     ];
 }
 
@@ -473,11 +515,14 @@ function i18n_product_description(array $product, string $lang): string
     $gender = (($product['gender'] ?? '') === 'womens')
         ? ($tr ? 'kadın' : "women's")
         : ($tr ? 'erkek' : "men's");
+    $symbol = function_exists('storefront_currency_symbol') ? storefront_currency_symbol() : '$';
 
     if ($tr) {
-        return $label . ' — ' . $gender . ' için premium ' . $cat . '. MARVISPACE’de $'
-            . $price . '. %100 kaliteli malzeme, 3–5 iş gününde kargo, 14 gün iade.';
+        return $label . ' — ' . $gender . ' için premium ' . $cat
+            . '. İstanbul atölyesi, ' . $symbol . $price
+            . '. %100 kaliteli malzeme, 3–7 iş gününde kargo, 14 gün iade. MARVISPACE.';
     }
-    return $label . ' — premium ' . $cat . ' for ' . $gender . '. $'
-        . $price . ' at MARVISPACE. 100% premium materials, ships 3–5 business days, 14-day returns.';
+    return $label . ' — premium ' . $cat . ' for ' . $gender
+        . '. Istanbul workshop, ' . $symbol . $price
+        . '. 100% premium materials, ships 3–7 business days, 14-day returns. MARVISPACE.';
 }

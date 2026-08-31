@@ -51,6 +51,18 @@ const STRINGS = {
     accessibility: 'Accessibility',
     cookies: 'Cookies',
     tagline: 'Premium Leather Apparel',
+    langAria: 'Language',
+    filterEmpty: 'No products in this collection yet.',
+    seoStoryTitle: 'Istanbul leather apparel',
+    seoStoryLead: 'MARVISPACE designs premium leather jackets, coats, shirts and accessories in Istanbul. Shop men’s and women’s collections with 3D Secure checkout and a 14-day return window.',
+    seoFaq1Q: 'Where are MARVISPACE leather jackets made?',
+    seoFaq1A: 'The collection is made in our Istanbul workshop. Orders usually ship within 3–7 business days.',
+    seoFaq2Q: 'What is the return window?',
+    seoFaq2A: 'You can withdraw and return within 14 days of delivery. Full terms are on the returns page.',
+    seoFaq3Q: 'Is checkout secure?',
+    seoFaq3A: 'Card payments run through 3D Secure with Ziraat Bank or iyzico Paynet. Card details are not stored on our servers.',
+    seoFaq4Q: 'Which sizes do you sell?',
+    seoFaq4A: 'Jackets and coats are available in XS–XXL (EU 34–44). Choose a size on each product page.',
     trust: 'Istanbul leather workshop · 14-day returns · Secure 3D payment',
     places: 'Istanbul workshop · Alanya · Antalya',
     etbis: 'ETBİS Registry',
@@ -314,6 +326,18 @@ const STRINGS = {
     accessibility: 'Erişilebilirlik',
     cookies: 'Çerezler',
     tagline: 'Premium Deri Giyim',
+    langAria: 'Dil',
+    filterEmpty: 'Bu koleksiyonda henüz ürün yok.',
+    seoStoryTitle: 'İstanbul deri giyim',
+    seoStoryLead: 'MARVISPACE, İstanbul’da premium deri ceket, palto, gömlek ve aksesuar tasarlar. Erkek ve kadın koleksiyonu, 3D Secure ödeme ve 14 gün iade.',
+    seoFaq1Q: 'MARVISPACE deri ceketler nerede üretiliyor?',
+    seoFaq1A: 'Koleksiyon İstanbul atölyesinde üretilir. Siparişler 3–7 iş gününde kargoya verilir.',
+    seoFaq2Q: 'İade süresi nedir?',
+    seoFaq2A: 'Teslimattan sonra 14 gün içinde cayma ve iade hakkınız vardır. Koşullar iade sayfasındadır.',
+    seoFaq3Q: 'Ödeme güvenli mi?',
+    seoFaq3A: 'Kart ödemeleri 3D Secure ile Ziraat Bankası veya iyzico Paynet üzerinden alınır. Kart bilgileri sunucularımızda saklanmaz.',
+    seoFaq4Q: 'Hangi bedenleri satıyorsunuz?',
+    seoFaq4A: 'Ceket ve paltolar XS–XXL (EU 34–44) bedenlerdedir. Ürün sayfasında beden seçimi vardır.',
     trust: 'İstanbul deri atölyesi · 14 gün iade · Güvenli 3D ödeme',
     places: 'İstanbul atölye · Alanya · Antalya',
     etbis: 'ETBİS Kayıt',
@@ -730,4 +754,16 @@ export function switchLang(next) {
   const search = window.location.search || '';
   const hash = window.location.hash || '';
   window.location.href = withLang(localizeBarePath(path, lang), lang) + search + hash;
+}
+
+export function initLangSwitch(root = document) {
+  const lang = getLang();
+  root.querySelectorAll('[data-lang-switch]').forEach((btn) => {
+    const next = btn.getAttribute('data-lang-switch');
+    btn.classList.toggle('is-active', next === lang);
+    btn.setAttribute('aria-pressed', String(next === lang));
+    if (btn.dataset.langBound === '1') return;
+    btn.dataset.langBound = '1';
+    btn.addEventListener('click', () => switchLang(next));
+  });
 }

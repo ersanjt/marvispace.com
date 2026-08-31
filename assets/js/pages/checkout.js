@@ -310,9 +310,6 @@ function formatCardPan(value) {
 
 function buildOrderPayload(formData) {
   return {
-    id: `ord_${Date.now().toString(36)}`,
-    createdAt: new Date().toISOString(),
-    status: 'pending',
     items: cartItems.map(item => ({ ...item })),
     total: subtotal(),
     customer: {
@@ -359,10 +356,19 @@ function launchPaynet3ds(htmlContent, postUrl) {
   paynet3dsHost.innerHTML = '';
 
   if (htmlContent) {
-    paynet3dsHost.innerHTML = htmlContent;
-    const form = paynet3dsHost.querySelector('form');
-    if (form) form.submit();
-    return;
+    const parsed = new DOMParser().parseFromString(htmlContent, 'text/html');
+    const form = parsed.querySelector('form');
+    if (form) {
+      const fields = {};
+      form.querySelectorAll('input[name]').forEach((input) => {
+        fields[input.name] = input.value;
+      });
+      const action = form.getAttribute('action') || postUrl;
+      if (action) {
+        launchGatewayForm(action, fields);
+        return;
+      }
+    }
   }
 
   if (postUrl) {

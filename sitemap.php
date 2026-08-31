@@ -21,7 +21,6 @@ $pages = [
     ['en' => seo_privacy_path('en'), 'tr' => seo_privacy_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.4'],
     ['en' => seo_accessibility_path('en'), 'tr' => seo_accessibility_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.3'],
     ['en' => seo_cookies_path('en'), 'tr' => seo_cookies_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.4'],
-    ['en' => '/order-status', 'tr' => '/order-status', 'changefreq' => 'monthly', 'priority' => '0.5'],
     ['en' => seo_distance_path('en'), 'tr' => seo_distance_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.5'],
     ['en' => seo_preinfo_path('en'), 'tr' => seo_preinfo_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.5'],
     ['en' => seo_returns_path('en'), 'tr' => seo_returns_path('tr'), 'changefreq' => 'monthly', 'priority' => '0.5'],

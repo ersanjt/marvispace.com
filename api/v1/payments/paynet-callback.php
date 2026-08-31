@@ -48,15 +48,14 @@ if ($sessionId === '' || $tokenId === '') {
 }
 
 $order = order_get_by_gateway_session($pdo, $sessionId);
-if (!$order && $referenceNo !== '') {
-    $order = order_get($pdo, $referenceNo);
-}
 if (!$order) {
+    paynet_redirect($siteUrl . '/checkout?payment=failed');
+}
+if ($referenceNo !== '' && $referenceNo !== (string) $order['id']) {
     paynet_redirect($siteUrl . '/checkout?payment=failed');
 }
 
 $orderId = (string) $order['id'];
-$email = urlencode((string) ($order['customer']['email'] ?? ''));
 
 try {
     $charge = paynet_tds_charge($sessionId, $tokenId, paynet_settings($pdo)['mode'] ?? 'sandbox');
@@ -110,5 +109,7 @@ try {
 }
 
 paynet_redirect(
-    $siteUrl . '/order-confirmation?id=' . urlencode($orderId) . '&email=' . $email . '&paid=1'
+    $siteUrl . '/order-confirmation?id=' . urlencode($orderId)
+        . '&t=' . urlencode(order_confirm_token($orderId))
+        . '&paid=1'
 );
