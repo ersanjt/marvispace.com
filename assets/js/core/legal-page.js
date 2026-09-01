@@ -2,7 +2,7 @@
  * Shared merchant legal block for Turkish compliance pages.
  */
 import { MERCHANT, LOCATIONS, MERCHANT_PHONE_HREF } from '../config/legal.js?v=20260901-atelier';
-import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js?v=20260901-atelier';
+import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js?v=20260901-lookbook2';
 
 function esc(value) {
   return String(value || '')
