@@ -1,8 +1,8 @@
 /**
  * Shared merchant legal block for Turkish compliance pages.
  */
-import { MERCHANT, LOCATIONS, MERCHANT_PHONE_HREF } from '../config/legal.js?v=20260901-contact';
-import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js';
+import { MERCHANT, LOCATIONS, MERCHANT_PHONE_HREF } from '../config/legal.js?v=20260901-atelier';
+import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js?v=20260901-atelier';
 
 function esc(value) {
   return String(value || '')
@@ -111,6 +111,36 @@ export function mountLegalNav(root = document) {
         }).join('')}
       </nav>
     `;
+  });
+}
+
+export function atelierLineHtml() {
+  const tr = getLang() === 'tr';
+  return `
+    <div class="atelier-line__cities">
+      ${LOCATIONS.map((place) => {
+        const kind = place.kind === 'factory' ? t('locationWorkshop') : t('locationShowroom');
+        const city = tr ? (place.cityTr || place.nameTr) : (place.cityEn || place.nameEn);
+        return `
+          <article class="atelier-city">
+            <p class="atelier-city__kind">${esc(kind)}</p>
+            <h2 class="atelier-city__name">${esc(city)}</h2>
+            <p class="atelier-city__blurb">${esc(tr ? place.blurbTr : place.blurbEn)}</p>
+            <p class="atelier-city__address">${esc(place.address)}</p>
+            <a class="atelier-city__map" href="${esc(mapsUrl(place.address))}" rel="noopener noreferrer" target="_blank">${esc(t('locationMap'))}</a>
+          </article>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+export function mountContactAtelier(root = document) {
+  root.querySelectorAll('[data-atelier-line]').forEach((el) => {
+    el.innerHTML = atelierLineHtml();
+  });
+  root.querySelectorAll('[data-contact-merchant]').forEach((el) => {
+    el.innerHTML = `<dl class="contact-seller__meta">${merchantRowsHtml()}</dl>`;
   });
 }
 

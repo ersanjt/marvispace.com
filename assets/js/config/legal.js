@@ -11,6 +11,8 @@ export const MERCHANT_PHONE_HREF = 'tel:+902122949000';
 export const LOCATIONS = [
   {
     id: 'istanbul',
+    cityTr: 'İstanbul',
+    cityEn: 'Istanbul',
     kind: 'factory',
     nameTr: 'İstanbul Fabrika',
     nameEn: 'Istanbul Workshop',
@@ -22,6 +24,8 @@ export const LOCATIONS = [
   },
   {
     id: 'alanya',
+    cityTr: 'Alanya',
+    cityEn: 'Alanya',
     kind: 'store',
     nameTr: 'Alanya Mağaza',
     nameEn: 'Alanya Store',
@@ -32,6 +36,8 @@ export const LOCATIONS = [
   },
   {
     id: 'antalya',
+    cityTr: 'Antalya',
+    cityEn: 'Antalya',
     kind: 'store',
     nameTr: 'Antalya Mağaza',
     nameEn: 'Antalya Store',

@@ -1,10 +1,16 @@
 import { fetchSiteSettings, submitContact } from '../core/api-client.js';
-import { initI18n, initLangSwitch, t } from '../core/i18n.js?v=20260901-contact';
-import { mountLegalPage } from '../core/legal-page.js?v=20260901-contact';
+import { initI18n, initLangSwitch, t } from '../core/i18n.js?v=20260901-atelier';
+import { mountContactAtelier } from '../core/legal-page.js?v=20260901-atelier';
 
 await initI18n();
 initLangSwitch();
-mountLegalPage();
+mountContactAtelier();
+
+const still = document.querySelector('.contact-still img');
+if (still) still.alt = t('contactStillAlt');
+
+const atelier = document.querySelector('.atelier-line');
+if (atelier) atelier.setAttribute('aria-label', t('locationsAria'));
 
 const form = document.getElementById('contactForm');
 const status = document.getElementById('contactFormStatus');
@@ -48,6 +54,7 @@ form?.addEventListener('submit', async (e) => {
   const website = String(data.get('website') || '').trim();
 
   clearFieldErrors();
+  form.classList.remove('is-sent');
 
   if (!name || name.length < 2) {
     setStatus(t('contactRequired'), true);
@@ -77,7 +84,9 @@ form?.addEventListener('submit', async (e) => {
   try {
     await submitContact({ name, email, message, website });
     form.reset();
+    form.classList.add('is-sent');
     setStatus(t('contactThanks'));
+    status?.focus?.();
     status?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   } catch (err) {
     setStatus(err.message || t('contactError'), true);
@@ -92,12 +101,12 @@ form?.addEventListener('submit', async (e) => {
 try {
   const settings = await fetchSiteSettings();
   const wa = settings?.whatsapp;
-  const block = document.getElementById('contactWhatsApp');
+  const row = document.getElementById('contactWhatsApp');
   const link = document.getElementById('contactWhatsAppLink');
-  if (wa?.enabled && wa?.url && block && link) {
+  if (wa?.enabled && wa?.url && row && link) {
     link.href = wa.url;
     link.setAttribute('aria-label', t('whatsappAria'));
-    block.hidden = false;
+    row.hidden = false;
   }
 } catch {
   /* ignore */

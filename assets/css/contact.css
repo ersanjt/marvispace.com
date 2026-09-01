@@ -1,0 +1,456 @@
+/**
+ * MARVISPACE contact — atelier layout.
+ * Editorial split: still + copy + compose, then city line.
+ */
+
+.contact-body {
+  background: #fff;
+  color: #000;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-body .whatsapp-support {
+  display: none;
+}
+
+.contact-nav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 20px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.contact-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+
+.contact-nav__brand img {
+  width: 22px;
+  height: 22px;
+}
+
+.contact-nav__line {
+  margin: 0;
+  justify-self: center;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.4;
+  white-space: nowrap;
+}
+
+.contact-nav__end {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 10px;
+}
+
+.contact-nav__shop {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1px solid #000;
+}
+
+.contact-nav__shop:focus-visible,
+.contact-nav__brand:focus-visible,
+.contact-index a:focus-visible,
+.atelier-city__map:focus-visible,
+.contact-compose input:focus-visible,
+.contact-compose textarea:focus-visible,
+.contact-compose__send:focus-visible,
+.contact-seller summary:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 3px;
+}
+
+.contact-atelier {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 8px 24px 48px;
+}
+
+.contact-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) minmax(260px, 0.85fr);
+  gap: 40px 48px;
+  align-items: start;
+  padding: 12px 0 48px;
+}
+
+.contact-still {
+  margin: 0;
+  position: sticky;
+  top: 80px;
+}
+
+.contact-still img {
+  display: block;
+  width: 100%;
+  height: min(78vh, 760px);
+  object-fit: cover;
+  object-position: center top;
+  background: #f4f4f4;
+}
+
+.contact-kicker {
+  margin: 8px 0 12px;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.45;
+}
+
+.contact-copy h1 {
+  margin: 0 0 16px;
+  font-size: clamp(36px, 5.2vw, 68px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+  text-transform: none;
+}
+
+.contact-lead {
+  margin: 0 0 32px;
+  max-width: 36em;
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  opacity: 0.72;
+}
+
+.contact-index {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid #000;
+}
+
+.contact-index li {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  opacity: 1;
+}
+
+.contact-index li span:first-child {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  padding-top: 2px;
+}
+
+.contact-index a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.contact-index a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.contact-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 8px 0 0;
+}
+
+.contact-compose__title {
+  margin: 0 0 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.contact-compose label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 1;
+}
+
+.contact-compose input,
+.contact-compose textarea {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-bottom: 1px solid #000;
+  border-radius: 0;
+  padding: 8px 0;
+  font-family: inherit;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  background: transparent;
+}
+
+.contact-compose textarea {
+  height: auto;
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.contact-compose input[aria-invalid="true"],
+.contact-compose textarea[aria-invalid="true"] {
+  border-bottom-color: #b91c1c;
+}
+
+.contact-compose__status {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  min-height: 1.4em;
+}
+
+.contact-compose__status.is-error {
+  color: #b91c1c;
+}
+
+.contact-compose__status.is-success {
+  color: #000;
+}
+
+.contact-compose__send {
+  align-self: flex-start;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 0;
+  background: #000;
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.contact-compose__send::after {
+  content: ' →';
+}
+
+.contact-compose__send:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+
+.contact-compose.is-sent label,
+.contact-compose.is-sent .contact-compose__send {
+  display: none;
+}
+
+.contact-compose.is-sent .contact-compose__status {
+  font-size: clamp(22px, 3vw, 32px);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.atelier-line {
+  margin: 8px 0 40px;
+  padding-top: 28px;
+  border-top: 1px solid #000;
+}
+
+.atelier-line__cities {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px 32px;
+}
+
+.atelier-city__kind {
+  margin: 0 0 6px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.4;
+}
+
+.atelier-city__name {
+  margin: 0 0 10px;
+  font-size: clamp(28px, 3.4vw, 42px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-transform: none;
+}
+
+.atelier-city__blurb,
+.atelier-city__address {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+
+.atelier-city__map {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.atelier-city__map::after {
+  content: ' →';
+}
+
+.contact-seller {
+  margin: 0 0 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 8px;
+}
+
+.contact-seller summary {
+  cursor: pointer;
+  list-style: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.contact-seller summary::-webkit-details-marker {
+  display: none;
+}
+
+.contact-seller[open] summary {
+  opacity: 1;
+}
+
+.contact-seller__meta {
+  margin: 8px 0 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.contact-seller__meta div {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.contact-seller__meta dt {
+  opacity: 0.45;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.contact-seller__meta dd {
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .contact-stage {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .contact-still {
+    grid-column: 1 / -1;
+    position: static;
+  }
+
+  .contact-still img {
+    height: min(52vh, 420px);
+  }
+}
+
+@media (max-width: 720px) {
+  .contact-nav {
+    grid-template-columns: 1fr auto;
+    padding: 8px 14px;
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+
+  .contact-nav__line {
+    display: none;
+  }
+
+  .contact-atelier {
+    padding: 0 16px calc(40px + env(safe-area-inset-bottom));
+  }
+
+  .contact-stage {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-bottom: 32px;
+  }
+
+  .contact-still img {
+    height: 42vh;
+  }
+
+  .contact-copy h1 {
+    font-size: clamp(32px, 11vw, 44px);
+  }
+
+  .contact-index li {
+    grid-template-columns: 72px 1fr;
+  }
+
+  .contact-compose__send {
+    width: 100%;
+  }
+
+  .atelier-line__cities {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .contact-seller__meta div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-still {
+    position: static;
+  }
+}

@@ -22,7 +22,7 @@
   <meta property="og:locale:alternate" data-seo="og-locale-alt" content="tr_TR" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" data-seo="twitter-title" content="Contact — MARVISPACE" />
-  <meta name="twitter:description" data-seo="twitter-description" content="Contact MARVISPACE — orders, returns, and customer support." />
+  <meta name="twitter:description" data-seo="twitter-description" content="MARVISPACE — orders, returns, and customer support." />
   <meta name="twitter:image" content="https://marvispace.com/assets/images/brand/og.jpg" />
 
   <!-- SEO_INJECT -->
@@ -30,71 +30,101 @@
   <script type="module" src="/assets/js/core/favicon-loader.js"></script>
   <script type="module" src="/assets/js/core/cookie-consent.js"></script>
   <link rel="stylesheet" href="/assets/css/fonts.css?v=20260827-localfonts" />
-  <link rel="stylesheet" href="/assets/css/styles.css?v=20260829-store" />
+  <link rel="stylesheet" href="/assets/css/styles.css?v=20260831-store" />
   <link rel="stylesheet" href="/assets/css/page.css?v=20260901-contact" />
   <link rel="stylesheet" href="/assets/css/footer.css?v=20260829-store" />
+  <link rel="stylesheet" href="/assets/css/contact.css?v=20260901-atelier" />
 </head>
-<body>
+<body class="contact-body">
   <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
-  <header class="site-page-nav">
-    <a href="/" data-i18n-home data-i18n-aria="homeAria" aria-label="MARVISPACE home">
-      <img src="/assets/images/brand/mark.svg" width="18" height="18" alt="" decoding="async" />
-      MARVISPACE
+  <header class="contact-nav">
+    <a class="contact-nav__brand" href="/" data-i18n-home data-i18n-aria="homeAria" aria-label="MARVISPACE home">
+      <img src="/assets/images/brand/mark.svg" width="22" height="22" alt="" decoding="async" />
+      <span>MARVISPACE</span>
     </a>
-    <div class="site-page-nav__end">
+    <p class="contact-nav__line" data-i18n="contactNavLine">Istanbul · Alanya · Antalya</p>
+    <div class="contact-nav__end">
       <div class="nav-lang" role="group" data-i18n-aria="langAria" aria-label="Language">
         <button type="button" class="nav-lang__btn" data-lang-switch="tr" data-i18n="langTr">TR</button>
         <button type="button" class="nav-lang__btn" data-lang-switch="en" data-i18n="langEn">EN</button>
       </div>
-      <a class="site-page-nav__cart" href="/checkout" data-i18n="cartAria">Cart</a>
+      <a class="contact-nav__shop" href="/" data-i18n-home data-i18n="contactBack">Shop</a>
     </div>
   </header>
-  <main class="site-page site-page--wide site-page--contact" id="main">
-    <h1 data-seo="h1" data-i18n="contactPageTitle">Contact</h1>
-    <p class="page-lead" data-i18n="contactLead">MARVISPACE is an online leather store. Leather is made at our Istanbul Kağıthane workshop; you can see it in person at the Alanya and Antalya showrooms. Write to us about orders, returns, or payments — we reply within 1–2 business days.</p>
 
-    <ul class="contact-quick" data-i18n-aria="contactDirectAria" aria-label="Phone, email, and hours">
-      <li><span data-i18n="contactHoursShort">Mon–Fri 09:00–18:00 (TR)</span></li>
-      <li><a href="tel:+902122949000">+90 212 294 90 00</a></li>
-      <li><a href="mailto:support@marvispace.com">support@marvispace.com</a></li>
-    </ul>
+  <main class="contact-atelier" id="main">
+    <section class="contact-stage">
+      <figure class="contact-still">
+        <img
+          src="/assets/images/products/1498_RED_BLACK_02.jpg"
+          alt=""
+          data-i18n-aria="contactStillAlt"
+          width="732"
+          height="1098"
+          decoding="async"
+        />
+      </figure>
 
-    <div class="contact-channels" id="contactWhatsApp" hidden>
-      <a class="contact-whatsapp" id="contactWhatsAppLink" href="#" target="_blank" rel="noopener noreferrer" data-i18n="contactWhatsApp" data-i18n-aria="whatsappAria">
-        WhatsApp
-      </a>
-    </div>
+      <div class="contact-copy">
+        <p class="contact-kicker" data-i18n="contactKicker">Atelier</p>
+        <h1 data-seo="h1" data-i18n="contactHeadline">Visit the workshop.</h1>
+        <p class="contact-lead" data-i18n="contactLead">Leather is cut in Kağıthane. See it in Alanya and Antalya. We reply within 1–2 business days.</p>
 
-    <form class="page-form" id="contactForm" novalidate>
-      <h2 class="section-label" data-i18n="contactFormTitle">Send a message</h2>
-      <label for="contactName">
-        <span data-i18n="contactName">Name</span>
-        <input id="contactName" type="text" name="name" required autocomplete="name" maxlength="120" />
-      </label>
-      <label for="contactEmail">
-        <span data-i18n="contactEmail">Email</span>
-        <input id="contactEmail" type="email" name="email" required autocomplete="email" inputmode="email" maxlength="255" />
-      </label>
-      <label for="contactMessage">
-        <span data-i18n="contactMessage">Message</span>
-        <textarea id="contactMessage" name="message" rows="5" required maxlength="5000"></textarea>
-      </label>
-      <div class="contact-honeypot" hidden>
-        <label for="contactWebsite">Website</label>
-        <input id="contactWebsite" type="text" name="website" tabindex="-1" autocomplete="off" />
+        <ul class="contact-index" data-i18n-aria="contactDirectAria" aria-label="Phone, email, and hours">
+          <li>
+            <span data-i18n="contactPhoneLabel">Phone</span>
+            <a href="tel:+902122949000">+90 212 294 90 00</a>
+          </li>
+          <li>
+            <span data-i18n="contactEmail">Email</span>
+            <a href="mailto:support@marvispace.com">support@marvispace.com</a>
+          </li>
+          <li id="contactWhatsApp" hidden>
+            <span data-i18n="contactWhatsApp">WhatsApp</span>
+            <a id="contactWhatsAppLink" href="#" target="_blank" rel="noopener noreferrer" data-i18n="contactWhatsAppAction" data-i18n-aria="whatsappAria">Chat</a>
+          </li>
+          <li>
+            <span data-i18n="contactHoursLabel">Hours</span>
+            <span data-i18n="contactHoursShort">Mon–Fri 09:00–18:00 (TR)</span>
+          </li>
+        </ul>
       </div>
-      <p class="page-form-status" id="contactFormStatus" hidden role="status"></p>
-      <button type="submit" class="page-btn" id="contactSubmitBtn" data-i18n="contactSend">Send</button>
-    </form>
 
-    <div data-store-locations></div>
-    <div data-merchant-info></div>
-    <div data-legal-nav></div>
+      <form class="contact-compose" id="contactForm" novalidate>
+        <h2 class="contact-compose__title" data-i18n="contactFormTitle">Write to us</h2>
+        <label for="contactName">
+          <span data-i18n="contactName">Name</span>
+          <input id="contactName" type="text" name="name" required autocomplete="name" maxlength="120" />
+        </label>
+        <label for="contactEmail">
+          <span data-i18n="contactEmail">Email</span>
+          <input id="contactEmail" type="email" name="email" required autocomplete="email" inputmode="email" maxlength="255" />
+        </label>
+        <label for="contactMessage">
+          <span data-i18n="contactMessage">Message</span>
+          <textarea id="contactMessage" name="message" rows="5" required maxlength="5000"></textarea>
+        </label>
+        <div class="contact-honeypot" hidden>
+          <label for="contactWebsite">Website</label>
+          <input id="contactWebsite" type="text" name="website" tabindex="-1" autocomplete="off" />
+        </div>
+        <p class="contact-compose__status" id="contactFormStatus" hidden role="status" tabindex="-1"></p>
+        <button type="submit" class="contact-compose__send" id="contactSubmitBtn" data-i18n="contactSend">Send</button>
+      </form>
+    </section>
 
-    <a class="back-shop" href="/" data-i18n-home data-i18n="contactBack">← Back to shop</a>
+    <section class="atelier-line" aria-label="Workshop and showrooms">
+      <div data-atelier-line></div>
+    </section>
+
+    <details class="contact-seller">
+      <summary data-i18n="contactMerchantSummary">Seller information</summary>
+      <div data-contact-merchant></div>
+    </details>
   </main>
+
   <footer data-site-footer></footer>
-  <script type="module" src="/assets/js/pages/contact.js?v=20260901-contact"></script>
+  <script type="module" src="/assets/js/pages/contact.js?v=20260901-atelier"></script>
   <script type="module" src="/assets/js/core/credits.js?v=20260829-store"></script>
 </body>
 </html>
