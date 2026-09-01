@@ -4,6 +4,7 @@
  */
 import { fetchSiteSettings } from './api-client.js';
 import { t } from './i18n.js';
+import { MERCHANT_WHATSAPP } from '../config/legal.js?v=20260901-wa';
 
 const WHATSAPP_ICON = `
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -39,8 +40,10 @@ export async function initWhatsAppSupport(options = {}) {
 
   try {
     const settings = await fetchSiteSettings();
-    const wa = settings?.whatsapp;
-    if (!wa?.enabled || !wa?.phone) return;
+    let wa = settings?.whatsapp;
+    if (!wa?.enabled || !wa?.phone) {
+      wa = { enabled: true, phone: MERCHANT_WHATSAPP, message: options.message || '' };
+    }
 
     const url = options.message
       ? buildWhatsAppUrl(wa, options.message)
@@ -48,7 +51,7 @@ export async function initWhatsAppSupport(options = {}) {
     if (!url) return;
     renderButton(url);
   } catch {
-    /* API unavailable — skip widget */
+    renderButton(buildWhatsAppUrl({ phone: MERCHANT_WHATSAPP, message: options.message || '' }));
   }
 }
 

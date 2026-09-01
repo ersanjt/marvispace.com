@@ -1,6 +1,6 @@
 import { lookupOrder } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js?v=20260829-store';
-import { mountDeveloperCredit } from '../core/credits.js?v=20260901-workshop';
+import { mountDeveloperCredit } from '../core/credits.js?v=20260901-wa';
 
 const form = document.getElementById('orderLookupForm');
 const orderIdInput = document.getElementById('orderIdInput');

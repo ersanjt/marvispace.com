@@ -1,6 +1,6 @@
 import { fetchSiteSettings, submitContact } from '../core/api-client.js';
-import { initI18n, initLangSwitch, t } from '../core/i18n.js?v=20260901-workshop';
-import { mountContactAtelier } from '../core/legal-page.js?v=20260901-workshop';
+import { initI18n, initLangSwitch, t } from '../core/i18n.js?v=20260901-wa';
+import { mountContactAtelier } from '../core/legal-page.js?v=20260901-wa';
 import { loadProducts } from '../core/storage.js';
 import { buildSlugMap, productPath } from '../core/product-seo.js';
 import {

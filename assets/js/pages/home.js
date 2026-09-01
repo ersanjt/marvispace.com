@@ -1,9 +1,9 @@
 import { loadCart, loadProducts, loadSiteSettings, resetApiHealthCache, saveCart, discountPercent, salePrice } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock, setStoreCurrency, fmtMoney, getStoreCurrency } from '../modules/cart-ui.js?v=20260831-store';
-import { mountDeveloperCredit } from '../core/credits.js?v=20260901-workshop';
+import { mountDeveloperCredit } from '../core/credits.js?v=20260901-wa';
 import { SITE } from '../config/site.js';
 import { buildSlugMap, productPath, productUrl } from '../core/product-seo.js';
-import { initI18n, applyDomI18n, t, homePath, initLangSwitch } from '../core/i18n.js?v=20260901-workshop';
+import { initI18n, applyDomI18n, t, homePath, initLangSwitch } from '../core/i18n.js?v=20260901-wa';
 import { trackAddToCart, trackViewItem } from '../core/analytics-events.js?v=20260829-store';
 import {
   appendOptimizedPicture,

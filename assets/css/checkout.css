@@ -1078,6 +1078,18 @@ button, input, select, textarea {
   box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
 }
 
+.whatsapp-support::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #bbf7d0;
+  box-shadow: 0 0 0 2px #25d366;
+}
+
 .whatsapp-support svg {
   width: 22px;
   height: 22px;

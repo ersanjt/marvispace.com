@@ -13,7 +13,7 @@ export const SITE = {
   domain: 'marvispace.com',
   url: 'https://marvispace.com',
   supportEmail: 'support@marvispace.com',
-  phone: '+90 212 294 90 00',
+  phone: '+90 501 067 64 86',
   locale: 'en_US',
   themeColor: '#0a0a0a',
   brand: {

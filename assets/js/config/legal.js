@@ -5,8 +5,9 @@
  */
 import { SITE } from './site.js';
 
-export const MERCHANT_PHONE = '+90 212 294 90 00';
-export const MERCHANT_PHONE_HREF = 'tel:+902122949000';
+export const MERCHANT_PHONE = '+90 501 067 64 86';
+export const MERCHANT_PHONE_HREF = 'tel:+905010676486';
+export const MERCHANT_WHATSAPP = '905010676486';
 
 export const LOCATIONS = [
   {

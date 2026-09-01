@@ -1,6 +1,6 @@
 import { consumeOrderConfirmContext, lookupOrder } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock } from '../modules/cart-ui.js?v=20260829-store';
-import { mountDeveloperCredit } from '../core/credits.js?v=20260901-workshop';
+import { mountDeveloperCredit } from '../core/credits.js?v=20260901-wa';
 import { SITE } from '../config/site.js';
 import { trackPurchase } from '../core/analytics-events.js?v=20260829-store';
 

@@ -673,6 +673,18 @@ body:has(.cookie-consent):has(.newsletter-popup.is-visible) .whatsapp-support {
   transition: transform 0.2s ease, box-shadow 0.2s ease, bottom 0.25s ease;
 }
 
+.whatsapp-support::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #bbf7d0;
+  box-shadow: 0 0 0 2px #25d366;
+}
+
 .whatsapp-support:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 28px rgba(37, 211, 102, 0.42);

@@ -1,8 +1,8 @@
 /**
  * Shared merchant legal block for Turkish compliance pages.
  */
-import { MERCHANT, publicLocations, MERCHANT_PHONE_HREF } from '../config/legal.js?v=20260901-workshop';
-import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js?v=20260901-workshop';
+import { MERCHANT, publicLocations, MERCHANT_PHONE_HREF } from '../config/legal.js?v=20260901-wa';
+import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js?v=20260901-wa';
 
 function esc(value) {
   return String(value || '')
