@@ -75,6 +75,8 @@ export async function mountDeveloperCredit(root = document) {
   mountPageCredit(root);
 }
 
-if (document.currentScript?.type === 'module') {
+if ([...document.querySelectorAll('script[type="module"]')].some((script) =>
+  (script.getAttribute('src') || '').includes('/assets/js/core/credits.js')
+)) {
   void mountDeveloperCredit();
 }

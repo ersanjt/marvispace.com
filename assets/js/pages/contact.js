@@ -1,5 +1,6 @@
 import { fetchSiteSettings, submitContact } from '../core/api-client.js';
 import { initI18n, initLangSwitch, t } from '../core/i18n.js?v=20260901-wa';
+import { mountDeveloperCredit } from '../core/credits.js?v=20260901-wa2';
 import { mountContactAtelier } from '../core/legal-page.js?v=20260901-wa';
 import { loadProducts } from '../core/storage.js';
 import { buildSlugMap, productPath } from '../core/product-seo.js';
@@ -12,6 +13,7 @@ import {
 await initI18n();
 initLangSwitch();
 mountContactAtelier();
+await mountDeveloperCredit();
 
 const still = document.querySelector('.contact-still img');
 if (still) still.alt = t('contactStillAlt');
