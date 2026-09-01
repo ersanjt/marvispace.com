@@ -78,13 +78,18 @@ export function bindImageReveal(img, fallbackSrc = '') {
   }
 
   // Native loading="lazy" often reports complete=true with 0×0 *before*
-  // the fetch starts. Treating that as an error leaves the card blank
-  // (opacity: 0, no load event) until a full cache-busting reload.
+  // the fetch starts. Only treat visible cards as stuck so off-screen
+  // lazy images are not forced to the original file too early.
   window.setTimeout(() => {
     if (revealed) return;
-    if (img.naturalWidth > 0) reveal();
-    else fallBackToOriginal();
-  }, 4000);
+    if (img.naturalWidth > 0) {
+      reveal();
+      return;
+    }
+    const rect = img.getBoundingClientRect();
+    const inView = rect.bottom > 0 && rect.top < (window.innerHeight || 0) + 240;
+    if (inView) fallBackToOriginal();
+  }, 1800);
 }
 
 export function prefetchOptimizedImage(src, width = PREVIEW_WIDTHS[1]) {

@@ -118,6 +118,19 @@ function image_resize_redirect_original(string $src): void
     header('Location: ' . $src, true, 302);
 }
 
+/** WebP <source> must not 302 to a JPEG original — browsers drop the image. */
+function image_resize_fail_or_redirect(string $src, string $format): void
+{
+    if ($format === 'webp') {
+        http_response_code(415);
+        header('Cache-Control: no-store');
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'WebP conversion unavailable';
+        return;
+    }
+    image_resize_redirect_original($src);
+}
+
 function image_resize_handle_request(): void
 {
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
@@ -128,23 +141,10 @@ function image_resize_handle_request(): void
     }
 
     // Large camera JPEGs (8–12MB) need more RAM than default PHP limits.
-    @ini_set('memory_limit', '512M');
-    @ini_set('max_execution_time', '60');
+    @ini_set('memory_limit', '1024M');
+    @ini_set('max_execution_time', '90');
 
     $src = (string) ($_GET['src'] ?? '');
-
-    if (!extension_loaded('gd')) {
-        $resolved = image_resize_resolve_source($src);
-        if ($resolved) {
-            image_resize_redirect_original($src);
-            return;
-        }
-        http_response_code(503);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['ok' => false, 'error' => 'Image processing unavailable']);
-        return;
-    }
-
     $width = (int) ($_GET['w'] ?? 560);
     $width = max(48, min(1920, $width));
     $quality = (int) ($_GET['q'] ?? 85);
@@ -153,8 +153,23 @@ function image_resize_handle_request(): void
     if (!in_array($format, ['webp', 'jpeg', 'jpg'], true)) {
         $format = 'webp';
     }
-    if ($format === 'webp' && !function_exists('imagewebp')) {
+
+    $hasGd = extension_loaded('gd');
+    $hasImagick = extension_loaded('imagick') && class_exists('Imagick');
+    if ($format === 'webp' && $hasGd && !function_exists('imagewebp') && !$hasImagick) {
         $format = 'jpeg';
+    }
+
+    if (!$hasGd && !$hasImagick) {
+        $resolved = image_resize_resolve_source($src);
+        if ($resolved) {
+            image_resize_fail_or_redirect($src, $format);
+            return;
+        }
+        http_response_code(503);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['ok' => false, 'error' => 'Image processing unavailable']);
+        return;
     }
 
     $sourcePath = image_resize_resolve_source($src);
@@ -177,20 +192,14 @@ function image_resize_handle_request(): void
     // Prefer Imagick for huge sources when available (lower peak memory).
     $bytes = image_resize_with_imagick($sourcePath, $width, $format, $quality);
     if ($bytes === null) {
-        $info = @getimagesize($sourcePath);
-        $fileSize = (int) (@filesize($sourcePath) ?: 0);
-        $pixels = (int) (($info[0] ?? 0) * ($info[1] ?? 0));
-        // GD fatals (OOM) on large camera JPEGs — skip and serve original.
-        $tooLargeForGd = $fileSize > 3_500_000 || $pixels > 14_000_000;
-        if ($tooLargeForGd) {
-            image_resize_redirect_original($src);
+        if (!$hasGd) {
+            image_resize_fail_or_redirect($src, $format);
             return;
         }
 
         $loaded = image_resize_load($sourcePath);
         if ($loaded === null) {
-            // Serve original instead of blank/500 so the storefront still shows the product.
-            image_resize_redirect_original($src);
+            image_resize_fail_or_redirect($src, $format);
             return;
         }
 
@@ -202,7 +211,7 @@ function image_resize_handle_request(): void
     }
 
     if ($bytes === null) {
-        image_resize_redirect_original($src);
+        image_resize_fail_or_redirect($src, $format);
         return;
     }
 

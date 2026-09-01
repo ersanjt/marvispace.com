@@ -3,10 +3,10 @@
  * @project MARVISPACE
  * @author Ersan JT <https://github.com/ersanjt>
  */
-import { cartImageUrl, bindImageReveal, CART_SIZES, CART_WIDTHS, buildSrcset } from '../core/image-url.js?v=20260829-store';
+import { cartImageUrl, bindImageReveal, CART_SIZES, CART_WIDTHS, buildSrcset } from '../core/image-url.js?v=20260901-img';
 import { t } from '../core/i18n.js';
 
-export { cartImageUrl } from '../core/image-url.js?v=20260829-store';
+export { cartImageUrl } from '../core/image-url.js?v=20260901-img';
 
 let storeCurrency = 'USD';
 

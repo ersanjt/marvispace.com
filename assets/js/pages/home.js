@@ -12,7 +12,7 @@ import {
   PREVIEW_WIDTHS,
   GRID_SIZES,
   GRID_WIDTHS,
-} from '../core/image-url.js?v=20260829-store';
+} from '../core/image-url.js?v=20260901-img';
 
 /* ════════════════════════════════════
    DOM refs
