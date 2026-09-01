@@ -9,6 +9,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: clip;
 }
 
 .contact-body .whatsapp-support {
@@ -111,6 +112,8 @@
   margin: 0;
   position: sticky;
   top: 80px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .contact-still__viewport {
@@ -524,7 +527,15 @@
   }
 
   .contact-still__viewport {
-    height: min(52vh, 420px);
+    height: min(46dvh, 380px);
+    max-height: calc(100dvh - 16rem);
+    aspect-ratio: auto;
+  }
+
+  .contact-still__pic img,
+  .contact-still__img {
+    object-fit: contain;
+    object-position: center center;
   }
 }
 
@@ -550,7 +561,47 @@
   }
 
   .contact-still__viewport {
-    height: 42vh;
+    height: min(36dvh, 280px);
+    max-height: calc(100svh - 15rem);
+  }
+
+  .contact-still__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+
+  .contact-still__kicker {
+    display: none;
+  }
+
+  .contact-still__name {
+    white-space: nowrap;
+  }
+
+  .contact-still__controls {
+    grid-column: auto;
+    grid-row: auto;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .contact-still__btn {
+    min-width: 44px;
+    flex: 0 0 auto;
+  }
+
+  .contact-still__btn--text {
+    flex: 1 1 auto;
+  }
+
+  .contact-still__ticks {
+    margin-top: 2px;
+  }
+
+  .contact-still__ticks button {
+    min-height: 28px;
   }
 
   .contact-copy h1 {
