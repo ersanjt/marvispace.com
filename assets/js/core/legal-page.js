@@ -1,7 +1,7 @@
 /**
  * Shared merchant legal block for Turkish compliance pages.
  */
-import { MERCHANT, LOCATIONS, MERCHANT_PHONE_HREF } from '../config/legal.js';
+import { MERCHANT, LOCATIONS, MERCHANT_PHONE_HREF } from '../config/legal.js?v=20260901-contact';
 import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js';
 
 function esc(value) {
@@ -91,17 +91,24 @@ export function mountStoreLocations(root = document) {
 }
 
 export function mountLegalNav(root = document) {
+  const here = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
   root.querySelectorAll('[data-legal-nav]').forEach(el => {
+    const links = [
+      [kvkkPath(), 'KVKK'],
+      [termsPath(), t('terms')],
+      [privacyPath(), t('privacy')],
+      [cookiesPath(), t('cookiePolicy')],
+      [distancePath(), t('legalDistanceSales')],
+      [preinfoPath(), t('legalPreInfo')],
+      [returnsPath(), t('returns')],
+      [contactPath(), t('contact')],
+    ];
     el.innerHTML = `
       <nav class="legal-nav" aria-label="${esc(t('legalNavAria'))}">
-        <a href="${kvkkPath()}">KVKK</a>
-        <a href="${termsPath()}">${esc(t('terms'))}</a>
-        <a href="${privacyPath()}">${esc(t('privacy'))}</a>
-        <a href="${cookiesPath()}">${esc(t('cookiePolicy'))}</a>
-        <a href="${distancePath()}">${esc(t('legalDistanceSales'))}</a>
-        <a href="${preinfoPath()}">${esc(t('legalPreInfo'))}</a>
-        <a href="${returnsPath()}">${esc(t('returns'))}</a>
-        <a href="${contactPath()}">${esc(t('contact'))}</a>
+        ${links.map(([href, label]) => {
+          const current = href.replace(/\/+$/, '') === here;
+          return `<a href="${esc(href)}"${current ? ' aria-current="page"' : ''}>${esc(label)}</a>`;
+        }).join('')}
       </nav>
     `;
   });

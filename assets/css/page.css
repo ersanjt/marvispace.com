@@ -55,6 +55,18 @@ body:has(.site-page) {
   margin-right: 0 !important;
 }
 
+.site-page-nav__end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-page-nav .nav-lang__btn {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.site-page-nav__cart,
 .site-page-nav a:last-child {
   padding: 0 12px;
   border: 1px solid rgba(0, 0, 0, 0.14);
@@ -232,6 +244,24 @@ body:has(.site-page) {
   color: #b91c1c;
 }
 
+.page-form-status.is-success {
+  color: #166534;
+}
+
+.page-form input:focus-visible,
+.page-form textarea:focus-visible,
+.page-btn:focus-visible,
+.contact-whatsapp:focus-visible,
+.contact-quick a:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+.page-form input[aria-invalid="true"],
+.page-form textarea[aria-invalid="true"] {
+  border-color: #b91c1c;
+}
+
 .contact-honeypot {
   position: absolute !important;
   left: -9999px !important;
@@ -329,6 +359,12 @@ body:has(.site-page) {
 }
 
 .legal-nav a:hover { opacity: 1; }
+
+.legal-nav a[aria-current="page"] {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 
 .merchant-info {
   margin: 24px 0 32px;
@@ -475,7 +511,28 @@ body:has(.site-page) {
 }
 
 .contact-channels {
-  margin: 0 0 24px;
+  margin: 0 0 8px;
+}
+
+.contact-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.contact-quick li,
+.contact-quick a {
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.contact-quick a {
+  color: inherit;
 }
 
 .contact-whatsapp {
@@ -495,4 +552,18 @@ body:has(.site-page) {
 
 .contact-whatsapp:hover {
   opacity: 0.92;
+}
+
+.site-page--contact h1 {
+  font-size: 14px;
+  letter-spacing: 0.14em;
+}
+
+.site-page--contact .page-form {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.site-page--contact .page-form .section-label {
+  margin-top: 0;
 }
