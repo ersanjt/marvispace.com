@@ -4,10 +4,10 @@
  */
 
 import { DEVELOPER } from '../config/site.js';
-import { mountSiteFooter } from './site-footer.js';
+import { mountSiteFooter } from './site-footer.js?v=20260901-workshop';
 import { initCookieConsent } from './cookie-consent.js';
 import { initWhatsAppSupport } from './whatsapp-support.js';
-import { initI18n, applyDomI18n, t } from './i18n.js';
+import { initI18n, applyDomI18n, t } from './i18n.js?v=20260901-workshop';
 
 export function createDeveloperCreditElement() {
   const credit = document.createElement('aside');

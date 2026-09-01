@@ -1,6 +1,6 @@
 /**
  * Turkish merchant / legal identity — MARVISPACE online store.
- * Leather is produced at the Istanbul workshop; Alanya and Antalya are showrooms.
+ * Leather is produced at the Istanbul workshop.
  * @project MARVISPACE
  */
 import { SITE } from './site.js';
@@ -14,6 +14,7 @@ export const LOCATIONS = [
     cityTr: 'İstanbul',
     cityEn: 'Istanbul',
     kind: 'factory',
+    listed: true,
     nameTr: 'İstanbul Fabrika',
     nameEn: 'Istanbul Workshop',
     blurbTr: 'MARVISPACE deri ürünlerinin üretildiği atölye.',
@@ -27,6 +28,7 @@ export const LOCATIONS = [
     cityTr: 'Alanya',
     cityEn: 'Alanya',
     kind: 'store',
+    listed: false,
     nameTr: 'Alanya Mağaza',
     nameEn: 'Alanya Store',
     blurbTr: 'Akdeniz showroom’u — deri ceketleri yerinde görün.',
@@ -39,6 +41,7 @@ export const LOCATIONS = [
     cityTr: 'Antalya',
     cityEn: 'Antalya',
     kind: 'store',
+    listed: false,
     nameTr: 'Antalya Mağaza',
     nameEn: 'Antalya Store',
     blurbTr: 'Kepez showroom’u — deriyi yerinde deneyin.',
@@ -47,6 +50,10 @@ export const LOCATIONS = [
     email: SITE.supportEmail,
   },
 ];
+
+export function publicLocations() {
+  return LOCATIONS.filter((place) => place.listed !== false);
+}
 
 export const MERCHANT = {
   brand: SITE.name,

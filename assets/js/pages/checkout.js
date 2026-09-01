@@ -14,7 +14,7 @@ import {
 } from '../core/storage.js';
 import { buildCartLineItem, renderTotalsBlock, setStoreCurrency, fmtMoney } from '../modules/cart-ui.js?v=20260829-store';
 import { initWhatsAppSupport } from '../core/whatsapp-support.js';
-import { mountDeveloperCredit } from '../core/credits.js';
+import { mountDeveloperCredit } from '../core/credits.js?v=20260901-workshop';
 import { initI18n, applyDomI18n, t, homePath } from '../core/i18n.js';
 import { trackBeginCheckout } from '../core/analytics-events.js?v=20260829-store';
 

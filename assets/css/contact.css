@@ -424,8 +424,9 @@
 
 .atelier-line__cities {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 28px 32px;
+  max-width: 36em;
 }
 
 .atelier-city__kind {

@@ -257,14 +257,14 @@ function i18n_contact_meta(string $lang): array
         return [
             'title' => 'İletişim — MARVISPACE',
             'ogTitle' => 'İletişim — MARVISPACE',
-            'description' => 'MARVISPACE iletişim. İstanbul Kağıthane deri atölyesi, Alanya ve Antalya mağazaları. Sipariş, iade ve müşteri hizmetleri — 1–2 iş günü içinde yanıt.',
+            'description' => 'MARVISPACE iletişim. İstanbul Kağıthane deri atölyesi. Sipariş, iade ve müşteri hizmetleri — 1–2 iş günü içinde yanıt.',
             'h1' => 'Atölyeyi ziyaret edin.',
         ];
     }
     return [
         'title' => 'Contact — MARVISPACE',
         'ogTitle' => 'Contact — MARVISPACE',
-        'description' => 'Contact MARVISPACE. Istanbul Kağıthane leather workshop, Alanya and Antalya showrooms. Orders, returns, and customer support — we reply within 1–2 business days.',
+        'description' => 'Contact MARVISPACE. Istanbul Kağıthane leather workshop. Orders, returns, and customer support — we reply within 1–2 business days.',
         'h1' => 'Visit the workshop.',
     ];
 }

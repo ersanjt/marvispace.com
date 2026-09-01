@@ -1,8 +1,8 @@
 /**
  * Shared merchant legal block for Turkish compliance pages.
  */
-import { MERCHANT, LOCATIONS, MERCHANT_PHONE_HREF } from '../config/legal.js?v=20260901-atelier';
-import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js?v=20260901-lookbook2';
+import { MERCHANT, publicLocations, MERCHANT_PHONE_HREF } from '../config/legal.js?v=20260901-workshop';
+import { contactPath, cookiesPath, distancePath, getLang, kvkkPath, preinfoPath, privacyPath, returnsPath, t, termsPath } from './i18n.js?v=20260901-workshop';
 
 function esc(value) {
   return String(value || '')
@@ -53,7 +53,7 @@ export function locationsHtml() {
       <h2 class="section-label">${esc(t('locationsTitle'))}</h2>
       <p class="store-locations__lead">${esc(t('locationsLead'))}</p>
       <div class="store-locations__grid">
-        ${LOCATIONS.map(place => `
+        ${publicLocations().map(place => `
           <article class="store-location">
             <h3>${esc(tr ? place.nameTr : place.nameEn)}</h3>
             <p class="store-location__blurb">${esc(tr ? place.blurbTr : place.blurbEn)}</p>
@@ -118,7 +118,7 @@ export function atelierLineHtml() {
   const tr = getLang() === 'tr';
   return `
     <div class="atelier-line__cities">
-      ${LOCATIONS.map((place) => {
+      ${publicLocations().map((place) => {
         const kind = place.kind === 'factory' ? t('locationWorkshop') : t('locationShowroom');
         const city = tr ? (place.cityTr || place.nameTr) : (place.cityEn || place.nameEn);
         return `

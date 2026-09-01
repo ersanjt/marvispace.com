@@ -6,7 +6,7 @@
 import { subscribeNewsletter } from './api-client.js';
 import { SITE, SOCIAL } from '../config/site.js';
 import { MERCHANT_PHONE, MERCHANT_PHONE_HREF } from '../config/legal.js';
-import { t, getLang, initLangSwitch, contactPath, privacyPath, accessibilityPath, cookiesPath, termsPath, returnsPath, kvkkPath, distancePath, preinfoPath } from './i18n.js';
+import { t, getLang, initLangSwitch, contactPath, privacyPath, accessibilityPath, cookiesPath, termsPath, returnsPath, kvkkPath, distancePath, preinfoPath } from './i18n.js?v=20260901-workshop';
 import { hasCookieDecision } from './cookie-consent.js';
 
 const NEWSLETTER_DISMISS_KEY = 'marvispace_newsletter_dismissed';
