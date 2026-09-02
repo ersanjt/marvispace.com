@@ -1004,7 +1004,7 @@ function renderSettings() {
 
     if (enabledEl) enabledEl.checked = !!paynet.enabled;
     if (modeEl) modeEl.value = paynet.mode === 'live' ? 'live' : 'sandbox';
-    if (currencyEl) currencyEl.value = paynet.currency || 'TRY';
+    if (currencyEl) currencyEl.value = paynet.currency || 'USD';
     if (domainEl) domainEl.value = paynet.domain || 'marvispace.com';
     if (pubEl) pubEl.value = paynet.publishableKey || '';
     if (instalmentEl) instalmentEl.checked = !!paynet.instalment;
@@ -1040,7 +1040,7 @@ function renderSettings() {
 
     if (enabledEl) enabledEl.checked = !!ziraat.enabled;
     if (modeEl) modeEl.value = ziraat.mode === 'test' ? 'test' : 'live';
-    if (currencyEl) currencyEl.value = ziraat.currency || 'TRY';
+    if (currencyEl) currencyEl.value = ziraat.currency || 'USD';
     if (merchantEl) merchantEl.value = ziraat.merchantId || '192868559';
     if (instalmentEl) instalmentEl.checked = !!ziraat.instalment;
     if (panelUrlEl) panelUrlEl.value = ziraat.panelUrl || 'https://sanalpos2.ziraatbank.com.tr';
@@ -2309,7 +2309,7 @@ paynetSettingsForm?.addEventListener('submit', async e => {
     const payload = {
       enabled: document.getElementById('paynetEnabled')?.checked || false,
       mode: document.getElementById('paynetMode')?.value || 'sandbox',
-      currency: document.getElementById('paynetCurrency')?.value || 'TRY',
+      currency: document.getElementById('paynetCurrency')?.value || 'USD',
       domain: document.getElementById('paynetDomain')?.value?.trim() || 'marvispace.com',
       publishableKey: document.getElementById('paynetPublishableKey')?.value?.trim() || '',
       instalment: document.getElementById('paynetInstalment')?.checked || false,
@@ -2333,7 +2333,7 @@ ziraatSettingsForm?.addEventListener('submit', async e => {
     const payload = {
       enabled: document.getElementById('ziraatEnabled')?.checked || false,
       mode: document.getElementById('ziraatMode')?.value || 'live',
-      currency: document.getElementById('ziraatCurrency')?.value || 'TRY',
+      currency: document.getElementById('ziraatCurrency')?.value || 'USD',
       merchantId: document.getElementById('ziraatMerchantId')?.value?.trim() || '',
       panelUrl: document.getElementById('ziraatPanelUrl')?.value?.trim() || '',
       panelUser: document.getElementById('ziraatPanelUser')?.value?.trim() || '',

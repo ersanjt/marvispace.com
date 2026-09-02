@@ -159,7 +159,7 @@ function order_store_currency(PDO $pdo): string
     if (!function_exists('setting_get')) {
         require_once __DIR__ . '/settings-repo.php';
     }
-    return strtoupper(setting_get($pdo, 'store_currency', 'TRY'));
+    return strtoupper(setting_get($pdo, 'store_currency', 'USD'));
 }
 
 function order_new_id(): string

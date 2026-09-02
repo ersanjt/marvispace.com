@@ -71,7 +71,7 @@ export const MERCHANT = {
   authorizedPerson: '',
   deliveryDays: '3–7 iş günü',
   cargoCompany: 'Türkiye içi kargo',
-  currency: 'TRY',
+  currency: 'USD',
   vatIncluded: true,
   vatRate: 10,
   locations: LOCATIONS,

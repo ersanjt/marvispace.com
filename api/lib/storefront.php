@@ -57,7 +57,7 @@ function storefront_currency(): string
         return $currency;
     }
 
-    $currency = 'TRY';
+    $currency = 'USD';
     require_once __DIR__ . '/config.php';
     $config = app_load_config();
     if (!empty($config['db'])) {
@@ -65,7 +65,7 @@ function storefront_currency(): string
             require_once __DIR__ . '/db.php';
             require_once __DIR__ . '/settings-repo.php';
             $pdo = db_connect($config['db']);
-            $code = strtoupper(setting_get($pdo, 'store_currency', 'TRY'));
+            $code = strtoupper(setting_get($pdo, 'store_currency', 'USD'));
             if (preg_match('/^[A-Z]{3}$/', $code)) {
                 $currency = $code;
             }

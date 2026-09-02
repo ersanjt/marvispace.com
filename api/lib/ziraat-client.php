@@ -145,7 +145,7 @@ function ziraat_build_payment_fields(array $settings, array $params): array
         throw new InvalidArgumentException('Invalid Ziraat payment parameters');
     }
 
-    $currency = (string) ($settings['currency'] ?? 'TRY');
+    $currency = (string) ($settings['currency'] ?? 'USD');
     $currencyCode = ziraat_currency_code($currency);
     $okUrl = (string) ($params['ok_url'] ?? '');
     $failUrl = (string) ($params['fail_url'] ?? '');

@@ -244,7 +244,7 @@ function seo_product_jsonld(array $product, array $slugMap, ?string $lang = null
     }
 
     $inStock = ($product['inStock'] ?? true) !== false;
-    $currency = function_exists('storefront_currency') ? storefront_currency() : 'TRY';
+    $currency = function_exists('storefront_currency') ? storefront_currency() : 'USD';
     $price = number_format(
         function_exists('product_unit_price') ? product_unit_price($product) : (float) ($product['price'] ?? 0),
         2,
@@ -467,7 +467,7 @@ function seo_apply_product_head(string $html, array $product, array $slugMap, ?s
         '.',
         ''
     );
-    $currency = function_exists('storefront_currency') ? storefront_currency() : 'TRY';
+    $currency = function_exists('storefront_currency') ? storefront_currency() : 'USD';
     $symbol = function_exists('storefront_currency_symbol') ? storefront_currency_symbol($currency) : '$';
     $inject = seo_hreflang_tags($enUrl, $trUrl) . "\n"
         . '  <meta property="product:price:amount" content="' . seo_h($price) . '" />' . "\n"

@@ -29,7 +29,7 @@ function ziraat_settings(PDO $pdo): array
         'mode' => setting_get($pdo, 'ziraat_mode', 'live') === 'test' ? 'test' : 'live',
         'merchantId' => $merchantId,
         'instalment' => setting_get($pdo, 'ziraat_instalment', '0') === '1',
-        'currency' => strtoupper(setting_get($pdo, 'store_currency', 'TRY')),
+        'currency' => strtoupper(setting_get($pdo, 'store_currency', 'USD')),
         'panelUrl' => setting_get($pdo, 'ziraat_panel_url', 'https://sanalpos2.ziraatbank.com.tr'),
         'panelUser' => setting_get($pdo, 'ziraat_panel_user', 'marvisadmin'),
         'securityCode' => setting_get($pdo, 'ziraat_security_code', 'OTLN'),

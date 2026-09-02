@@ -20,7 +20,7 @@ function paynet_settings(PDO $pdo): array
         'domain' => setting_get($pdo, 'paynet_domain', 'marvispace.com'),
         'publishableKey' => $publishable,
         'instalment' => setting_get($pdo, 'paynet_instalment', '0') === '1',
-        'currency' => strtoupper(setting_get($pdo, 'store_currency', 'TRY')),
+        'currency' => strtoupper(setting_get($pdo, 'store_currency', 'USD')),
         'secretConfigured' => $secret !== '',
     ];
 }
